@@ -14,9 +14,11 @@ xcuserdata/
 # Build
 build/
 DerivedData/
+dist/
 *.ipa
 *.dSYM.zip
 *.dSYM
+*.dmg
 
 # CocoaPods
 Pods/
