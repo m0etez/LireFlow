@@ -378,22 +378,202 @@ struct BackupSettingsView: View {
 // MARK: - General Settings View
 
 struct GeneralSettingsView: View {
+    @ObservedObject var configService = ConfigService.shared
+
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "gearshape")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // Appearance Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "paintbrush")
+                            .font(.title2)
+                            .foregroundStyle(.blue)
 
-            Text("General settings coming soon...")
-                .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Appearance")
+                                .font(.headline)
 
-            Text("Future updates will include preferences for refresh intervals, appearance, and more.")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+                            Text("Customize the look and feel of LireFlow")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Toggle("Dark Mode", isOn: $configService.config.isDarkMode)
+                        .help("Switch between light and dark appearance")
+
+                    Toggle("Show Unread Count", isOn: $configService.config.showUnreadCount)
+                        .help("Display unread article counts in sidebar")
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // Reading Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "book")
+                            .font(.title2)
+                            .foregroundStyle(.green)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Reading")
+                                .font(.headline)
+
+                            Text("Configure article reading preferences")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Article Font Size:")
+                            Spacer()
+                            Text("\(configService.config.articleFontSize)pt")
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Slider(value: Binding(
+                            get: { Double(configService.config.articleFontSize) },
+                            set: { configService.config.articleFontSize = Int($0) }
+                        ), in: 12...24, step: 1)
+                    }
+
+                    Toggle("Mark as Read on Scroll", isOn: $configService.config.markAsReadOnScroll)
+                        .help("Automatically mark articles as read when scrolling past them")
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // Feeds Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.title2)
+                            .foregroundStyle(.orange)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Feeds")
+                                .font(.headline)
+
+                            Text("Feed refresh and organization settings")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Refresh Interval:")
+                            Spacer()
+                            Text("\(configService.config.refreshIntervalMinutes) minutes")
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Slider(value: Binding(
+                            get: { Double(configService.config.refreshIntervalMinutes) },
+                            set: { configService.config.refreshIntervalMinutes = Int($0) }
+                        ), in: 5...120, step: 5)
+                    }
+
+                    HStack {
+                        Text("Default Feed Category:")
+                        Spacer()
+                        TextField("Category", text: $configService.config.defaultFeedCategory)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(maxWidth: 200)
+                    }
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // Weather Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "cloud.sun")
+                            .font(.title2)
+                            .foregroundStyle(.cyan)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Weather Widget")
+                                .font(.headline)
+
+                            Text("Configure weather display in sidebar")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Toggle("Show Weather Widget", isOn: $configService.config.showWeather)
+                        .help("Display weather information in the sidebar")
+
+                    HStack {
+                        Text("Location:")
+                        Spacer()
+                        TextField("Auto-detect", text: Binding(
+                            get: { configService.config.weatherLocation ?? "" },
+                            set: { configService.config.weatherLocation = $0.isEmpty ? nil : $0 }
+                        ))
+                        .textFieldStyle(.roundedBorder)
+                        .frame(maxWidth: 200)
+                    }
+                    .disabled(!configService.config.showWeather)
+
+                    Text("Leave empty to auto-detect your location")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                // Advanced Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "doc.text")
+                            .font(.title2)
+                            .foregroundStyle(.purple)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Advanced")
+                                .font(.headline)
+
+                            Text("Configuration file and advanced options")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Configuration File:")
+                                .font(.subheadline)
+                            Text(configService.configFilePath)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .textSelection(.enabled)
+                        }
+
+                        Spacer()
+
+                        Button("Reveal in Finder") {
+                            if let url = URL(string: "file://" + configService.configFilePath) {
+                                NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .padding()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
