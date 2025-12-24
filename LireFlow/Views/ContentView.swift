@@ -132,24 +132,7 @@ struct ContentView: View {
     }
     
     private func seedDefaultFeedsIfNeeded() {
-        guard feeds.isEmpty else { return }
-        
-        Task {
-            // Add a few starter feeds
-            let starterFeeds = [
-                DefaultFeeds.feeds[0], // Hacker News
-                DefaultFeeds.feeds[7], // Daring Fireball
-                DefaultFeeds.feeds[10] // Swift by Sundell
-            ]
-            
-            for feedInfo in starterFeeds {
-                do {
-                    _ = try await feedService.addFeed(url: feedInfo.url, in: modelContext)
-                } catch {
-                    print("Failed to add default feed: \(error)")
-                }
-            }
-        }
+        // No default feeds - start with empty app
     }
 }
 
