@@ -11,13 +11,15 @@ class ConfigService: ObservableObject {
         }
     }
     
-    private var configURL: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    private var configURL: URL? {
+        guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return nil
+        }
         let appFolder = appSupport.appendingPathComponent("LireFlow", isDirectory: true)
-        
+
         // Create directory if needed
         try? FileManager.default.createDirectory(at: appFolder, withIntermediateDirectories: true)
-        
+
         return appFolder.appendingPathComponent("config.json")
     }
     
@@ -27,8 +29,9 @@ class ConfigService: ObservableObject {
     }
     
     func load() {
-        guard FileManager.default.fileExists(atPath: configURL.path) else { return }
-        
+        guard let configURL = configURL,
+              FileManager.default.fileExists(atPath: configURL.path) else { return }
+
         do {
             let data = try Data(contentsOf: configURL)
             config = try JSONDecoder().decode(AppConfig.self, from: data)
@@ -38,6 +41,7 @@ class ConfigService: ObservableObject {
     }
     
     func save() {
+        guard let configURL = configURL else { return }
         do {
             let data = try JSONEncoder().encode(config)
             try data.write(to: configURL, options: .atomic)
@@ -48,7 +52,7 @@ class ConfigService: ObservableObject {
     
     /// Get the config file path (for user reference)
     var configFilePath: String {
-        configURL.path
+        configURL?.path ?? "Unable to determine config path"
     }
 }
 

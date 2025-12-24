@@ -77,13 +77,11 @@ struct ArticleListView: View {
     }
     
     private func saveArticle(_ article: Article, to readingList: ReadingList) {
-        if article.readingLists == nil {
-            article.readingLists = []
-        }
-        if !article.readingLists!.contains(where: { $0.id == readingList.id }) {
-            article.readingLists!.append(readingList)
-            try? modelContext.save()
-        }
+        var lists = article.readingLists ?? []
+        guard !lists.contains(where: { $0.id == readingList.id }) else { return }
+        lists.append(readingList)
+        article.readingLists = lists
+        try? modelContext.save()
     }
     
     private func removeArticle(_ article: Article, from readingList: ReadingList) {

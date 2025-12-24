@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct RSSReaderApp: App {
+struct LireFlowApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Feed.self,

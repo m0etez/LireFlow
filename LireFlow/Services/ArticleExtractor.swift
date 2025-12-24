@@ -2,9 +2,9 @@ import Foundation
 
 /// Service for extracting full article content from web pages
 final class ArticleExtractor {
-    
-    /// Paris-Saclay EZProxy base URL
-    static let ezproxyBaseURL = "https://ezproxy.universite-paris-saclay.fr/login?qurl="
+
+    /// EZProxy base URL (configure via ConfigService for institutional access)
+    static let ezproxyBaseURL = ""  // Configure this in your config.json if needed
     
     /// Extract readable content from a web page URL
     static func extractContent(from urlString: String) async throws -> String {
@@ -31,9 +31,9 @@ final class ArticleExtractor {
     
     /// Extract content via EZProxy (for paywalled articles)
     static func extractContentViaProxy(from urlString: String) async throws -> String {
-        // Build EZProxy URL
-        let ezproxyAllowedChars = CharacterSet.alphanumerics
-        guard let encodedURL = urlString.addingPercentEncoding(withAllowedCharacters: ezproxyAllowedChars),
+        // Build EZProxy URL with proper encoding
+        guard let encodedURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              !ezproxyBaseURL.isEmpty,
               let proxyURL = URL(string: "\(ezproxyBaseURL)\(encodedURL)") else {
             throw ArticleExtractorError.invalidURL
         }
