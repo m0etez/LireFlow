@@ -73,3 +73,5 @@ Temporary Items
 # Misc
 *.log
 *.tmp
+*_temp.*
+*_source.*
