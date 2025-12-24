@@ -1,5 +1,9 @@
 # LireFlow
 
+<p align="center">
+  <img src="logo.png" alt="LireFlow Logo" width="200">
+</p>
+
 A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 ![macOS](https://img.shields.io/badge/macOS-14.0+-blue)
