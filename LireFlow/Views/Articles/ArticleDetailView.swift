@@ -318,22 +318,34 @@ struct ArticleDetailView: View {
 
 // MARK: - Article Content WebView
 
+// Custom WKWebView that passes scroll events to parent
+class NonScrollableWebView: WKWebView {
+    override func scrollWheel(with event: NSEvent) {
+        // Pass scroll events to the next responder (parent ScrollView)
+        self.nextResponder?.scrollWheel(with: event)
+    }
+}
+
 struct ArticleContentView: NSViewRepresentable {
     let html: String
     @Binding var height: CGFloat
-    
+
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.preferences.isElementFullscreenEnabled = false
-        
-        let webView = WKWebView(frame: .zero, configuration: config)
+
+        let webView = NonScrollableWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.setValue(false, forKey: "drawsBackground")
-        
+
         // Disable internal scrolling - let parent ScrollView handle it
-        webView.enclosingScrollView?.hasVerticalScroller = false
-        webView.enclosingScrollView?.hasHorizontalScroller = false
-        
+        if let scrollView = webView.enclosingScrollView {
+            scrollView.hasVerticalScroller = false
+            scrollView.hasHorizontalScroller = false
+            scrollView.verticalScrollElasticity = .none
+            scrollView.horizontalScrollElasticity = .none
+        }
+
         return webView
     }
     

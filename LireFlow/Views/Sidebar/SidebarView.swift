@@ -41,32 +41,37 @@ struct SidebarView: View {
     var body: some View {
         List(selection: $selectedItem) {
             // Weather
-            Section {
-                WeatherWidget()
+            if configService.config.showWeather {
+                Section {
+                    WeatherWidget()
+                }
             }
-            
+
             // Smart Folders
             Section {
                 SidebarRow(
                     icon: "tray.full",
                     title: "All Articles",
                     count: allArticles.count,
+                    showCount: configService.config.showUnreadCount,
                     color: .blue
                 )
                 .tag(SidebarItem.all)
-                
+
                 SidebarRow(
                     icon: "circle.fill",
                     title: "Unread",
                     count: allArticles.filter { !$0.isRead }.count,
+                    showCount: configService.config.showUnreadCount,
                     color: .orange
                 )
                 .tag(SidebarItem.unread)
-                
+
                 SidebarRow(
                     icon: "star.fill",
                     title: "Starred",
                     count: allArticles.filter { $0.isStarred }.count,
+                    showCount: configService.config.showUnreadCount,
                     color: .yellow
                 )
                 .tag(SidebarItem.starred)
@@ -75,7 +80,7 @@ struct SidebarView: View {
             // User Folders
             Section("Folders") {
                 ForEach(folders) { folder in
-                    FolderRow(folder: folder, selectedItem: $selectedItem)
+                    FolderRow(folder: folder, selectedItem: $selectedItem, showCount: configService.config.showUnreadCount)
                         .contextMenu {
                             Button {
                                 folderToRename = folder
@@ -107,7 +112,7 @@ struct SidebarView: View {
             if !feeds.isEmpty {
                 Section("Feeds") {
                     ForEach(feeds) { feed in
-                        FeedRow(feed: feed)
+                        FeedRow(feed: feed, showCount: configService.config.showUnreadCount)
                             .tag(SidebarItem.feed(feed))
                             .contextMenu {
                                 // Move to folder
@@ -139,7 +144,7 @@ struct SidebarView: View {
             // Reading Lists
             Section("Reading Lists") {
                 ForEach(readingLists) { readingList in
-                    ReadingListRow(readingList: readingList)
+                    ReadingListRow(readingList: readingList, showCount: configService.config.showUnreadCount)
                         .tag(SidebarItem.readingList(readingList))
                         .contextMenu {
                             Button("Delete", role: .destructive) {
@@ -259,21 +264,22 @@ struct SidebarRow: View {
     let icon: String
     let title: String
     let count: Int
+    let showCount: Bool
     let color: Color
-    
+
     var body: some View {
         HStack {
             Image(systemName: icon)
                 .font(.system(size: 14))
                 .foregroundStyle(color)
                 .frame(width: 20)
-            
+
             Text(title)
                 .lineLimit(1)
-            
+
             Spacer()
-            
-            if count > 0 {
+
+            if showCount && count > 0 {
                 Text("\(count)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -292,12 +298,13 @@ struct SidebarRow: View {
 struct FolderRow: View {
     let folder: Folder
     @Binding var selectedItem: SidebarItem?
+    let showCount: Bool
     @State private var isExpanded = true
-    
+
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
             ForEach(folder.feeds) { feed in
-                FeedRow(feed: feed)
+                FeedRow(feed: feed, showCount: showCount)
                     .tag(SidebarItem.feed(feed))
                     .padding(.leading, 8)
             }
@@ -307,13 +314,13 @@ struct FolderRow: View {
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
                     .frame(width: 20)
-                
+
                 Text(folder.name)
                     .lineLimit(1)
-                
+
                 Spacer()
-                
-                if folder.unreadCount > 0 {
+
+                if showCount && folder.unreadCount > 0 {
                     Text("\(folder.unreadCount)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -332,20 +339,21 @@ struct FolderRow: View {
 
 struct ReadingListRow: View {
     let readingList: ReadingList
-    
+    let showCount: Bool
+
     var body: some View {
         HStack {
             Image(systemName: readingList.icon)
                 .font(.system(size: 14))
                 .foregroundStyle(.cyan)
                 .frame(width: 20)
-            
+
             Text(readingList.name)
                 .lineLimit(1)
-            
+
             Spacer()
-            
-            if readingList.articleCount > 0 {
+
+            if showCount && readingList.articleCount > 0 {
                 Text("\(readingList.articleCount)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -363,18 +371,19 @@ struct ReadingListRow: View {
 
 struct FeedRow: View {
     let feed: Feed
-    
+    let showCount: Bool
+
     var body: some View {
         HStack {
             FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
                 .frame(width: 18, height: 18)
-            
+
             Text(feed.title)
                 .lineLimit(1)
-            
+
             Spacer()
-            
-            if feed.unreadCount > 0 {
+
+            if showCount && feed.unreadCount > 0 {
                 Text("\(feed.unreadCount)")
                     .font(.caption)
                     .foregroundStyle(.white)

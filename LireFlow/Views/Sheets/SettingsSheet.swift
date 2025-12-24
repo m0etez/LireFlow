@@ -380,6 +380,14 @@ struct BackupSettingsView: View {
 struct GeneralSettingsView: View {
     @ObservedObject var configService = ConfigService.shared
 
+    private func applyAppearance() {
+        let appearance = configService.config.isDarkMode ? NSAppearance(named: .darkAqua) : NSAppearance(named: .aqua)
+        NSApp.appearance = appearance
+        for window in NSApplication.shared.windows {
+            window.appearance = appearance
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -400,8 +408,14 @@ struct GeneralSettingsView: View {
                         }
                     }
 
-                    Toggle("Dark Mode", isOn: $configService.config.isDarkMode)
-                        .help("Switch between light and dark appearance")
+                    Toggle("Dark Mode", isOn: Binding(
+                        get: { configService.config.isDarkMode },
+                        set: { newValue in
+                            configService.config.isDarkMode = newValue
+                            applyAppearance()
+                        }
+                    ))
+                    .help("Switch between light and dark appearance")
 
                     Toggle("Show Unread Count", isOn: $configService.config.showUnreadCount)
                         .help("Display unread article counts in sidebar")

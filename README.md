@@ -32,15 +32,17 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 ### 🎨 Modern UI
 
 - Native macOS design with liquid glass effects
-- Dark/Light mode toggle
+- Dark/Light mode toggle (in sidebar or Settings)
 - Smooth animations and hover effects
 - Three-column layout (Sidebar, List, Detail)
+- Comprehensive Settings window (⌘,) for customization
 
 ### ☀️ Weather Widget
 
-- Local weather display in sidebar
+- Local weather display in sidebar (toggleable in Settings)
 - 7-day forecast with tap for details
 - Dynamic weather icons with color coding
+- Auto-detect location or set custom location
 
 ### 💾 Backup & Import
 
@@ -88,13 +90,16 @@ LireFlow/
 │   ├── Article.swift           # Article data model
 │   ├── Feed.swift              # Feed data model
 │   ├── Folder.swift            # Folder data model
-│   └── ReadingList.swift       # Reading list model
+│   ├── ReadingList.swift       # Reading list model
+│   └── ExportableModels.swift  # Export/import DTOs
 ├── Services/
 │   ├── FeedParser.swift        # RSS/Atom parsing
 │   ├── FeedService.swift       # Feed management
 │   ├── ArticleExtractor.swift  # Full article extraction
 │   ├── WeatherService.swift    # Weather API integration
 │   ├── ConfigService.swift     # File-based settings
+│   ├── ExportService.swift     # JSON/OPML export
+│   ├── ImportService.swift     # JSON/OPML import
 │   └── DefaultFeeds.swift      # Starter feed suggestions
 ├── Views/
 │   ├── ContentView.swift       # Main app layout
@@ -108,25 +113,41 @@ LireFlow/
 │   └── Sheets/
 │       ├── AddFeedSheet.swift
 │       ├── AddFolderSheet.swift
-│       └── AddReadingListSheet.swift
+│       ├── AddReadingListSheet.swift
+│       └── SettingsSheet.swift
 └── Utilities/
     └── Extensions.swift
 ```
 
 ## Configuration
 
-Settings are stored in JSON format at:
+Access Settings via **⌘,** or the **LireFlow > Settings** menu.
 
+### Settings Tabs
+
+**General:**
+- Appearance (Dark/Light mode)
+- Show/hide unread count badges
+- Article font size (12-24pt)
+- Mark as read on scroll
+- Feed refresh interval
+- Default feed category
+- Weather widget visibility
+- Custom weather location
+
+**Backup & Import:**
+- Export to JSON (complete library backup)
+- Export to OPML (feeds only)
+- Import from JSON or OPML
+- Automatic duplicate detection
+
+**About:**
+- App version and information
+
+All settings are automatically saved to:
 ```
 ~/Library/Application Support/LireFlow/config.json
 ```
-
-Available options:
-
-- `isDarkMode` - Dark/Light appearance
-- `refreshIntervalMinutes` - Auto-refresh interval
-- `showWeather` - Weather widget visibility
-- `articleFontSize` - Reading font size
 
 ## Technologies
 
