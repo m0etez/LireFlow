@@ -21,6 +21,8 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - Organize feeds into folders
 - Drag and drop feeds between folders
 - Automatic feed icon fetching via Google Favicons
+- **Feed health monitoring** - Visual indicators for broken or stale feeds
+- Last update time tracking with relative timestamps
 
 ### 📖 Article Reading
 
@@ -36,6 +38,8 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - Smooth animations and hover effects
 - Three-column layout (Sidebar, List, Detail)
 - Comprehensive Settings window (⌘,) for customization
+- **Dock badge** showing unread article count
+- **Full keyboard navigation** with vim-style shortcuts
 
 ### ☀️ Weather Widget
 
@@ -51,6 +55,16 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - Import from JSON or OPML files
 - Automatic duplicate detection during import
 - Accessible via File menu or Settings window
+
+### ⌨️ Keyboard Shortcuts
+
+- **J/K** - Navigate to next/previous article
+- **M** - Mark article as read/unread
+- **S** - Toggle star on article
+- **V** - Open article in browser
+- **⌘R** - Refresh all feeds
+- **⌘N** - Add new feed
+- **⌘,** - Open Settings
 
 ### 🔧 Additional Features
 

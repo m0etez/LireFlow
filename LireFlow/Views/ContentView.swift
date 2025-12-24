@@ -88,6 +88,19 @@ struct ContentView: View {
         .onAppear {
             setupNotificationObservers()
             seedDefaultFeedsIfNeeded()
+            updateBadgeCount()
+        }
+        .onChange(of: articles) {
+            updateBadgeCount()
+        }
+    }
+
+    private func updateBadgeCount() {
+        let unreadCount = articles.filter { !$0.isRead }.count
+        if unreadCount > 0 {
+            NSApp.dockTile.badgeLabel = "\(unreadCount)"
+        } else {
+            NSApp.dockTile.badgeLabel = nil
         }
     }
     
@@ -148,6 +161,67 @@ struct ContentView: View {
         NotificationCenter.default.addObserver(forName: .importFromOPML, object: nil, queue: .main) { _ in
             showingSettings = true
         }
+
+        // Keyboard shortcuts
+        NotificationCenter.default.addObserver(forName: .nextArticle, object: nil, queue: .main) { _ in
+            navigateToNextArticle()
+        }
+        NotificationCenter.default.addObserver(forName: .previousArticle, object: nil, queue: .main) { _ in
+            navigateToPreviousArticle()
+        }
+        NotificationCenter.default.addObserver(forName: .toggleRead, object: nil, queue: .main) { _ in
+            toggleCurrentArticleRead()
+        }
+        NotificationCenter.default.addObserver(forName: .toggleStar, object: nil, queue: .main) { _ in
+            toggleCurrentArticleStar()
+        }
+        NotificationCenter.default.addObserver(forName: .openInBrowser, object: nil, queue: .main) { _ in
+            openCurrentArticleInBrowser()
+        }
+    }
+
+    private func navigateToNextArticle() {
+        guard let currentArticle = selectedArticle else {
+            // Select first article if none selected
+            selectedArticle = filteredArticles.first
+            return
+        }
+
+        if let currentIndex = filteredArticles.firstIndex(where: { $0.id == currentArticle.id }),
+           currentIndex + 1 < filteredArticles.count {
+            selectedArticle = filteredArticles[currentIndex + 1]
+        }
+    }
+
+    private func navigateToPreviousArticle() {
+        guard let currentArticle = selectedArticle else {
+            // Select last article if none selected
+            selectedArticle = filteredArticles.last
+            return
+        }
+
+        if let currentIndex = filteredArticles.firstIndex(where: { $0.id == currentArticle.id }),
+           currentIndex > 0 {
+            selectedArticle = filteredArticles[currentIndex - 1]
+        }
+    }
+
+    private func toggleCurrentArticleRead() {
+        guard let article = selectedArticle else { return }
+        article.isRead.toggle()
+        try? modelContext.save()
+    }
+
+    private func toggleCurrentArticleStar() {
+        guard let article = selectedArticle else { return }
+        article.isStarred.toggle()
+        try? modelContext.save()
+    }
+
+    private func openCurrentArticleInBrowser() {
+        guard let article = selectedArticle,
+              let url = URL(string: article.url) else { return }
+        NSWorkspace.shared.open(url)
     }
     
     private func seedDefaultFeedsIfNeeded() {

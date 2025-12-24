@@ -10,10 +10,13 @@ final class Feed {
     var websiteURL: String?  // The actual website URL (different from feed URL)
     var iconURL: String?
     var lastFetched: Date?
-    
+    var lastSuccessfulFetch: Date?
+    var lastError: String?
+    var consecutiveFailures: Int
+
     @Relationship(deleteRule: .nullify, inverse: \Folder.feeds)
     var folder: Folder?
-    
+
     @Relationship(deleteRule: .cascade, inverse: \Article.feed)
     var articles: [Article]
     
@@ -35,10 +38,29 @@ final class Feed {
         self.folder = folder
         self.articles = []
         self.lastFetched = nil
+        self.lastSuccessfulFetch = nil
+        self.lastError = nil
+        self.consecutiveFailures = 0
     }
     
     var unreadCount: Int {
         articles.filter { !$0.isRead }.count
+    }
+
+    var isHealthy: Bool {
+        consecutiveFailures < 3
+    }
+
+    var healthStatus: String {
+        if let error = lastError, !isHealthy {
+            return "Error: \(error)"
+        } else if let lastSuccess = lastSuccessfulFetch {
+            let formatter = RelativeDateTimeFormatter()
+            formatter.unitsStyle = .abbreviated
+            return "Updated \(formatter.localizedString(for: lastSuccess, relativeTo: Date()))"
+        } else {
+            return "Never updated"
+        }
     }
 }
 

@@ -59,44 +59,60 @@ final class FeedService: ObservableObject {
         }
         
         feed.lastFetched = Date()
-        
+        feed.lastSuccessfulFetch = Date()
+
         try context.save()
-        
+
         return feed
     }
     
     /// Refresh a single feed with new articles
     func refreshFeed(_ feed: Feed, in context: ModelContext) async throws {
-        let parsedFeed = try await fetchFeed(from: feed.url)
-        
-        // Update websiteURL if not set (for feeds added before this feature)
-        if feed.websiteURL == nil && !parsedFeed.link.isEmpty {
-            feed.websiteURL = parsedFeed.link
-        }
-        
-        // Get existing article URLs for deduplication
-        let existingURLs = Set(feed.articles.map { $0.url })
-        
-        // Add only new articles
-        for parsedArticle in parsedFeed.articles {
-            if !existingURLs.contains(parsedArticle.url) {
-                let article = Article(
-                    title: parsedArticle.title,
-                    summary: parsedArticle.summary,
-                    content: parsedArticle.content,
-                    url: parsedArticle.url,
-                    author: parsedArticle.author,
-                    publishedDate: parsedArticle.publishedDate
-                )
-                article.externalURL = parsedArticle.externalURL
-                article.feed = feed
-                feed.articles.append(article)
-                context.insert(article)
+        do {
+            let parsedFeed = try await fetchFeed(from: feed.url)
+
+            // Update websiteURL if not set (for feeds added before this feature)
+            if feed.websiteURL == nil && !parsedFeed.link.isEmpty {
+                feed.websiteURL = parsedFeed.link
             }
+
+            // Get existing article URLs for deduplication
+            let existingURLs = Set(feed.articles.map { $0.url })
+
+            // Add only new articles
+            for parsedArticle in parsedFeed.articles {
+                if !existingURLs.contains(parsedArticle.url) {
+                    let article = Article(
+                        title: parsedArticle.title,
+                        summary: parsedArticle.summary,
+                        content: parsedArticle.content,
+                        url: parsedArticle.url,
+                        author: parsedArticle.author,
+                        publishedDate: parsedArticle.publishedDate
+                    )
+                    article.externalURL = parsedArticle.externalURL
+                    article.feed = feed
+                    feed.articles.append(article)
+                    context.insert(article)
+                }
+            }
+
+            // Update health tracking on success
+            feed.lastFetched = Date()
+            feed.lastSuccessfulFetch = Date()
+            feed.lastError = nil
+            feed.consecutiveFailures = 0
+
+            try context.save()
+        } catch {
+            // Update health tracking on failure
+            feed.lastFetched = Date()
+            feed.consecutiveFailures += 1
+            feed.lastError = error.localizedDescription
+
+            try? context.save()
+            throw error
         }
-        
-        feed.lastFetched = Date()
-        try context.save()
     }
     
     /// Refresh all feeds (sequential to avoid SwiftData concurrency issues)

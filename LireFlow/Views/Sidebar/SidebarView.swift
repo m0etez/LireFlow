@@ -377,9 +377,18 @@ struct FeedRow: View {
         HStack {
             FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
                 .frame(width: 18, height: 18)
+                .opacity(feed.isHealthy ? 1.0 : 0.5)
 
             Text(feed.title)
                 .lineLimit(1)
+                .foregroundStyle(feed.isHealthy ? .primary : .secondary)
+
+            if !feed.isHealthy {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .help(feed.healthStatus)
+            }
 
             Spacer()
 

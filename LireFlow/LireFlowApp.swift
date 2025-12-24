@@ -76,6 +76,37 @@ struct LireFlowApp: App {
                 }
                 .keyboardShortcut("r", modifiers: .command)
             }
+
+            CommandMenu("Article") {
+                Button("Next Article") {
+                    NotificationCenter.default.post(name: .nextArticle, object: nil)
+                }
+                .keyboardShortcut("j", modifiers: [])
+
+                Button("Previous Article") {
+                    NotificationCenter.default.post(name: .previousArticle, object: nil)
+                }
+                .keyboardShortcut("k", modifiers: [])
+
+                Divider()
+
+                Button("Mark as Read/Unread") {
+                    NotificationCenter.default.post(name: .toggleRead, object: nil)
+                }
+                .keyboardShortcut("m", modifiers: [])
+
+                Button("Toggle Star") {
+                    NotificationCenter.default.post(name: .toggleStar, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [])
+
+                Divider()
+
+                Button("Open in Browser") {
+                    NotificationCenter.default.post(name: .openInBrowser, object: nil)
+                }
+                .keyboardShortcut("v", modifiers: [])
+            }
         }
     }
 }
@@ -90,4 +121,9 @@ extension Notification.Name {
     static let importFromJSON = Notification.Name("importFromJSON")
     static let importFromOPML = Notification.Name("importFromOPML")
     static let showSettings = Notification.Name("showSettings")
+    static let nextArticle = Notification.Name("nextArticle")
+    static let previousArticle = Notification.Name("previousArticle")
+    static let toggleRead = Notification.Name("toggleRead")
+    static let toggleStar = Notification.Name("toggleStar")
+    static let openInBrowser = Notification.Name("openInBrowser")
 }
