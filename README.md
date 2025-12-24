@@ -1,0 +1,130 @@
+# LireFlow
+
+A modern, native macOS RSS reader built with SwiftUI and SwiftData.
+
+![macOS](https://img.shields.io/badge/macOS-14.0+-blue)
+![Swift](https://img.shields.io/badge/Swift-5.9+-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+## Features
+
+### 📰 Feed Management
+
+- Add RSS/Atom feeds from any URL
+- Organize feeds into folders
+- Drag and drop feeds between folders
+- Automatic feed icon fetching via Google Favicons
+
+### 📖 Article Reading
+
+- Clean, distraction-free reading view
+- Full article extraction for truncated feeds
+- Mark articles as read/unread and starred
+- Reading lists for saving articles
+
+### 🎨 Modern UI
+
+- Native macOS design with liquid glass effects
+- Dark/Light mode toggle
+- Smooth animations and hover effects
+- Three-column layout (Sidebar, List, Detail)
+
+### ☀️ Weather Widget
+
+- Local weather display in sidebar
+- 7-day forecast with tap for details
+- Dynamic weather icons with color coding
+
+### 🔧 Additional Features
+
+- Reddit, Mastodon, and Lemmy feed support
+- Paywall bypass options (12ft.io, Archive.today)
+- Europresse integration for press archives
+- File-based configuration (`~/Library/Application Support/LireFlow/config.json`)
+
+## Requirements
+
+- macOS 14.0 (Sonoma) or later
+- Xcode 15.0 or later
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/LireFlow.git
+   cd LireFlow
+   ```
+
+2. Open in Xcode:
+
+   ```bash
+   open LireFlow.xcodeproj
+   ```
+
+3. Build and run (⌘R)
+
+## Project Structure
+
+```
+LireFlow/
+├── LireFlowApp.swift           # App entry point
+├── Models/
+│   ├── Article.swift           # Article data model
+│   ├── Feed.swift              # Feed data model
+│   ├── Folder.swift            # Folder data model
+│   └── ReadingList.swift       # Reading list model
+├── Services/
+│   ├── FeedParser.swift        # RSS/Atom parsing
+│   ├── FeedService.swift       # Feed management
+│   ├── ArticleExtractor.swift  # Full article extraction
+│   ├── WeatherService.swift    # Weather API integration
+│   ├── ConfigService.swift     # File-based settings
+│   └── DefaultFeeds.swift      # Starter feed suggestions
+├── Views/
+│   ├── ContentView.swift       # Main app layout
+│   ├── Sidebar/
+│   │   ├── SidebarView.swift
+│   │   ├── WeatherWidget.swift
+│   │   └── WeatherDetailPopover.swift
+│   ├── Articles/
+│   │   ├── ArticleListView.swift
+│   │   └── ArticleDetailView.swift
+│   └── Sheets/
+│       ├── AddFeedSheet.swift
+│       ├── AddFolderSheet.swift
+│       └── AddReadingListSheet.swift
+└── Utilities/
+    └── Extensions.swift
+```
+
+## Configuration
+
+Settings are stored in JSON format at:
+
+```
+~/Library/Application Support/LireFlow/config.json
+```
+
+Available options:
+
+- `isDarkMode` - Dark/Light appearance
+- `refreshIntervalMinutes` - Auto-refresh interval
+- `showWeather` - Weather widget visibility
+- `articleFontSize` - Reading font size
+
+## Technologies
+
+- **SwiftUI** - Modern declarative UI
+- **SwiftData** - Persistent data storage
+- **WebKit** - Article rendering
+- **CoreLocation** - Weather location
+- **Open-Meteo API** - Weather data (free, no API key)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.

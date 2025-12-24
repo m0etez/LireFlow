@@ -1,0 +1,73 @@
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+
+# Build
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+*.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Carthage
+Carthage/Build/
+
+# Accio
+Dependencies/
+.accio/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Code Injection
+iOSInjectionProject/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# IDE
+*.swp
+*.lock
+.idea/
+*.iml
+
+# Misc
+*.log
+*.tmp

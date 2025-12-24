@@ -1,0 +1,480 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		001000001 /* LireFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000000 /* LireFlowApp.swift */; };
+		001000003 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000002 /* Feed.swift */; };
+		001000005 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000004 /* Article.swift */; };
+		001000007 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000006 /* Folder.swift */; };
+		001000009 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000008 /* FeedParser.swift */; };
+		00100000B /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100000A /* FeedService.swift */; };
+		00100000D /* DefaultFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100000C /* DefaultFeeds.swift */; };
+		00100000F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100000E /* ContentView.swift */; };
+		001000011 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000010 /* SidebarView.swift */; };
+		001000013 /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000012 /* ArticleListView.swift */; };
+		001000015 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000014 /* ArticleDetailView.swift */; };
+		001000017 /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000016 /* AddFeedSheet.swift */; };
+		001000019 /* AddFolderSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000018 /* AddFolderSheet.swift */; };
+		00100001B /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100001A /* Extensions.swift */; };
+		00100001D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00100001C /* Assets.xcassets */; };
+		001000040 /* ArticleExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000041 /* ArticleExtractor.swift */; };
+		001000050 /* ReadingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000051 /* ReadingList.swift */; };
+		001000052 /* AddReadingListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000053 /* AddReadingListSheet.swift */; };
+		001000060 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000061 /* WeatherService.swift */; };
+		001000062 /* WeatherWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000063 /* WeatherWidget.swift */; };
+		001000064 /* WeatherDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000065 /* WeatherDetailPopover.swift */; };
+		001000066 /* ConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000067 /* ConfigService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		001000000 /* LireFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LireFlowApp.swift; sourceTree = "<group>"; };
+		001000002 /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		001000004 /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
+		001000006 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
+		001000008 /* FeedParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedParser.swift; sourceTree = "<group>"; };
+		00100000A /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
+		00100000C /* DefaultFeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFeeds.swift; sourceTree = "<group>"; };
+		00100000E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		001000010 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		001000012 /* ArticleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListView.swift; sourceTree = "<group>"; };
+		001000014 /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
+		001000016 /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
+		001000018 /* AddFolderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFolderSheet.swift; sourceTree = "<group>"; };
+		00100001A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		00100001C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		00100001E /* LireFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LireFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		00100001F /* LireFlow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LireFlow.entitlements; sourceTree = "<group>"; };
+		001000041 /* ArticleExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleExtractor.swift; sourceTree = "<group>"; };
+		001000051 /* ReadingList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingList.swift; sourceTree = "<group>"; };
+		001000053 /* AddReadingListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReadingListSheet.swift; sourceTree = "<group>"; };
+		001000061 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
+		001000063 /* WeatherWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWidget.swift; sourceTree = "<group>"; };
+		001000065 /* WeatherDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailPopover.swift; sourceTree = "<group>"; };
+		001000067 /* ConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		001000020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		001000021 = {
+			isa = PBXGroup;
+			children = (
+				001000022 /* LireFlow */,
+				001000023 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		001000022 /* LireFlow */ = {
+			isa = PBXGroup;
+			children = (
+				001000000 /* LireFlowApp.swift */,
+				001000024 /* Models */,
+				001000025 /* Services */,
+				001000026 /* Views */,
+				001000027 /* Utilities */,
+				00100001C /* Assets.xcassets */,
+				00100001F /* LireFlow.entitlements */,
+			);
+			path = LireFlow;
+			sourceTree = "<group>";
+		};
+		001000023 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00100001E /* LireFlow.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		001000024 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				001000002 /* Feed.swift */,
+				001000004 /* Article.swift */,
+				001000006 /* Folder.swift */,
+				001000051 /* ReadingList.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		001000025 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				001000008 /* FeedParser.swift */,
+				00100000A /* FeedService.swift */,
+				00100000C /* DefaultFeeds.swift */,
+				001000041 /* ArticleExtractor.swift */,
+				001000061 /* WeatherService.swift */,
+				001000067 /* ConfigService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		001000026 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				00100000E /* ContentView.swift */,
+				001000028 /* Sidebar */,
+				001000029 /* Articles */,
+				00100002A /* Sheets */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		001000027 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				00100001A /* Extensions.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		001000028 /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				001000010 /* SidebarView.swift */,
+				001000063 /* WeatherWidget.swift */,
+				001000065 /* WeatherDetailPopover.swift */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		001000029 /* Articles */ = {
+			isa = PBXGroup;
+			children = (
+				001000012 /* ArticleListView.swift */,
+				001000014 /* ArticleDetailView.swift */,
+			);
+			path = Articles;
+			sourceTree = "<group>";
+		};
+		00100002A /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				001000016 /* AddFeedSheet.swift */,
+				001000018 /* AddFolderSheet.swift */,
+				001000053 /* AddReadingListSheet.swift */,
+			);
+			path = Sheets;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		00100002B /* LireFlow */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00100002C /* Build configuration list for PBXNativeTarget "LireFlow" */;
+			buildPhases = (
+				00100002D /* Sources */,
+				00100002E /* Resources */,
+				001000020 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LireFlow;
+			productName = LireFlow;
+			productReference = 00100001E /* LireFlow.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		00100002F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					00100002B = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 001000030 /* Build configuration list for PBXProject "LireFlow" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 001000021;
+			productRefGroup = 001000023 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				00100002B /* LireFlow */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		00100002E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00100001D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		00100002D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				001000001 /* LireFlowApp.swift in Sources */,
+				001000003 /* Feed.swift in Sources */,
+				001000005 /* Article.swift in Sources */,
+				001000007 /* Folder.swift in Sources */,
+				001000009 /* FeedParser.swift in Sources */,
+				00100000B /* FeedService.swift in Sources */,
+				00100000D /* DefaultFeeds.swift in Sources */,
+				00100000F /* ContentView.swift in Sources */,
+				001000011 /* SidebarView.swift in Sources */,
+				001000013 /* ArticleListView.swift in Sources */,
+				001000015 /* ArticleDetailView.swift in Sources */,
+				001000017 /* AddFeedSheet.swift in Sources */,
+				001000019 /* AddFolderSheet.swift in Sources */,
+				00100001B /* Extensions.swift in Sources */,
+				001000040 /* ArticleExtractor.swift in Sources */,
+				001000050 /* ReadingList.swift in Sources */,
+				001000052 /* AddReadingListSheet.swift in Sources */,
+				001000060 /* WeatherService.swift in Sources */,
+				001000062 /* WeatherWidget.swift in Sources */,
+				001000064 /* WeatherDetailPopover.swift in Sources */,
+				001000066 /* ConfigService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		001000031 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		001000032 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		001000033 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LireFlow/LireFlow.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rssreader.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		001000034 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LireFlow/LireFlow.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rssreader.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00100002C /* Build configuration list for PBXNativeTarget "LireFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				001000033 /* Debug */,
+				001000034 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		001000030 /* Build configuration list for PBXProject "LireFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				001000031 /* Debug */,
+				001000032 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 00100002F /* Project object */;
+}
