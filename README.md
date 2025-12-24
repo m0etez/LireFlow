@@ -42,6 +42,14 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - 7-day forecast with tap for details
 - Dynamic weather icons with color coding
 
+### 💾 Backup & Import
+
+- Export library to JSON (complete backup with feeds, folders, and reading lists)
+- Export feeds to OPML (standard RSS format for portability)
+- Import from JSON or OPML files
+- Automatic duplicate detection during import
+- Accessible via File menu or Settings window
+
 ### 🔧 Additional Features
 
 - Reddit, Mastodon, and Lemmy feed support

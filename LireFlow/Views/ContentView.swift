@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var showingAddFeed = false
     @State private var showingAddFolder = false
     @State private var showingAddReadingList = false
+    @State private var showingSettings = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     
     var body: some View {
@@ -81,6 +82,9 @@ struct ContentView: View {
         .sheet(isPresented: $showingAddReadingList) {
             AddReadingListSheet()
         }
+        .sheet(isPresented: $showingSettings) {
+            SettingsSheet()
+        }
         .onAppear {
             setupNotificationObservers()
             seedDefaultFeedsIfNeeded()
@@ -128,6 +132,21 @@ struct ContentView: View {
             Task {
                 await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
             }
+        }
+        NotificationCenter.default.addObserver(forName: .showSettings, object: nil, queue: .main) { _ in
+            showingSettings = true
+        }
+        NotificationCenter.default.addObserver(forName: .exportToJSON, object: nil, queue: .main) { _ in
+            showingSettings = true
+        }
+        NotificationCenter.default.addObserver(forName: .exportToOPML, object: nil, queue: .main) { _ in
+            showingSettings = true
+        }
+        NotificationCenter.default.addObserver(forName: .importFromJSON, object: nil, queue: .main) { _ in
+            showingSettings = true
+        }
+        NotificationCenter.default.addObserver(forName: .importFromOPML, object: nil, queue: .main) { _ in
+            showingSettings = true
         }
     }
     

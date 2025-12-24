@@ -29,7 +29,11 @@
 		001000062 /* WeatherWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000063 /* WeatherWidget.swift */; };
 		001000064 /* WeatherDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000065 /* WeatherDetailPopover.swift */; };
 		001000066 /* ConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000067 /* ConfigService.swift */; };
-/* End PBXBuildFile section */
+
+		CC08FCFB992E423A8F1A8905 /* ExportableModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3590CE10DA974319B72AC998 /* ExportableModels.swift */; };
+		E8DA0A28D52E45DD8580CB1C /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57305741A5EC40B2A7711AD2 /* ExportService.swift */; };
+		C3AB982C471B4F3A82F1C824 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7306E7DF2AD643FDB91F737A /* ImportService.swift */; };
+		3D11A136BE55456791E330A1 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B889BB4450574D0D918E952A /* SettingsSheet.swift */; };/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		001000000 /* LireFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LireFlowApp.swift; sourceTree = "<group>"; };
@@ -56,7 +60,11 @@
 		001000063 /* WeatherWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWidget.swift; sourceTree = "<group>"; };
 		001000065 /* WeatherDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailPopover.swift; sourceTree = "<group>"; };
 		001000067 /* ConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigService.swift; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+
+		3590CE10DA974319B72AC998 /* ExportableModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportableModels.swift; sourceTree = "<group>"; };
+		57305741A5EC40B2A7711AD2 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		7306E7DF2AD643FDB91F737A /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
+		B889BB4450574D0D918E952A /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		001000020 /* Frameworks */ = {
@@ -106,6 +114,7 @@
 				001000004 /* Article.swift */,
 				001000006 /* Folder.swift */,
 				001000051 /* ReadingList.swift */,
+				3590CE10DA974319B72AC998 /* ExportableModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -119,6 +128,8 @@
 				001000041 /* ArticleExtractor.swift */,
 				001000061 /* WeatherService.swift */,
 				001000067 /* ConfigService.swift */,
+				57305741A5EC40B2A7711AD2 /* ExportService.swift */,
+				7306E7DF2AD643FDB91F737A /* ImportService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -167,6 +178,7 @@
 				001000016 /* AddFeedSheet.swift */,
 				001000018 /* AddFolderSheet.swift */,
 				001000053 /* AddReadingListSheet.swift */,
+				B889BB4450574D0D918E952A /* SettingsSheet.swift */,
 			);
 			path = Sheets;
 			sourceTree = "<group>";
@@ -261,6 +273,10 @@
 				001000062 /* WeatherWidget.swift in Sources */,
 				001000064 /* WeatherDetailPopover.swift in Sources */,
 				001000066 /* ConfigService.swift in Sources */,
+				CC08FCFB992E423A8F1A8905 /* ExportableModels.swift in Sources */,
+				E8DA0A28D52E45DD8580CB1C /* ExportService.swift in Sources */,
+				C3AB982C471B4F3A82F1C824 /* ImportService.swift in Sources */,
+				3D11A136BE55456791E330A1 /* SettingsSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
