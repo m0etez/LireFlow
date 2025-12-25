@@ -12,7 +12,7 @@ struct SettingsSheet: View {
     @StateObject private var exportService = ExportService()
     @StateObject private var importService = ImportService()
 
-    @State private var selectedTab: SettingsTab = .backup
+    @State private var selectedTab: SettingsTab = .about
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var showingSuccessAlert = false
@@ -750,7 +750,7 @@ struct AboutSettingsView: View {
                 .buttonStyle(.bordered)
 
                 Button {
-                    if let url = URL(string: "https://twitter.com/msaadani") {
+                    if let url = URL(string: "https://twitter.com/mo_saadani") {
                         NSWorkspace.shared.open(url)
                     }
                 } label: {
