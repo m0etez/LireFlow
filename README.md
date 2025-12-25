@@ -18,6 +18,7 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 ### 📰 Feed Management
 
 - Add RSS/Atom feeds from any URL
+- **Quick add from clipboard** - Auto-detects URLs when adding feeds
 - Organize feeds into folders
 - Drag and drop feeds between folders
 - Automatic feed icon fetching via Google Favicons
@@ -27,9 +28,11 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 ### 📖 Article Reading
 
 - Clean, distraction-free reading view
+- **Reading time estimates** - Shows estimated read time for each article
 - Full article extraction for truncated feeds
 - Mark articles as read/unread and starred
 - Reading lists for saving articles
+- **Copy as Markdown** - Export articles in Markdown format via context menu
 
 ### 🎨 Modern UI
 

@@ -148,6 +148,9 @@ struct AddFeedSheet: View {
                 dismiss()
             }
         }
+        .onAppear {
+            checkClipboardForURL()
+        }
     }
     
     private func fetchPreview() async {
@@ -175,17 +178,36 @@ struct AddFeedSheet: View {
     
     private func addFeed() async {
         guard previewFeed != nil else { return }
-        
+
         isLoading = true
-        
+
         do {
             _ = try await feedService.addFeed(url: urlString, to: selectedFolder, in: modelContext)
             dismiss()
         } catch {
             self.error = error
         }
-        
+
         isLoading = false
+    }
+
+    private func checkClipboardForURL() {
+        guard urlString.isEmpty else { return }  // Don't override if user already typed something
+
+        if let clipboardString = NSPasteboard.general.string(forType: .string) {
+            let trimmed = clipboardString.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // Check if it looks like a URL (starts with http/https or contains a dot)
+            if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") ||
+               (trimmed.contains(".") && !trimmed.contains(" ") && trimmed.count < 500) {
+                urlString = trimmed
+
+                // Auto-trigger preview fetch
+                Task {
+                    await fetchPreview()
+                }
+            }
+        }
     }
 }
 

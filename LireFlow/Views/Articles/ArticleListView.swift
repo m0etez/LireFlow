@@ -64,6 +64,14 @@ struct ArticleListView: View {
                                     } label: {
                                         Label(article.isRead ? "Mark as Unread" : "Mark as Read", systemImage: article.isRead ? "circle" : "circle.fill")
                                     }
+
+                                    Divider()
+
+                                    Button {
+                                        copyArticleAsMarkdown(article)
+                                    } label: {
+                                        Label("Copy as Markdown", systemImage: "doc.on.doc")
+                                    }
                                 }
                         }
                     }
@@ -91,6 +99,33 @@ struct ArticleListView: View {
     
     private func isArticleInList(_ article: Article, _ readingList: ReadingList) -> Bool {
         article.readingLists?.contains { $0.id == readingList.id } ?? false
+    }
+
+    private func copyArticleAsMarkdown(_ article: Article) {
+        var markdown = ""
+
+        // Title
+        markdown += "# \(article.displayTitle)\n\n"
+
+        // Metadata
+        if let author = article.author, !author.isEmpty {
+            markdown += "**Author:** \(author)\n\n"
+        }
+        if let feed = article.feed {
+            markdown += "**Source:** \(feed.title)\n\n"
+        }
+        markdown += "**Date:** \(article.publishedDate.formatted(date: .long, time: .omitted))\n\n"
+        markdown += "**URL:** [\(article.url)](\(article.url))\n\n"
+        markdown += "---\n\n"
+
+        // Content (convert HTML to markdown-ish)
+        let content = article.content.isEmpty ? article.summary : article.content
+        let strippedContent = content.strippingHTML.decodingHTMLEntities
+        markdown += strippedContent
+
+        // Copy to clipboard
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(markdown, forType: .string)
     }
 }
 
@@ -126,7 +161,7 @@ struct ArticleRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Header: Feed name and date
+            // Header: Feed name, reading time, and date
             HStack {
                 if let feed = article.feed {
                     Text(feed.title)
@@ -134,9 +169,17 @@ struct ArticleRow: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
-                
+
                 Spacer()
-                
+
+                Text(article.readingTimeText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.blue.opacity(0.1))
+                    .clipShape(Capsule())
+
                 Text(article.formattedDate)
                     .font(.caption)
                     .foregroundStyle(.tertiary)

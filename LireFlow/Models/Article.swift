@@ -59,5 +59,20 @@ final class Article {
     var articleURL: String {
         externalURL ?? url
     }
+
+    /// Estimated reading time in minutes (based on 200 words per minute)
+    var readingTimeMinutes: Int {
+        let text = content.isEmpty ? summary : content
+        let strippedText = text.strippingHTML
+        let wordCount = strippedText.components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }.count
+        let minutes = max(1, wordCount / 200) // Minimum 1 minute
+        return minutes
+    }
+
+    /// Formatted reading time string (e.g., "5 min read")
+    var readingTimeText: String {
+        "\(readingTimeMinutes) min read"
+    }
 }
 
