@@ -101,6 +101,25 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 ## Installation
 
+### Option 1: Homebrew (Recommended)
+
+```bash
+brew tap m0etez/lireflow
+brew install --cask lireflow
+```
+
+Or install in one command:
+
+```bash
+brew install --cask m0etez/lireflow/lireflow
+```
+
+### Option 2: Download DMG
+
+Download the latest release from the [releases page](https://github.com/m0etez/LireFlow/releases/latest).
+
+### Option 3: Build from Source
+
 1. Clone the repository:
 
    ```bash
