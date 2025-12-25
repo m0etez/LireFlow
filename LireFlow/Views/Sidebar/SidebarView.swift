@@ -20,7 +20,10 @@ struct SidebarView: View {
     @State private var showingRenameFolder = false
     @State private var folderToRename: Folder?
     @State private var newFolderName = ""
-    
+
+    // Feed search
+    @State private var feedSearchText = ""
+
     private var appearanceIcon: String {
         configService.config.isDarkMode ? "moon.fill" : "sun.max.fill"
     }
@@ -37,7 +40,20 @@ struct SidebarView: View {
             window.appearance = appearance
         }
     }
-    
+
+    private var filteredFolders: [Folder] {
+        guard !feedSearchText.isEmpty else { return folders }
+        return folders.filter { folder in
+            folder.name.localizedCaseInsensitiveContains(feedSearchText) ||
+            folder.feeds.contains { $0.title.localizedCaseInsensitiveContains(feedSearchText) }
+        }
+    }
+
+    private var filteredFeeds: [Feed] {
+        guard !feedSearchText.isEmpty else { return feeds }
+        return feeds.filter { $0.title.localizedCaseInsensitiveContains(feedSearchText) }
+    }
+
     var body: some View {
         List(selection: $selectedItem) {
             // Weather
@@ -75,11 +91,43 @@ struct SidebarView: View {
                     color: .yellow
                 )
                 .tag(SidebarItem.starred)
+
+                SidebarRow(
+                    icon: "archivebox",
+                    title: "Archived",
+                    count: allArticles.filter { $0.isArchived }.count,
+                    showCount: configService.config.showUnreadCount,
+                    color: .gray
+                )
+                .tag(SidebarItem.archived)
             }
             
+            // Feed search
+            if !folders.isEmpty || !feeds.isEmpty {
+                Section {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                            .font(.caption)
+                        TextField("Search feeds...", text: $feedSearchText)
+                            .textFieldStyle(.plain)
+                        if !feedSearchText.isEmpty {
+                            Button {
+                                feedSearchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+
             // User Folders
             Section("Folders") {
-                ForEach(folders) { folder in
+                ForEach(filteredFolders) { folder in
                     FolderRow(folder: folder, selectedItem: $selectedItem, showCount: configService.config.showUnreadCount)
                         .contextMenu {
                             Button {
@@ -109,9 +157,9 @@ struct SidebarView: View {
             }
             
             // Uncategorized Feeds
-            if !feeds.isEmpty {
+            if !filteredFeeds.isEmpty {
                 Section("Feeds") {
-                    ForEach(feeds) { feed in
+                    ForEach(filteredFeeds) { feed in
                         FeedRow(feed: feed, showCount: configService.config.showUnreadCount)
                             .tag(SidebarItem.feed(feed))
                             .contextMenu {

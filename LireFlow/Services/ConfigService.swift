@@ -64,12 +64,18 @@ struct AppConfig: Codable {
     var defaultFeedCategory: String = "Tech"
     var articleFontSize: Int = 16
     var markAsReadOnScroll: Bool = true
-    
+
     // Weather settings
     var showWeather: Bool = true
     var weatherLocation: String? = nil  // nil = auto-detect
-    
+
     // UI preferences
     var sidebarWidth: Double = 240
     var articleListWidth: Double = 320
+
+    // Performance settings
+    var loadImages: Bool = true
+    var maxArticlesPerFeed: Int = 500
+    var cleanupOldArticlesDays: Int = 30
+    var backgroundRefreshEnabled: Bool = true
 }

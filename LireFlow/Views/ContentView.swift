@@ -106,22 +106,24 @@ struct ContentView: View {
     
     private var filteredArticles: [Article] {
         var result: [Article]
-        
+
         switch selectedSidebarItem {
         case .all:
-            result = articles
+            result = articles.filter { !$0.isArchived }
         case .unread:
-            result = articles.filter { !$0.isRead }
+            result = articles.filter { !$0.isRead && !$0.isArchived }
         case .starred:
-            result = articles.filter { $0.isStarred }
+            result = articles.filter { $0.isStarred && !$0.isArchived }
+        case .archived:
+            result = articles.filter { $0.isArchived }
         case .folder(let folder):
-            result = folder.feeds.flatMap { $0.articles }
+            result = folder.feeds.flatMap { $0.articles }.filter { !$0.isArchived }
         case .feed(let feed):
-            result = feed.articles
+            result = feed.articles.filter { !$0.isArchived }
         case .readingList(let readingList):
-            result = readingList.articles
+            result = readingList.articles.filter { !$0.isArchived }
         case .none:
-            result = articles
+            result = articles.filter { !$0.isArchived }
         }
         
         if !searchText.isEmpty {
@@ -172,6 +174,9 @@ struct ContentView: View {
         NotificationCenter.default.addObserver(forName: .toggleRead, object: nil, queue: .main) { _ in
             toggleCurrentArticleRead()
         }
+        NotificationCenter.default.addObserver(forName: .markAllAsRead, object: nil, queue: .main) { _ in
+            markAllArticlesAsRead()
+        }
         NotificationCenter.default.addObserver(forName: .toggleStar, object: nil, queue: .main) { _ in
             toggleCurrentArticleStar()
         }
@@ -212,6 +217,13 @@ struct ContentView: View {
         try? modelContext.save()
     }
 
+    private func markAllArticlesAsRead() {
+        for article in filteredArticles where !article.isRead {
+            article.isRead = true
+        }
+        try? modelContext.save()
+    }
+
     private func toggleCurrentArticleStar() {
         guard let article = selectedArticle else { return }
         article.isStarred.toggle()
@@ -235,6 +247,7 @@ enum SidebarItem: Hashable {
     case all
     case unread
     case starred
+    case archived
     case folder(Folder)
     case feed(Feed)
     case readingList(ReadingList)

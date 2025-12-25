@@ -13,7 +13,8 @@ final class Article {
     var publishedDate: Date
     var isRead: Bool
     var isStarred: Bool
-    
+    var isArchived: Bool
+
     var feed: Feed?
     var readingLists: [ReadingList]?
     
@@ -26,7 +27,8 @@ final class Article {
         author: String? = nil,
         publishedDate: Date = Date(),
         isRead: Bool = false,
-        isStarred: Bool = false
+        isStarred: Bool = false,
+        isArchived: Bool = false
     ) {
         self.id = id
         self.title = title
@@ -37,6 +39,7 @@ final class Article {
         self.publishedDate = publishedDate
         self.isRead = isRead
         self.isStarred = isStarred
+        self.isArchived = isArchived
     }
     
     var formattedDate: String {

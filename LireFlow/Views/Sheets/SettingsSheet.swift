@@ -378,13 +378,50 @@ struct BackupSettingsView: View {
 // MARK: - General Settings View
 
 struct GeneralSettingsView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var articles: [Article]
     @ObservedObject var configService = ConfigService.shared
+
+    @State private var showingCleanupAlert = false
+    @State private var cleanupMessage = ""
 
     private func applyAppearance() {
         let appearance = configService.config.isDarkMode ? NSAppearance(named: .darkAqua) : NSAppearance(named: .aqua)
         NSApp.appearance = appearance
         for window in NSApplication.shared.windows {
             window.appearance = appearance
+        }
+    }
+
+    private func cleanupOldArticles() {
+        let cutoffDate = Calendar.current.date(
+            byAdding: .day,
+            value: -configService.config.cleanupOldArticlesDays,
+            to: Date()
+        ) ?? Date()
+
+        // Filter articles to delete: older than cutoff, not starred, not archived
+        let articlesToDelete = articles.filter { article in
+            article.publishedDate < cutoffDate &&
+            !article.isStarred &&
+            !article.isArchived
+        }
+
+        let deleteCount = articlesToDelete.count
+
+        // Delete articles
+        for article in articlesToDelete {
+            modelContext.delete(article)
+        }
+
+        // Save context
+        do {
+            try modelContext.save()
+            cleanupMessage = "Successfully deleted \(deleteCount) old articles."
+            showingCleanupAlert = true
+        } catch {
+            cleanupMessage = "Error cleaning up articles: \(error.localizedDescription)"
+            showingCleanupAlert = true
         }
     }
 
@@ -545,12 +582,78 @@ struct GeneralSettingsView: View {
                 .background(Color(nsColor: .controlBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
+                // Performance Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "gauge.high")
+                            .font(.title2)
+                            .foregroundStyle(.purple)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Performance")
+                                .font(.headline)
+
+                            Text("Optimize app performance and storage")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Toggle("Load Images in Articles", isOn: $configService.config.loadImages)
+                        .help("Disable to save bandwidth and improve performance")
+
+                    Toggle("Background Refresh", isOn: $configService.config.backgroundRefreshEnabled)
+                        .help("Allow feeds to refresh in the background")
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Max Articles per Feed:")
+                            Spacer()
+                            Text("\(configService.config.maxArticlesPerFeed)")
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Slider(value: Binding(
+                            get: { Double(configService.config.maxArticlesPerFeed) },
+                            set: { configService.config.maxArticlesPerFeed = Int($0) }
+                        ), in: 100...1000, step: 50)
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Clean Up Articles Older Than:")
+                            Spacer()
+                            Text("\(configService.config.cleanupOldArticlesDays) days")
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Slider(value: Binding(
+                            get: { Double(configService.config.cleanupOldArticlesDays) },
+                            set: { configService.config.cleanupOldArticlesDays = Int($0) }
+                        ), in: 7...90, step: 7)
+                    }
+
+                    Button {
+                        cleanupOldArticles()
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Clean Up Old Articles Now")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding()
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
                 // Advanced Section
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: "doc.text")
                             .font(.title2)
-                            .foregroundStyle(.purple)
+                            .foregroundStyle(.orange)
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Advanced")
@@ -588,6 +691,11 @@ struct GeneralSettingsView: View {
             }
             .padding()
         }
+        .alert("Cleanup Complete", isPresented: $showingCleanupAlert) {
+            Button("OK") { showingCleanupAlert = false }
+        } message: {
+            Text(cleanupMessage)
+        }
     }
 }
 
@@ -608,7 +716,7 @@ struct AboutSettingsView: View {
                 Text("Modern RSS reader for macOS")
                     .foregroundStyle(.secondary)
 
-                Text("Version 1.0.0")
+                Text("Version 1.1.0")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
                     .padding(.top, 8)
@@ -625,6 +733,45 @@ struct AboutSettingsView: View {
             }
             .font(.caption)
             .foregroundStyle(.secondary)
+
+            Spacer()
+                .frame(height: 20)
+
+            // Links Section
+            VStack(spacing: 10) {
+                Button {
+                    if let url = URL(string: "https://github.com/msaadani/lireflow") {
+                        NSWorkspace.shared.open(url)
+                    }
+                } label: {
+                    Label("View on GitHub", systemImage: "globe")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    if let url = URL(string: "https://twitter.com/msaadani") {
+                        NSWorkspace.shared.open(url)
+                    }
+                } label: {
+                    Label("Follow on Twitter", systemImage: "at")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+            .frame(maxWidth: 300)
+
+            Spacer()
+                .frame(height: 10)
+
+            // Built with Claude
+            HStack(spacing: 4) {
+                Text("Built with")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                Link("Claude", destination: URL(string: "https://claude.ai")!)
+                    .font(.caption)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()

@@ -3,6 +3,8 @@ import SwiftData
 
 @main
 struct LireFlowApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Feed.self,
@@ -95,6 +97,11 @@ struct LireFlowApp: App {
                 }
                 .keyboardShortcut("m", modifiers: [])
 
+                Button("Mark All as Read") {
+                    NotificationCenter.default.post(name: .markAllAsRead, object: nil)
+                }
+                .keyboardShortcut("a", modifiers: [.command, .shift])
+
                 Button("Toggle Star") {
                     NotificationCenter.default.post(name: .toggleStar, object: nil)
                 }
@@ -124,6 +131,86 @@ extension Notification.Name {
     static let nextArticle = Notification.Name("nextArticle")
     static let previousArticle = Notification.Name("previousArticle")
     static let toggleRead = Notification.Name("toggleRead")
+    static let markAllAsRead = Notification.Name("markAllAsRead")
     static let toggleStar = Notification.Name("toggleStar")
     static let openInBrowser = Notification.Name("openInBrowser")
+}
+
+// MARK: - App Delegate
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let dockMenu = NSMenu()
+
+        // Add New Feed
+        let addFeedItem = NSMenuItem(
+            title: "New Feed",
+            action: #selector(addNewFeed),
+            keyEquivalent: ""
+        )
+        addFeedItem.target = self
+        dockMenu.addItem(addFeedItem)
+
+        // Add New Folder
+        let addFolderItem = NSMenuItem(
+            title: "New Folder",
+            action: #selector(addNewFolder),
+            keyEquivalent: ""
+        )
+        addFolderItem.target = self
+        dockMenu.addItem(addFolderItem)
+
+        dockMenu.addItem(NSMenuItem.separator())
+
+        // Refresh All Feeds
+        let refreshItem = NSMenuItem(
+            title: "Refresh All Feeds",
+            action: #selector(refreshFeeds),
+            keyEquivalent: ""
+        )
+        refreshItem.target = self
+        dockMenu.addItem(refreshItem)
+
+        // Mark All as Read
+        let markAllReadItem = NSMenuItem(
+            title: "Mark All as Read",
+            action: #selector(markAllRead),
+            keyEquivalent: ""
+        )
+        markAllReadItem.target = self
+        dockMenu.addItem(markAllReadItem)
+
+        dockMenu.addItem(NSMenuItem.separator())
+
+        // Settings
+        let settingsItem = NSMenuItem(
+            title: "Settings",
+            action: #selector(showSettings),
+            keyEquivalent: ""
+        )
+        settingsItem.target = self
+        dockMenu.addItem(settingsItem)
+
+        return dockMenu
+    }
+
+    @objc private func addNewFeed() {
+        NotificationCenter.default.post(name: .addNewFeed, object: nil)
+    }
+
+    @objc private func addNewFolder() {
+        NotificationCenter.default.post(name: .addNewFolder, object: nil)
+    }
+
+    @objc private func refreshFeeds() {
+        NotificationCenter.default.post(name: .refreshAllFeeds, object: nil)
+    }
+
+    @objc private func markAllRead() {
+        NotificationCenter.default.post(name: .markAllAsRead, object: nil)
+    }
+
+    @objc private func showSettings() {
+        NotificationCenter.default.post(name: .showSettings, object: nil)
+    }
 }

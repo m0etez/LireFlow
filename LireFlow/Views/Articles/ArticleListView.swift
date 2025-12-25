@@ -65,6 +65,12 @@ struct ArticleListView: View {
                                         Label(article.isRead ? "Mark as Unread" : "Mark as Read", systemImage: article.isRead ? "circle" : "circle.fill")
                                     }
 
+                                    Button {
+                                        article.isArchived.toggle()
+                                    } label: {
+                                        Label(article.isArchived ? "Unarchive" : "Archive", systemImage: article.isArchived ? "tray.and.arrow.up" : "archivebox")
+                                    }
+
                                     Divider()
 
                                     Button {

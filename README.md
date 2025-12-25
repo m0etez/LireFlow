@@ -19,11 +19,13 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 - Add RSS/Atom feeds from any URL
 - **Quick add from clipboard** - Auto-detects URLs when adding feeds
+- **Feed search/filter** - Quickly find feeds in sidebar with real-time filtering
 - Organize feeds into folders
 - Drag and drop feeds between folders
 - Automatic feed icon fetching via Google Favicons
 - **Feed health monitoring** - Visual indicators for broken or stale feeds
 - Last update time tracking with relative timestamps
+- **200+ default feeds** across 25+ categories (Tech, News, AI, Security, Gaming, France, etc.)
 
 ### 📖 Article Reading
 
@@ -31,8 +33,10 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - **Reading time estimates** - Shows estimated read time for each article
 - Full article extraction for truncated feeds
 - Mark articles as read/unread and starred
+- **Archive articles** - Archive articles to keep them organized separately
 - Reading lists for saving articles
 - **Copy as Markdown** - Export articles in Markdown format via context menu
+- **Print articles** - Print articles with proper formatting and metadata
 
 ### 🎨 Modern UI
 
@@ -42,6 +46,7 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - Three-column layout (Sidebar, List, Detail)
 - Comprehensive Settings window (⌘,) for customization
 - **Dock badge** showing unread article count
+- **Dock menu** with quick actions (New Feed, Refresh, Mark All Read, Settings)
 - **Full keyboard navigation** with vim-style shortcuts
 
 ### ☀️ Weather Widget
@@ -67,7 +72,20 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - **V** - Open article in browser
 - **⌘R** - Refresh all feeds
 - **⌘N** - Add new feed
+- **⌘⇧A** - Mark all articles as read
+- **⌘⇧N** - Add new folder
 - **⌘,** - Open Settings
+- **⌘⇧E** - Export to JSON
+- **⌘⇧I** - Import from JSON
+
+### ⚡ Performance & Optimization
+
+- **Load images toggle** - Disable image loading to save bandwidth
+- **Background refresh control** - Enable/disable background feed updates
+- **Max articles per feed** - Configurable limit (100-1000 articles)
+- **Smart cleanup** - Automatically remove old articles (configurable 7-90 days)
+- **Manual cleanup** - One-click cleanup of old articles (preserves starred/archived)
+- Optimized database queries and SwiftData performance
 
 ### 🔧 Additional Features
 
@@ -151,6 +169,12 @@ Access Settings via **⌘,** or the **LireFlow > Settings** menu.
 - Default feed category
 - Weather widget visibility
 - Custom weather location
+- Performance settings:
+  - Load images toggle
+  - Background refresh control
+  - Max articles per feed (100-1000)
+  - Cleanup old articles (7-90 days)
+  - Manual cleanup button
 
 **Backup & Import:**
 - Export to JSON (complete library backup)
@@ -160,6 +184,9 @@ Access Settings via **⌘,** or the **LireFlow > Settings** menu.
 
 **About:**
 - App version and information
+- GitHub repository link
+- Twitter/social links
+- "Built with Claude" attribution
 
 All settings are automatically saved to:
 ```
