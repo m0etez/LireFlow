@@ -104,7 +104,7 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/LireFlow.git
+   git clone https://github.com/m0etez/LireFlow.git
    cd LireFlow
    ```
 
