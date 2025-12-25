@@ -740,7 +740,7 @@ struct AboutSettingsView: View {
             // Links Section
             VStack(spacing: 10) {
                 Button {
-                    if let url = URL(string: "https://github.com/msaadani/lireflow") {
+                    if let url = URL(string: "https://github.com/m0etez/LireFlow") {
                         NSWorkspace.shared.open(url)
                     }
                 } label: {
