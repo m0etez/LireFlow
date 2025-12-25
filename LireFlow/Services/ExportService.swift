@@ -124,7 +124,7 @@ final class ExportService: ObservableObject {
           <head>
             <title>LireFlow Subscriptions</title>
             <dateCreated>\(rfc822Date(Date()))</dateCreated>
-            <docs>http://opml.org/spec2.opml</docs>
+            <docs>https://opml.org/spec2.opml</docs>
           </head>
           <body>
 

@@ -3,6 +3,9 @@ import Foundation
 /// Service for extracting full article content from web pages
 final class ArticleExtractor {
 
+    /// Maximum HTML content size to process (10MB) - prevents regex DoS attacks
+    private static let maxHTMLSize = 10 * 1024 * 1024
+
     /// EZProxy base URL (configure via ConfigService for institutional access)
     static let ezproxyBaseURL = ""  // Configure this in your config.json if needed
     
@@ -13,7 +16,7 @@ final class ArticleExtractor {
         }
         
         var request = URLRequest(url: url)
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 15_2_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -25,7 +28,12 @@ final class ArticleExtractor {
         guard let html = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) else {
             throw ArticleExtractorError.invalidContent
         }
-        
+
+        // Validate content size to prevent regex DoS attacks
+        guard html.utf8.count <= maxHTMLSize else {
+            throw ArticleExtractorError.contentTooLarge
+        }
+
         return extractMainContent(from: html)
     }
     
@@ -45,7 +53,7 @@ final class ArticleExtractor {
         let session = URLSession(configuration: config)
         
         var request = URLRequest(url: proxyURL)
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 15_2_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await session.data(for: request)
         
@@ -65,7 +73,12 @@ final class ArticleExtractor {
         guard let html = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) else {
             throw ArticleExtractorError.invalidContent
         }
-        
+
+        // Validate content size to prevent regex DoS attacks
+        guard html.utf8.count <= maxHTMLSize else {
+            throw ArticleExtractorError.contentTooLarge
+        }
+
         return extractMainContent(from: html)
     }
     
@@ -179,8 +192,9 @@ enum ArticleExtractorError: LocalizedError {
     case invalidURL
     case fetchFailed
     case invalidContent
+    case contentTooLarge
     case proxyLoginRequired
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidURL:
@@ -189,6 +203,8 @@ enum ArticleExtractorError: LocalizedError {
             return "Failed to fetch the article"
         case .invalidContent:
             return "Could not read the article content"
+        case .contentTooLarge:
+            return "Article content is too large to process (exceeds 10MB)"
         case .proxyLoginRequired:
             return "Please log in to the university proxy first (click Paris-Saclay Library button)"
         }

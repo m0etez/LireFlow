@@ -21,7 +21,7 @@ struct DefaultFeeds {
         FeedInfo(title: "MIT Technology Review", url: "https://www.technologyreview.com/feed/", category: "Tech"),
         FeedInfo(title: "The Next Web", url: "https://thenextweb.com/feed/", category: "Tech"),
         FeedInfo(title: "VentureBeat", url: "https://venturebeat.com/feed/", category: "Tech"),
-        FeedInfo(title: "Slashdot", url: "http://rss.slashdot.org/Slashdot/slashdotMain", category: "Tech"),
+        FeedInfo(title: "Slashdot", url: "https://rss.slashdot.org/Slashdot/slashdotMain", category: "Tech"),
         
         // News - International
         FeedInfo(title: "BBC News", url: "https://feeds.bbci.co.uk/news/rss.xml", category: "News"),
@@ -30,7 +30,7 @@ struct DefaultFeeds {
         FeedInfo(title: "The Guardian", url: "https://www.theguardian.com/world/rss", category: "News"),
         FeedInfo(title: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml", category: "News"),
         FeedInfo(title: "Associated Press", url: "https://apnews.com/index.rss", category: "News"),
-        FeedInfo(title: "CNN", url: "http://rss.cnn.com/rss/edition.rss", category: "News"),
+        FeedInfo(title: "CNN", url: "https://rss.cnn.com/rss/edition.rss", category: "News"),
         
         // News - France
         FeedInfo(title: "Le Monde", url: "https://www.lemonde.fr/rss/une.xml", category: "France"),

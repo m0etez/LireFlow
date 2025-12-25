@@ -45,6 +45,12 @@ class ConfigService: ObservableObject {
         do {
             let data = try JSONEncoder().encode(config)
             try data.write(to: configURL, options: .atomic)
+
+            // Set file permissions to 0600 (read/write for owner only) for security
+            try FileManager.default.setAttributes(
+                [.posixPermissions: 0o600],
+                ofItemAtPath: configURL.path
+            )
         } catch {
             print("Failed to save config: \(error)")
         }

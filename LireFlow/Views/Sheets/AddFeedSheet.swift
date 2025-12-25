@@ -155,24 +155,40 @@ struct AddFeedSheet: View {
     
     private func fetchPreview() async {
         guard !urlString.isEmpty else { return }
-        
-        // Normalize URL
-        var url = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
-            url = "https://" + url
+
+        // Normalize and validate URL
+        var urlStr = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Add https:// if no scheme is present
+        if !urlStr.hasPrefix("http://") && !urlStr.hasPrefix("https://") {
+            urlStr = "https://" + urlStr
         }
-        urlString = url
-        
+
+        // Validate URL and ensure safe scheme
+        guard let url = URL(string: urlStr),
+              let scheme = url.scheme?.lowercased(),
+              (scheme == "http" || scheme == "https"),
+              url.host != nil else {
+            self.error = NSError(
+                domain: "AddFeedSheet",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid URL. Please enter a valid http:// or https:// URL."]
+            )
+            return
+        }
+
+        urlString = urlStr
+
         isLoading = true
         error = nil
         previewFeed = nil
-        
+
         do {
-            previewFeed = try await feedService.fetchFeed(from: url)
+            previewFeed = try await feedService.fetchFeed(from: urlStr)
         } catch {
             self.error = error
         }
-        
+
         isLoading = false
     }
     
@@ -197,9 +213,24 @@ struct AddFeedSheet: View {
         if let clipboardString = NSPasteboard.general.string(forType: .string) {
             let trimmed = clipboardString.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            // Check if it looks like a URL (starts with http/https or contains a dot)
-            if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") ||
-               (trimmed.contains(".") && !trimmed.contains(" ") && trimmed.count < 500) {
+            // Validate clipboard content is a safe URL
+            guard trimmed.count < 500 else { return }  // Length check
+
+            var urlStr = trimmed
+            if !urlStr.hasPrefix("http://") && !urlStr.hasPrefix("https://") {
+                // Only auto-prepend https if it looks like a domain
+                if urlStr.contains(".") && !urlStr.contains(" ") {
+                    urlStr = "https://" + urlStr
+                } else {
+                    return  // Not a valid URL pattern
+                }
+            }
+
+            // Validate it's a proper URL with safe scheme
+            if let url = URL(string: urlStr),
+               let scheme = url.scheme?.lowercased(),
+               (scheme == "http" || scheme == "https"),
+               url.host != nil {
                 urlString = trimmed
 
                 // Auto-trigger preview fetch
