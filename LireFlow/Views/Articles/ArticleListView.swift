@@ -8,86 +8,139 @@ struct ArticleListView: View {
     
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \ReadingList.createdAt) private var readingLists: [ReadingList]
+    @ObservedObject private var configService = ConfigService.shared
     
     var body: some View {
-        Group {
-            if articles.isEmpty {
-                EmptyArticleListView(isSearching: !searchText.isEmpty)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 2) {
-                        ForEach(articles, id: \.id) { article in
-                            ArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
-                                .onTapGesture {
-                                    selectedArticle = article
-                                }
-                                .contextMenu {
-                                    Menu("Save to Reading List") {
-                                        if readingLists.isEmpty {
-                                            Text("No reading lists")
-                                                .foregroundStyle(.secondary)
-                                        } else {
-                                            ForEach(readingLists) { readingList in
-                                                Button {
-                                                    saveArticle(article, to: readingList)
-                                                } label: {
-                                                    Label {
-                                                        Text(readingList.name)
-                                                    } icon: {
-                                                        Image(systemName: isArticleInList(article, readingList) ? "checkmark" : readingList.icon)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                    if let lists = article.readingLists, !lists.isEmpty {
-                                        Menu("Remove from Reading List") {
-                                            ForEach(lists) { readingList in
-                                                Button(readingList.name) {
-                                                    removeArticle(article, from: readingList)
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                    Divider()
-                                    
-                                    Button {
-                                        article.isStarred.toggle()
-                                    } label: {
-                                        Label(article.isStarred ? "Unstar" : "Star", systemImage: article.isStarred ? "star.slash" : "star")
-                                    }
-                                    
-                                    Button {
-                                        article.isRead.toggle()
-                                    } label: {
-                                        Label(article.isRead ? "Mark as Unread" : "Mark as Read", systemImage: article.isRead ? "circle" : "circle.fill")
-                                    }
-
-                                    Button {
-                                        article.isArchived.toggle()
-                                    } label: {
-                                        Label(article.isArchived ? "Unarchive" : "Archive", systemImage: article.isArchived ? "tray.and.arrow.up" : "archivebox")
-                                    }
-
-                                    Divider()
-
-                                    Button {
-                                        copyArticleAsMarkdown(article)
-                                    } label: {
-                                        Label("Copy as Markdown", systemImage: "doc.on.doc")
-                                    }
-                                }
-                        }
+        VStack(spacing: 0) {
+            // Layout picker header
+            HStack {
+                Text("\(articles.count) articles")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                // Layout picker
+                Picker("", selection: $configService.config.articleLayout) {
+                    ForEach(ArticleLayout.allCases, id: \.self) { layout in
+                        Image(systemName: layout.icon)
+                            .tag(layout)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 100)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.ultraThinMaterial)
+            
+            Divider()
+            
+            // Article list
+            Group {
+                if articles.isEmpty {
+                    EmptyArticleListView(isSearching: !searchText.isEmpty)
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: layoutSpacing) {
+                            ForEach(articles, id: \.id) { article in
+                                articleView(for: article)
+                                    .onTapGesture {
+                                        selectedArticle = article
+                                    }
+                                    .contextMenu {
+                                        articleContextMenu(for: article)
+                                    }
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                    }
                 }
             }
         }
         .frame(minWidth: 280)
         .background(Color(nsColor: .controlBackgroundColor))
+    }
+    
+    private var layoutSpacing: CGFloat {
+        switch configService.config.articleLayout {
+        case .standard: return 2
+        case .card: return 12
+        case .compact: return 0
+        }
+    }
+    
+    @ViewBuilder
+    private func articleView(for article: Article) -> some View {
+        switch configService.config.articleLayout {
+        case .standard:
+            ArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
+        case .card:
+            CardArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
+        case .compact:
+            CompactArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
+        }
+    }
+    
+    @ViewBuilder
+    private func articleContextMenu(for article: Article) -> some View {
+        Menu("Save to Reading List") {
+            if readingLists.isEmpty {
+                Text("No reading lists")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(readingLists) { readingList in
+                    Button {
+                        saveArticle(article, to: readingList)
+                    } label: {
+                        Label {
+                            Text(readingList.name)
+                        } icon: {
+                            Image(systemName: isArticleInList(article, readingList) ? "checkmark" : readingList.icon)
+                        }
+                    }
+                }
+            }
+        }
+        
+        if let lists = article.readingLists, !lists.isEmpty {
+            Menu("Remove from Reading List") {
+                ForEach(lists) { readingList in
+                    Button(readingList.name) {
+                        removeArticle(article, from: readingList)
+                    }
+                }
+            }
+        }
+        
+        Divider()
+        
+        Button {
+            article.isStarred.toggle()
+        } label: {
+            Label(article.isStarred ? "Unstar" : "Star", systemImage: article.isStarred ? "star.slash" : "star")
+        }
+        
+        Button {
+            article.isRead.toggle()
+        } label: {
+            Label(article.isRead ? "Mark as Unread" : "Mark as Read", systemImage: article.isRead ? "circle" : "circle.fill")
+        }
+
+        Button {
+            article.isArchived.toggle()
+        } label: {
+            Label(article.isArchived ? "Unarchive" : "Archive", systemImage: article.isArchived ? "tray.and.arrow.up" : "archivebox")
+        }
+
+        Divider()
+
+        Button {
+            copyArticleAsMarkdown(article)
+        } label: {
+            Label("Copy as Markdown", systemImage: "doc.on.doc")
+        }
     }
     
     private func saveArticle(_ article: Article, to readingList: ReadingList) {
@@ -265,6 +318,189 @@ struct ArticleRow: View {
     }
 }
 
+// MARK: - Card Article Row
+
+struct CardArticleRow: View {
+    @Bindable var article: Article
+    let isSelected: Bool
+    @State private var isHovered = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Gradient header with feed icon
+            HStack {
+                if let feed = article.feed {
+                    AsyncImage(url: URL(string: "https://www.google.com/s2/favicons?domain=\(URL(string: feed.url)?.host ?? "")&sz=64")) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable().aspectRatio(contentMode: .fit)
+                        default:
+                            Image(systemName: "dot.radiowaves.up.forward")
+                                .foregroundStyle(.white)
+                        }
+                    }
+                    .frame(width: 32, height: 32)
+                    .background(
+                        LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                }
+                
+                Spacer()
+                
+                Text(article.readingTimeText)
+                    .font(.caption2)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.blue.opacity(0.1))
+                    .clipShape(Capsule())
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                // Feed and date
+                HStack {
+                    if let feed = article.feed {
+                        Text(feed.title)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Text(article.formattedDate)
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                
+                // Title
+                Text(article.displayTitle)
+                    .font(.headline)
+                    .fontWeight(article.isRead ? .regular : .bold)
+                    .foregroundStyle(article.isRead ? .secondary : .primary)
+                    .lineLimit(3)
+                
+                // Summary
+                if !article.plainTextSummary.isEmpty {
+                    Text(article.plainTextSummary)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+                
+                // Footer
+                HStack {
+                    if !article.isRead {
+                        Circle()
+                            .fill(.blue)
+                            .frame(width: 8, height: 8)
+                    }
+                    
+                    Text(article.readingTimeText)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                    
+                    Spacer()
+                    
+                    if article.isStarred {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.yellow)
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .padding(12)
+        .background {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isSelected ? Color.blue.opacity(0.1) : Color(nsColor: .controlBackgroundColor))
+                .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(isSelected ? Color.blue.opacity(0.3) : Color.gray.opacity(0.1), lineWidth: 1)
+        }
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovered = hovering
+            }
+        }
+        .onChange(of: isSelected) { _, newValue in
+            if newValue {
+                article.isRead = true
+            }
+        }
+    }
+}
+
+// MARK: - Compact Article Row
+
+struct CompactArticleRow: View {
+    @Bindable var article: Article
+    let isSelected: Bool
+    @State private var isHovered = false
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            // Unread indicator
+            Circle()
+                .fill(article.isRead ? .clear : .blue)
+                .frame(width: 6, height: 6)
+            
+            // Title
+            Text(article.displayTitle)
+                .font(.system(size: 13))
+                .fontWeight(article.isRead ? .regular : .medium)
+                .foregroundStyle(article.isRead ? .secondary : .primary)
+                .lineLimit(1)
+            
+            Spacer()
+            
+            // Star
+            if article.isStarred {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.yellow)
+            }
+            
+            // Source
+            if let feed = article.feed {
+                Text(feed.title)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+                    .frame(maxWidth: 80, alignment: .trailing)
+            }
+            
+            // Date
+            Text(article.formattedDate)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .frame(width: 50, alignment: .trailing)
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
+        .background {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.blue.opacity(0.15))
+            } else if isHovered {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(.ultraThinMaterial)
+            }
+        }
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isHovered = hovering
+            }
+        }
+        .onChange(of: isSelected) { _, newValue in
+            if newValue {
+                article.isRead = true
+            }
+        }
+    }
+}
+
 #Preview {
     ArticleListView(
         articles: [],
@@ -272,4 +508,3 @@ struct ArticleRow: View {
         searchText: .constant("")
     )
 }
-

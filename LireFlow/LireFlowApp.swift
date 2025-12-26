@@ -115,6 +115,15 @@ struct LireFlowApp: App {
                 .keyboardShortcut("v", modifiers: [])
             }
         }
+        
+        // Menu Bar Extra
+        MenuBarExtra {
+            MenuBarView()
+                .modelContainer(sharedModelContainer)
+        } label: {
+            Label("LireFlow", systemImage: "dot.radiowaves.up.forward")
+        }
+        .menuBarExtraStyle(.window)
     }
 }
 
@@ -134,6 +143,7 @@ extension Notification.Name {
     static let markAllAsRead = Notification.Name("markAllAsRead")
     static let toggleStar = Notification.Name("toggleStar")
     static let openInBrowser = Notification.Name("openInBrowser")
+    static let openArticle = Notification.Name("openArticle")
 }
 
 // MARK: - App Delegate

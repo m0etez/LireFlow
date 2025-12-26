@@ -62,6 +62,30 @@ class ConfigService: ObservableObject {
     }
 }
 
+// MARK: - Article Layout
+
+enum ArticleLayout: String, Codable, CaseIterable {
+    case standard = "standard"
+    case card = "card"
+    case compact = "compact"
+    
+    var displayName: String {
+        switch self {
+        case .standard: return "Standard"
+        case .card: return "Card"
+        case .compact: return "Compact"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .standard: return "list.bullet"
+        case .card: return "rectangle.grid.1x2"
+        case .compact: return "list.dash"
+        }
+    }
+}
+
 /// App configuration stored in JSON file
 struct AppConfig: Codable {
     var isDarkMode: Bool = false
@@ -78,6 +102,7 @@ struct AppConfig: Codable {
     // UI preferences
     var sidebarWidth: Double = 240
     var articleListWidth: Double = 320
+    var articleLayout: ArticleLayout = .standard
 
     // Performance settings
     var loadImages: Bool = true
@@ -85,3 +110,4 @@ struct AppConfig: Codable {
     var cleanupOldArticlesDays: Int = 30
     var backgroundRefreshEnabled: Bool = true
 }
+
