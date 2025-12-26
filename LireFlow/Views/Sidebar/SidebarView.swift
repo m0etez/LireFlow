@@ -21,6 +21,11 @@ struct SidebarView: View {
     @State private var folderToRename: Folder?
     @State private var newFolderName = ""
 
+    // Rename feed state
+    @State private var showingRenameFeed = false
+    @State private var feedToRename: Feed?
+    @State private var newFeedName = ""
+
     // Feed search
     @State private var feedSearchText = ""
 
@@ -128,7 +133,14 @@ struct SidebarView: View {
             // User Folders
             Section("Folders") {
                 ForEach(filteredFolders) { folder in
-                    FolderRow(folder: folder, selectedItem: $selectedItem, showCount: configService.config.showUnreadCount)
+                    FolderRow(
+                        folder: folder,
+                        selectedItem: $selectedItem,
+                        showCount: configService.config.showUnreadCount,
+                        feedToRename: $feedToRename,
+                        newFeedName: $newFeedName,
+                        showingRenameFeed: $showingRenameFeed
+                    )
                         .contextMenu {
                             Button {
                                 folderToRename = folder
@@ -163,6 +175,16 @@ struct SidebarView: View {
                         FeedRow(feed: feed, showCount: configService.config.showUnreadCount)
                             .tag(SidebarItem.feed(feed))
                             .contextMenu {
+                                Button {
+                                    feedToRename = feed
+                                    newFeedName = feed.title
+                                    showingRenameFeed = true
+                                } label: {
+                                    Label("Rename", systemImage: "pencil")
+                                }
+
+                                Divider()
+
                                 // Move to folder
                                 Menu("Move to Folder") {
                                     Button("None (Remove from folder)") {
@@ -261,6 +283,15 @@ struct SidebarView: View {
         } message: {
             Text("Enter a new name for the folder")
         }
+        .alert("Rename Feed", isPresented: $showingRenameFeed) {
+            TextField("Feed name", text: $newFeedName)
+            Button("Cancel", role: .cancel) { }
+            Button("Rename") {
+                renameFeed()
+            }
+        } message: {
+            Text("Enter a new name for the feed")
+        }
     }
     
     private func deleteFolders(at offsets: IndexSet) {
@@ -282,7 +313,15 @@ struct SidebarView: View {
         folderToRename = nil
         newFolderName = ""
     }
-    
+
+    private func renameFeed() {
+        guard let feed = feedToRename, !newFeedName.isEmpty else { return }
+        feed.title = newFeedName
+        try? modelContext.save()
+        feedToRename = nil
+        newFeedName = ""
+    }
+
     private func deleteFeeds(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(feeds[index])
@@ -347,6 +386,9 @@ struct FolderRow: View {
     let folder: Folder
     @Binding var selectedItem: SidebarItem?
     let showCount: Bool
+    @Binding var feedToRename: Feed?
+    @Binding var newFeedName: String
+    @Binding var showingRenameFeed: Bool
     @State private var isExpanded = true
 
     var body: some View {
@@ -355,6 +397,15 @@ struct FolderRow: View {
                 FeedRow(feed: feed, showCount: showCount)
                     .tag(SidebarItem.feed(feed))
                     .padding(.leading, 8)
+                    .contextMenu {
+                        Button {
+                            feedToRename = feed
+                            newFeedName = feed.title
+                            showingRenameFeed = true
+                        } label: {
+                            Label("Rename", systemImage: "pencil")
+                        }
+                    }
             }
         } label: {
             HStack {

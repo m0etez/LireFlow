@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
+import WebKit
 
 @MainActor
 final class ExportService: ObservableObject {
@@ -12,6 +13,7 @@ final class ExportService: ObservableObject {
         case fileWriteFailed(Error)
         case encodingFailed(Error)
         case userCancelled
+        case pdfGenerationFailed(Error)
 
         var errorDescription: String? {
             switch self {
@@ -23,6 +25,8 @@ final class ExportService: ObservableObject {
                 return "Failed to encode data: \(error.localizedDescription)"
             case .userCancelled:
                 return nil  // Silent error
+            case .pdfGenerationFailed(let error):
+                return "Failed to generate PDF: \(error.localizedDescription)"
             }
         }
     }
@@ -108,6 +112,73 @@ final class ExportService: ObservableObject {
         // 3. Write to file
         do {
             try opmlContent.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            throw ExportError.fileWriteFailed(error)
+        }
+
+        return url
+    }
+
+    // MARK: - Article PDF Export
+
+    /// Export single article to PDF format
+    func exportArticleToPDF(article: Article) async throws -> URL {
+        // 1. Generate print-ready HTML (clean, no logo)
+        let displayContent = article.content.isEmpty ? article.summary : article.content
+        let htmlContent = buildArticlePrintHTML(article: article, content: displayContent)
+
+        // 2. Present save panel
+        let savePanel = NSSavePanel()
+        let sanitizedTitle = sanitizeFilename(article.displayTitle)
+        savePanel.nameFieldStringValue = "\(sanitizedTitle).pdf"
+        savePanel.allowedContentTypes = [.pdf]
+        savePanel.canCreateDirectories = true
+        savePanel.title = "Export Article to PDF"
+        savePanel.message = "Choose where to save the PDF"
+
+        guard savePanel.runModal() == .OK,
+              let url = savePanel.url else {
+            throw ExportError.userCancelled
+        }
+
+        // 3. Generate PDF using WebKit
+        do {
+            try await generatePDF(from: htmlContent, to: url)
+        } catch {
+            throw ExportError.pdfGenerationFailed(error)
+        }
+
+        return url
+    }
+
+    // MARK: - Article Markdown Export
+
+    /// Export single article to Markdown format
+    func exportArticleToMarkdown(article: Article) async throws -> URL {
+        // 1. Generate markdown content
+        let markdown = buildArticleMarkdown(article: article)
+
+        // 2. Present save panel
+        let savePanel = NSSavePanel()
+        let sanitizedTitle = sanitizeFilename(article.displayTitle)
+        savePanel.nameFieldStringValue = "\(sanitizedTitle).md"
+        if let markdownType = UTType(filenameExtension: "md") {
+            savePanel.allowedContentTypes = [markdownType, .plainText]
+        } else {
+            savePanel.allowedContentTypes = [.plainText]
+        }
+        savePanel.canCreateDirectories = true
+        savePanel.title = "Export Article to Markdown"
+        savePanel.message = "Choose where to save the Markdown file"
+
+        guard savePanel.runModal() == .OK,
+              let url = savePanel.url else {
+            throw ExportError.userCancelled
+        }
+
+        // 3. Write to file
+        do {
+            try markdown.write(to: url, atomically: true, encoding: .utf8)
         } catch {
             throw ExportError.fileWriteFailed(error)
         }
@@ -202,5 +273,128 @@ final class ExportService: ObservableObject {
         formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter.string(from: date)
+    }
+
+    // MARK: - PDF Generation Helpers
+
+    private func buildArticlePrintHTML(article: Article, content: String) -> String {
+        // Match existing print pattern from ArticleDetailView (clean, no logo)
+        return """
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+                    font-size: 12pt;
+                    line-height: 1.6;
+                    margin: 40px;
+                    color: #1d1d1f;
+                }
+                h1 {
+                    font-size: 24pt;
+                    font-weight: 600;
+                    margin-bottom: 20px;
+                }
+                .metadata {
+                    font-size: 10pt;
+                    color: #666;
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid #ddd;
+                }
+                img {
+                    max-width: 100%;
+                    height: auto;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>\(article.displayTitle)</h1>
+            <div class="metadata">
+                \(article.author.map { "By \($0)<br>" } ?? "")
+                \(article.feed.map { "\($0.title)<br>" } ?? "")
+                \(article.publishedDate.formatted(date: .long, time: .omitted))<br>
+                \(article.url)
+            </div>
+            \(content)
+        </body>
+        </html>
+        """
+    }
+
+    private func generatePDF(from html: String, to url: URL) async throws {
+        // Use WKWebView to render HTML to PDF
+        let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 612, height: 792))
+        webView.loadHTMLString(html, baseURL: nil)
+
+        // Wait for load to complete
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            var observer: NSKeyValueObservation?
+            observer = webView.observe(\.isLoading, options: [.new]) { webView, change in
+                if webView.isLoading == false {
+                    observer?.invalidate()
+
+                    // Generate PDF
+                    let config = WKPDFConfiguration()
+                    config.rect = CGRect(x: 0, y: 0, width: 612, height: 792)
+
+                    webView.createPDF(configuration: config) { result in
+                        switch result {
+                        case .success(let data):
+                            do {
+                                try data.write(to: url, options: .atomic)
+                                continuation.resume()
+                            } catch {
+                                continuation.resume(throwing: error)
+                            }
+                        case .failure(let error):
+                            continuation.resume(throwing: error)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func sanitizeFilename(_ filename: String) -> String {
+        // Remove invalid filename characters
+        let invalidCharacters = CharacterSet(charactersIn: ":/\\?%*|\"<>")
+        let sanitized = filename
+            .components(separatedBy: invalidCharacters)
+            .joined(separator: "-")
+            .trimmingCharacters(in: .whitespaces)
+
+        // Truncate to 100 characters
+        if sanitized.count > 100 {
+            return String(sanitized.prefix(100))
+        }
+        return sanitized
+    }
+
+    // MARK: - Markdown Generation Helper
+
+    private func buildArticleMarkdown(article: Article) -> String {
+        var markdown = ""
+
+        // Title
+        markdown += "# \(article.displayTitle)\n\n"
+
+        // Metadata
+        if let author = article.author, !author.isEmpty {
+            markdown += "**Author:** \(author)\n\n"
+        }
+        if let feed = article.feed {
+            markdown += "**Source:** \(feed.title)\n\n"
+        }
+        markdown += "**Date:** \(article.publishedDate.formatted(date: .long, time: .omitted))\n\n"
+        markdown += "**URL:** [\(article.url)](\(article.url))\n\n"
+        markdown += "---\n\n"
+
+        // Content (convert HTML to plain text)
+        let content = article.content.isEmpty ? article.summary : article.content
+        let strippedContent = content.strippingHTML.decodingHTMLEntities
+        markdown += strippedContent
+
+        return markdown
     }
 }

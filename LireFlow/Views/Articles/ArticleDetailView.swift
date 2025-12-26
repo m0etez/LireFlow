@@ -7,7 +7,15 @@ struct ArticleDetailView: View {
     @State private var webViewHeight: CGFloat = 400
     @State private var isFetchingFullArticle = false
     @State private var fetchError: String?
-    
+
+    // Export state
+    @StateObject private var exportService = ExportService()
+    @State private var isExporting = false
+    @State private var showingExportSuccess = false
+    @State private var exportSuccessMessage = ""
+    @State private var showingExportError = false
+    @State private var exportErrorMessage = ""
+
     // Use content if available, otherwise fall back to summary
     private var displayContent: String {
         if !article.content.isEmpty {
@@ -277,6 +285,26 @@ struct ArticleDetailView: View {
 
                 Divider()
 
+                Menu {
+                    Button {
+                        Task { await exportToPDF() }
+                    } label: {
+                        Label("Export to PDF", systemImage: "doc.richtext")
+                    }
+                    .disabled(isExporting)
+
+                    Button {
+                        Task { await exportToMarkdown() }
+                    } label: {
+                        Label("Export to Markdown", systemImage: "doc.text")
+                    }
+                    .disabled(isExporting)
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                }
+                .help("Export article")
+                .disabled(isExporting)
+
                 Button {
                     printArticle()
                 } label: {
@@ -291,6 +319,16 @@ struct ArticleDetailView: View {
                     .help("Share article")
                 }
             }
+        }
+        .alert("Export Successful", isPresented: $showingExportSuccess) {
+            Button("OK") { showingExportSuccess = false }
+        } message: {
+            Text(exportSuccessMessage)
+        }
+        .alert("Export Failed", isPresented: $showingExportError) {
+            Button("OK") { showingExportError = false }
+        } message: {
+            Text(exportErrorMessage)
         }
         .onAppear {
             article.isRead = true
@@ -383,6 +421,40 @@ struct ArticleDetailView: View {
         printOperation.printInfo.rightMargin = 40
 
         printOperation.run()
+    }
+
+    // MARK: - Export Article
+
+    private func exportToPDF() async {
+        isExporting = true
+        defer { isExporting = false }
+
+        do {
+            let url = try await exportService.exportArticleToPDF(article: article)
+            exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            showingExportSuccess = true
+        } catch ExportService.ExportError.userCancelled {
+            // Silent - user cancelled
+        } catch {
+            exportErrorMessage = error.localizedDescription
+            showingExportError = true
+        }
+    }
+
+    private func exportToMarkdown() async {
+        isExporting = true
+        defer { isExporting = false }
+
+        do {
+            let url = try await exportService.exportArticleToMarkdown(article: article)
+            exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            showingExportSuccess = true
+        } catch ExportService.ExportError.userCancelled {
+            // Silent - user cancelled
+        } catch {
+            exportErrorMessage = error.localizedDescription
+            showingExportError = true
+        }
     }
 }
 
