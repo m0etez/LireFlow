@@ -2,12 +2,49 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.lireflow.app</string>
+	<key>CFBundleName</key>
+	<string>LireFlow</string>
+	<key>CFBundleDisplayName</key>
+	<string>LireFlow</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleExecutable</key>
+	<string>LireFlow</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.news</string>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to show local weather.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>rss.cnn.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>cnn.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 </dict>
 </plist>
