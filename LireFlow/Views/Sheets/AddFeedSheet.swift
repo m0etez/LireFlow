@@ -18,10 +18,11 @@ struct AddFeedSheet: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header - Clean liquid glass style
             HStack {
                 Text("Add Feed")
-                    .font(.headline)
+                    .font(.title2)
+                    .fontWeight(.semibold)
                 
                 Spacer()
                 
@@ -30,118 +31,152 @@ struct AddFeedSheet: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
                 .buttonStyle(.plain)
+                .contentShape(Circle())
             }
-            .padding()
-            
-            Divider()
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
             
             // Content
-            VStack(spacing: 20) {
-                // URL Input
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Feed URL")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    HStack {
-                        TextField("https://example.com/feed.xml", text: $urlString)
-                            .textFieldStyle(.roundedBorder)
-                            .onSubmit {
-                                Task { await fetchPreview() }
-                            }
-                        
-                        Button {
-                            Task { await fetchPreview() }
-                        } label: {
-                            if isLoading {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Text("Fetch")
-                            }
-                        }
-                        .disabled(urlString.isEmpty || isLoading)
-                    }
-                }
-                
-                // Error display
-                if let error = error {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        Text(error.localizedDescription)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                    }
-                    .padding(12)
-                    .background(.orange.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                
-                // Preview
-                if let feed = previewFeed {
-                    FeedPreviewCard(feed: feed)
-                }
-                
-                // Folder selection
-                if !folders.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Add to Folder (Optional)")
+            ScrollView {
+                VStack(spacing: 24) {
+                    // URL Input - Refined styling
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Feed URL")
                             .font(.subheadline)
+                            .fontWeight(.medium)
                             .foregroundStyle(.secondary)
                         
-                        Picker("Folder", selection: $selectedFolder) {
-                            Text("None").tag(nil as Folder?)
-                            ForEach(folders) { folder in
-                                Text(folder.name).tag(folder as Folder?)
+                        HStack(spacing: 12) {
+                            TextField("https://example.com/feed.xml", text: $urlString)
+                                .textFieldStyle(.plain)
+                                .padding(12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(.ultraThinMaterial)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .strokeBorder(.quaternary, lineWidth: 1)
+                                )
+                                .onSubmit {
+                                    Task { await fetchPreview() }
+                                }
+                            
+                            Button {
+                                Task { await fetchPreview() }
+                            } label: {
+                                Group {
+                                    if isLoading {
+                                        ProgressView()
+                                            .controlSize(.small)
+                                    } else {
+                                        Text("Fetch")
+                                            .fontWeight(.medium)
+                                    }
+                                }
+                                .frame(width: 60)
                             }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.blue)
+                            .disabled(urlString.isEmpty || isLoading)
                         }
-                        .pickerStyle(.menu)
+                    }
+                    
+                    // Error display - Subtle styling
+                    if let error = error {
+                        HStack(spacing: 10) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            Text(error.localizedDescription)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        .padding(14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(.orange.opacity(0.08))
+                        )
+                    }
+                    
+                    // Preview - Liquid glass card
+                    if let feed = previewFeed {
+                        FeedPreviewCard(feed: feed)
+                    }
+                    
+                    // Folder selection - Cleaner design
+                    if !folders.isEmpty {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Add to Folder")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.secondary)
+                            
+                            Picker("", selection: $selectedFolder) {
+                                Text("None").tag(nil as Folder?)
+                                ForEach(folders) { folder in
+                                    Text(folder.name).tag(folder as Folder?)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .labelsHidden()
+                        }
                     }
                 }
-                
-                Spacer()
-                
-                // Browse default feeds
-                Button {
-                    showingDefaultFeeds = true
-                } label: {
-                    HStack {
-                        Image(systemName: "list.bullet.rectangle")
-                        Text("Browse Default Feeds")
-                    }
-                    .frame(maxWidth: .infinity)
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+            }
+            
+            Spacer()
+            
+            // Browse default feeds - Subtle link style
+            Button {
+                showingDefaultFeeds = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "list.bullet.rectangle")
+                        .font(.caption)
+                    Text("Browse Default Feeds")
+                        .font(.subheadline)
                 }
-                .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
             }
-            .padding()
+            .buttonStyle(.plain)
+            .padding(.bottom, 16)
             
-            Divider()
-            
-            // Footer
+            // Footer - Clean button row
             HStack {
                 Button("Cancel") {
                     dismiss()
                 }
                 .keyboardShortcut(.escape)
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
                 
                 Spacer()
                 
-                Button("Add Feed") {
+                Button {
                     Task { await addFeed() }
+                } label: {
+                    Text("Add Feed")
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
                 }
-                .keyboardShortcut(.return)
                 .buttonStyle(.borderedProminent)
+                .tint(.accentColor)
+                .keyboardShortcut(.return)
                 .disabled(previewFeed == nil || isLoading)
             }
-            .padding()
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
         }
-        .frame(width: 500, height: 520)
+        .frame(width: 480, height: 500)
+        .background(.ultraThinMaterial)
         .sheet(isPresented: $showingDefaultFeeds) {
             DefaultFeedsSheet(folders: folders) {
                 // Feeds added, dismiss this sheet too
@@ -248,37 +283,47 @@ struct FeedPreviewCard: View {
     let feed: ParsedFeed
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
+                    .font(.body)
                 
                 Text("Feed Found")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.green)
             }
             
             Text(feed.title)
                 .font(.headline)
+                .foregroundStyle(.primary)
             
             if !feed.description.isEmpty {
                 Text(feed.description)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
             
-            Text("\(feed.articles.count) articles")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+            HStack {
+                Image(systemName: "doc.text")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                Text("\(feed.articles.count) articles")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.green.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.green.opacity(0.06))
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(.green.opacity(0.2), lineWidth: 1)
+                .strokeBorder(.green.opacity(0.15), lineWidth: 1)
         )
     }
 }

@@ -305,13 +305,6 @@ struct ArticleDetailView: View {
                 .help("Export article")
                 .disabled(isExporting)
 
-                Button {
-                    printArticle()
-                } label: {
-                    Image(systemName: "printer")
-                }
-                .help("Print article")
-
                 if let url = URL(string: article.url) {
                     ShareLink(item: url) {
                         Image(systemName: "square.and.arrow.up")
@@ -360,69 +353,6 @@ struct ArticleDetailView: View {
         isFetchingFullArticle = false
     }
 
-    // MARK: - Print Article
-
-    private func printArticle() {
-        let printContent = """
-        <html>
-        <head>
-            <style>
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-                    font-size: 12pt;
-                    line-height: 1.6;
-                    margin: 40px;
-                    color: #1d1d1f;
-                }
-                h1 {
-                    font-size: 24pt;
-                    font-weight: 600;
-                    margin-bottom: 20px;
-                }
-                .metadata {
-                    font-size: 10pt;
-                    color: #666;
-                    margin-bottom: 20px;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid #ddd;
-                }
-                img {
-                    max-width: 100%;
-                    height: auto;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>\(article.displayTitle)</h1>
-            <div class="metadata">
-                \(article.author.map { "By \($0)<br>" } ?? "")
-                \(article.feed.map { "\($0.title)<br>" } ?? "")
-                \(article.publishedDate.formatted(date: .long, time: .omitted))<br>
-                \(article.url)
-            </div>
-            \(displayContent)
-        </body>
-        </html>
-        """
-
-        let printView = NSTextView(frame: NSRect(x: 0, y: 0, width: 612, height: 792))
-        printView.string = ""
-
-        // Convert HTML to attributed string
-        if let data = printContent.data(using: .utf8),
-           let attributedString = NSAttributedString(html: data, documentAttributes: nil) {
-            printView.textStorage?.setAttributedString(attributedString)
-        }
-
-        let printOperation = NSPrintOperation(view: printView)
-        printOperation.printInfo.topMargin = 40
-        printOperation.printInfo.bottomMargin = 40
-        printOperation.printInfo.leftMargin = 40
-        printOperation.printInfo.rightMargin = 40
-
-        printOperation.run()
-    }
-
     // MARK: - Export Article
 
     private func exportToPDF() async {
@@ -457,8 +387,6 @@ struct ArticleDetailView: View {
         }
     }
 }
-
-// MARK: - Article Content WebView
 
 // Custom WKWebView that passes scroll events to parent
 class NonScrollableWebView: WKWebView {

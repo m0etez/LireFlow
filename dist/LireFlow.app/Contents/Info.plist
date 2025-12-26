@@ -4,8 +4,8 @@
 <dict>
 	<key>BuildMachineOSBuild</key>
 	<string>25C56</string>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>LireFlow</string>
 	<key>CFBundleExecutable</key>
 	<string>LireFlow</string>
 	<key>CFBundleIconFile</key>
@@ -14,8 +14,6 @@
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.lireflow.app</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>LireFlow</string>
 	<key>CFBundlePackageType</key>
@@ -50,6 +48,30 @@
 	<string>14.0</string>
 	<key>NSAccentColorName</key>
 	<string>AccentColor</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>cnn.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>rss.cnn.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used to show local weather.</string>
 </dict>

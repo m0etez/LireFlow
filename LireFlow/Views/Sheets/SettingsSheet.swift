@@ -716,7 +716,7 @@ struct AboutSettingsView: View {
                 Text("Modern RSS reader for macOS")
                     .foregroundStyle(.secondary)
 
-                Text("Version 1.1.0")
+                Text("Version 1.2.1")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
                     .padding(.top, 8)

@@ -20,6 +20,7 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - Add RSS/Atom feeds from any URL
 - **Quick add from clipboard** - Auto-detects URLs when adding feeds
 - **Feed search/filter** - Quickly find feeds in sidebar with real-time filtering
+- **Rename feeds** - Right-click to rename feeds with custom display names
 - Organize feeds into folders
 - Drag and drop feeds between folders
 - Automatic feed icon fetching via Google Favicons
@@ -36,11 +37,12 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - **Archive articles** - Archive articles to keep them organized separately
 - Reading lists for saving articles
 - **Copy as Markdown** - Export articles in Markdown format via context menu
-- **Print articles** - Print articles with proper formatting and metadata
+- **Export to PDF** - Export articles as PDF files
 
 ### 🎨 Modern UI
 
 - Native macOS design with liquid glass effects
+- **Dynamic greeting** - Time-based greeting (Good Morning/Afternoon/Evening)
 - Dark/Light mode toggle (in sidebar or Settings)
 - Smooth animations and hover effects
 - Three-column layout (Sidebar, List, Detail)
@@ -180,6 +182,7 @@ Access Settings via **⌘,** or the **LireFlow > Settings** menu.
 ### Settings Tabs
 
 **General:**
+
 - Appearance (Dark/Light mode)
 - Show/hide unread count badges
 - Article font size (12-24pt)
@@ -196,18 +199,21 @@ Access Settings via **⌘,** or the **LireFlow > Settings** menu.
   - Manual cleanup button
 
 **Backup & Import:**
+
 - Export to JSON (complete library backup)
 - Export to OPML (feeds only)
 - Import from JSON or OPML
 - Automatic duplicate detection
 
 **About:**
+
 - App version and information
 - GitHub repository link
 - Twitter/social links
 - "Built with Claude" attribution
 
 All settings are automatically saved to:
+
 ```
 ~/Library/Application Support/LireFlow/config.json
 ```

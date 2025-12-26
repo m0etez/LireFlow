@@ -256,13 +256,24 @@ enum SidebarItem: Hashable {
 // MARK: - Empty Detail View
 
 struct EmptyDetailView: View {
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        if hour < 12 {
+            return "Good Morning"
+        } else if hour < 18 {
+            return "Good Afternoon"
+        } else {
+            return "Good Evening"
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "newspaper")
                 .font(.system(size: 64))
                 .foregroundStyle(.tertiary)
             
-            Text("Select an article to read")
+            Text("\(greeting), what would you like to read?")
                 .font(.title2)
                 .foregroundStyle(.secondary)
         }

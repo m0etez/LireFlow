@@ -135,27 +135,21 @@ struct SidebarView: View {
                 ForEach(filteredFolders) { folder in
                     FolderRow(
                         folder: folder,
+                        allFolders: folders,
                         selectedItem: $selectedItem,
                         showCount: configService.config.showUnreadCount,
                         feedToRename: $feedToRename,
                         newFeedName: $newFeedName,
-                        showingRenameFeed: $showingRenameFeed
-                    )
-                        .contextMenu {
-                            Button {
-                                folderToRename = folder
-                                newFolderName = folder.name
-                                showingRenameFolder = true
-                            } label: {
-                                Label("Rename", systemImage: "pencil")
-                            }
-                            
-                            Divider()
-                            
-                            Button("Delete", role: .destructive) {
-                                deleteFolder(folder)
-                            }
+                        showingRenameFeed: $showingRenameFeed,
+                        onRenameFolder: {
+                            folderToRename = folder
+                            newFolderName = folder.name
+                            showingRenameFolder = true
+                        },
+                        onDeleteFolder: {
+                            deleteFolder(folder)
                         }
+                    )
                 }
                 .onDelete(perform: deleteFolders)
                 
@@ -260,9 +254,24 @@ struct SidebarView: View {
                 Button {
                     showingAddFeed = true
                 } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 16))
-                        .symbolRenderingMode(.hierarchical)
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 12, weight: .bold))
+                        Text("Add Feed")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(Capsule())
+                    .shadow(color: .purple.opacity(0.3), radius: 4, y: 2)
                 }
                 .buttonStyle(.plain)
                 .help("Add Feed")
@@ -383,12 +392,16 @@ struct SidebarRow: View {
 // MARK: - Folder Row
 
 struct FolderRow: View {
+    @Environment(\.modelContext) private var modelContext
     let folder: Folder
+    let allFolders: [Folder]
     @Binding var selectedItem: SidebarItem?
     let showCount: Bool
     @Binding var feedToRename: Feed?
     @Binding var newFeedName: String
     @Binding var showingRenameFeed: Bool
+    var onRenameFolder: () -> Void
+    var onDeleteFolder: () -> Void
     @State private var isExpanded = true
 
     var body: some View {
@@ -404,6 +417,32 @@ struct FolderRow: View {
                             showingRenameFeed = true
                         } label: {
                             Label("Rename", systemImage: "pencil")
+                        }
+
+                        Divider()
+
+                        // Move to folder
+                        Menu("Move to Folder") {
+                            Button("None (Remove from folder)") {
+                                feed.folder = nil
+                                try? modelContext.save()
+                            }
+                            
+                            Divider()
+                            
+                            ForEach(allFolders.filter { $0.id != folder.id }) { targetFolder in
+                                Button(targetFolder.name) {
+                                    feed.folder = targetFolder
+                                    try? modelContext.save()
+                                }
+                            }
+                        }
+
+                        Divider()
+
+                        Button("Delete", role: .destructive) {
+                            modelContext.delete(feed)
+                            try? modelContext.save()
                         }
                     }
             }
@@ -427,6 +466,20 @@ struct FolderRow: View {
                         .padding(.vertical, 2)
                         .background(.quaternary)
                         .clipShape(Capsule())
+                }
+            }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button {
+                    onRenameFolder()
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
+                
+                Divider()
+                
+                Button("Delete", role: .destructive) {
+                    onDeleteFolder()
                 }
             }
         }
