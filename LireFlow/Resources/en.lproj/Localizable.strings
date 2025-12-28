@@ -1,0 +1,225 @@
+/* content */
+"All Articles" = "All Articles";
+"Unread" = "Unread";
+"Starred" = "Starred";
+"Archived" = "Archived";
+"Reading Lists" = "Reading Lists";
+"Feeds" = "Feeds";
+"Search" = "Search";
+
+/* Sheets */
+"Add Feed" = "Add Feed";
+"Feed URL" = "Feed URL";
+"Fetch" = "Fetch";
+"Add to Folder" = "Add to Folder";
+"Browse Default Feeds" = "Browse Default Feeds";
+"Cancel" = "Cancel";
+"Create" = "Create";
+"Save" = "Save";
+"Done" = "Done";
+"Close" = "Close";
+
+"New Folder" = "New Folder";
+"Folder Name" = "Folder Name";
+"Icon" = "Icon";
+"Preview" = "Preview";
+
+"New Reading List" = "New Reading List";
+"Name" = "Name";
+"Enter reading list name" = "Enter reading list name";
+
+/* Settings */
+"Settings" = "Settings";
+"General" = "General";
+"Appearance" = "Appearance";
+"Account" = "Account";
+"About" = "About";
+"Backup" = "Backup";
+"Refresh Interval" = "Refresh Interval";
+"Manually" = "Manually";
+"Every 15 minutes" = "Every 15 minutes";
+"Every 30 minutes" = "Every 30 minutes";
+"Every hour" = "Every hour";
+"Theme" = "Theme";
+"System" = "System";
+"Light" = "Light";
+"Dark" = "Dark";
+"Forest" = "Forest";
+"Ocean" = "Ocean";
+"Sepia" = "Sepia";
+"Nord" = "Nord";
+"App Icon" = "App Icon";
+"Notifications" = "Notifications";
+"Enable notifications" = "Enable notifications";
+"Sounds" = "Sounds";
+"Version" = "Version";
+"Made with ❤️" = "Made with ❤️";
+"Check for Updates" = "Check for Updates";
+"Export" = "Export";
+"Import" = "Import";
+"OPML File" = "OPML File";
+"JSON Backup" = "JSON Backup";
+
+/* Upgrade */
+"Unlock Pro" = "Unlock Pro";
+"Get the most out of LireFlow" = "Get the most out of LireFlow";
+"Unlimited Feeds" = "Unlimited Feeds";
+"Unlimited Reading Lists" = "Unlimited Reading Lists";
+"Premium Themes" = "Premium Themes";
+"Sepia, Nord, and Ocean themes" = "Sepia, Nord, and Ocean themes";
+"Free: 15 feeds • Pro: Unlimited" = "Free: 15 feeds • Pro: Unlimited";
+"Free: 1 list • Pro: Unlimited" = "Free: 1 list • Pro: Unlimited";
+"Pro Unlocked!" = "Pro Unlocked!";
+"Processing..." = "Processing...";
+"Unlock Pro – %@" = "Unlock Pro – %@";
+"One-time purchase • No subscription" = "One-time purchase • No subscription";
+"Restore Purchase" = "Restore Purchase";
+
+/* Onboarding */
+"Welcome to LireFlow" = "Welcome to LireFlow";
+"A modern RSS reader for macOS" = "A modern RSS reader for macOS";
+"Get Started" = "Get Started";
+"Back" = "Back";
+"Next" = "Next";
+"Subscribe to Your Favorite Sites" = "Subscribe to Your Favorite Sites";
+"Add RSS feeds from news sites, blogs, and more. Organize them into folders." = "Add RSS feeds from news sites, blogs, and more. Organize them into folders.";
+"Read Full Articles via Europresse" = "Read Full Articles via Europresse";
+"If you have a university or library account, read paywalled articles through Europresse." = "If you have a university or library account, read paywalled articles through Europresse.";
+"Weather Widget" = "Weather Widget";
+"See local weather at a glance in the sidebar." = "See local weather at a glance in the sidebar.";
+"Keyboard Shortcuts" = "Keyboard Shortcuts";
+"Navigate with J/K, star with S, mark read with M, and more." = "Navigate with J/K, star with S, mark read with M, and more.";
+"Privacy First" = "Privacy First";
+"All data is stored locally on your Mac. No tracking, no cloud sync." = "All data is stored locally on your Mac. No tracking, no cloud sync.";
+"Connect to Europresse" = "Connect to Europresse";
+"If your university or library offers Europresse access, select it below to read full articles from major newspapers." = "If your university or library offers Europresse access, select it below to read full articles from major newspapers.";
+"Search institutions..." = "Search institutions...";
+"None (Skip Europresse)" = "None (Skip Europresse)";
+"You can configure this later in Settings" = "You can configure this later in Settings";
+"Selected: %@" = "Selected: %@";
+
+/* Article Detail */
+"Open in browser" = "Open in browser";
+"Fetch full article" = "Fetch full article";
+"Fetching article..." = "Fetching article...";
+"No content available. Click 'Fetch full article' to load the content." = "No content available. Click 'Fetch full article' to load the content.";
+"Export to PDF" = "Export to PDF";
+"Export to Markdown" = "Export to Markdown";
+"Export Successful" = "Export Successful";
+"Export Failed" = "Export Failed";
+"Successfully exported to:\n%@" = "Successfully exported to:\n%@";
+"Could not extract article content. Try opening in Safari." = "Could not extract article content. Try opening in Safari.";
+"No additional content found." = "No additional content found.";
+"Search on Europresse" = "Search on Europresse";
+"via %@" = "via %@";
+"Search query copied!" = "Search query copied!";
+"After logging in, paste (⌘V) in the search bar" = "After logging in, paste (⌘V) in the search bar";
+"Opens Europresse - paste the search query from clipboard" = "Opens Europresse - paste the search query from clipboard";
+
+/* Content View & General */
+"Good Morning" = "Good Morning";
+"Good Afternoon" = "Good Afternoon";
+"Good Evening" = "Good Evening";
+"%@, what would you like to read?" = "%@, what would you like to read?";
+"Refresh all feeds" = "Refresh all feeds";
+"Add new feed" = "Add new feed";
+"Search articles" = "Search articles";
+
+/* Default Feeds Categories */
+"News" = "News";
+"Tech" = "Tech";
+"France" = "France";
+"France Tech" = "France Tech";
+"France Science" = "France Science";
+"France Sports" = "France Sports";
+"Science" = "Science";
+"AI" = "AI";
+"Security" = "Security";
+"Space" = "Space";
+"Reddit" = "Reddit";
+"Apple" = "Apple";
+"Development" = "Development";
+
+/* About Settings */
+"Modern RSS Reader for macOS" = "Modern RSS Reader for macOS";
+"Native SwiftUI & SwiftData" = "Native SwiftUI & SwiftData";
+"Dark & Light Mode Support" = "Dark & Light Mode Support";
+"Weather Widget Integration" = "Weather Widget Integration";
+"Reading Lists & Starred Articles" = "Reading Lists & Starred Articles";
+"View on GitHub" = "View on GitHub";
+"Follow on Twitter" = "Follow on Twitter";
+"Built with" = "Built with";
+
+/* Settings General Tab */
+"LireFlow Pro" = "LireFlow Pro";
+"All features unlocked" = "All features unlocked";
+"Unlock premium features" = "Unlock premium features";
+"Unlocked" = "Unlocked";
+"Customize LireFlow's appearance" = "Customize LireFlow's appearance";
+"Show Unread Count" = "Show Unread Count";
+"Show the number of unread articles in the sidebar" = "Show the number of unread articles in the sidebar";
+"Reading" = "Reading";
+"Configure article reading preferences" = "Configure article reading preferences";
+"Article Font Size:" = "Article Font Size:";
+"Mark as Read on Scroll" = "Mark as Read on Scroll";
+"Automatically mark articles as read when scrolling past them" = "Automatically mark articles as read when scrolling past them";
+"Feed refresh and organization settings" = "Feed refresh and organization settings";
+"Refresh Interval:" = "Refresh Interval:";
+"Default Feed Category:" = "Default Feed Category:";
+"Show Weather Widget" = "Show Weather Widget";
+"Show weather information in the sidebar" = "Show weather information in the sidebar";
+"Location:" = "Location:";
+"Leave empty to auto-detect your location" = "Leave empty to auto-detect your location";
+"Europresse Integration" = "Europresse Integration";
+"Access news articles via your university or library" = "Access news articles via your university or library";
+"Select your institution:" = "Select your institution:";
+"None (Disabled)" = "None (Disabled)";
+"Connected to %@" = "Connected to %@";
+"A \"Read on Europresse\" button will appear on articles." = "A \"Read on Europresse\" button will appear on articles.";
+"About Europresse" = "About Europresse";
+"Europresse is a news archive service available through many European universities and libraries. If your institution has a subscription, you can read full articles from major newspapers." = "Europresse is a news archive service available through many European universities and libraries. If your institution has a subscription, you can read full articles from major newspapers.";
+"Your institution not listed? Check with your library if they offer Europresse access." = "Your institution not listed? Check with your library if they offer Europresse access.";
+"Performance" = "Performance";
+"Optimize app performance and storage" = "Optimize app performance and storage";
+"Load Images in Articles" = "Load Images in Articles";
+"Disable to save bandwidth and improve performance" = "Disable to save bandwidth and improve performance";
+"Background Refresh" = "Background Refresh";
+"Allow feeds to refresh in the background" = "Allow feeds to refresh in the background";
+"Max Articles per Feed:" = "Max Articles per Feed:";
+"Clean up articles older than:" = "Clean up articles older than:";
+"Clean up old articles now" = "Clean up old articles now";
+"Advanced" = "Advanced";
+"Configuration file and advanced options" = "Configuration file and advanced options";
+"Configuration File:" = "Configuration File:";
+"Reveal in Finder" = "Reveal in Finder";
+"Cleanup Complete" = "Cleanup Complete";
+"Successfully deleted %d old articles." = "Successfully deleted %d old articles.";
+
+/* Backup Settings */
+"Export Library" = "Export Library";
+"Back up your feeds, folders, and reading lists to a file" = "Back up your feeds, folders, and reading lists to a file";
+"Export to JSON" = "Export to JSON";
+"Export a complete library backup (recommended)" = "Export a complete library backup (recommended)";
+"Export to OPML" = "Export to OPML";
+"Export feeds only (compatible with other RSS readers)" = "Export feeds only (compatible with other RSS readers)";
+"Exporting..." = "Exporting...";
+"Import Library" = "Import Library";
+"Restore feeds from a JSON or OPML file. Duplicates will be ignored." = "Restore feeds from a JSON or OPML file. Duplicates will be ignored.";
+"Import from JSON" = "Import from JSON";
+"Import a LireFlow backup file" = "Import a LireFlow backup file";
+"Import from OPML" = "Import from OPML";
+"Import feeds from an OPML file" = "Import feeds from an OPML file";
+"Importing..." = "Importing...";
+"Note: Existing feeds with the same URL will not be duplicated." = "Note: Existing feeds with the same URL will not be duplicated.";
+"About Export Formats" = "About Export Formats";
+"Complete backup including feeds, folders, and reading lists. Use this for full backups." = "Complete backup including feeds, folders, and reading lists. Use this for full backups.";
+"Standard RSS format. Exports feeds and folders only. Use this to migrate to other RSS readers." = "Standard RSS format. Exports feeds and folders only. Use this to migrate to other RSS readers.";
+"Success" = "Success";
+"Error" = "Error";
+"Import complete!" = "Import complete!";
+"Imported:" = "Imported:";
+"folders" = "folders";
+"feeds" = "feeds";
+"reading lists" = "reading lists";
+"Duplicates skipped:" = "Duplicates skipped:";
+

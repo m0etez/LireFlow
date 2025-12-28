@@ -7,7 +7,9 @@ struct AddFeedSheet: View {
     
     let folders: [Folder]
     
+    @Query private var allFeeds: [Feed]
     @StateObject private var feedService = FeedService()
+    @StateObject private var storeService = StoreService.shared
     
     @State private var urlString = ""
     @State private var selectedFolder: Folder?
@@ -15,10 +17,11 @@ struct AddFeedSheet: View {
     @State private var previewFeed: ParsedFeed?
     @State private var error: Error?
     @State private var showingDefaultFeeds = false
+    @State private var showingUpgrade = false
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header - Clean liquid glass style
+            // Header
             HStack {
                 Text("Add Feed")
                     .font(.title2)
@@ -43,7 +46,7 @@ struct AddFeedSheet: View {
             // Content
             ScrollView {
                 VStack(spacing: 24) {
-                    // URL Input - Refined styling
+                    // Feed URL input
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Feed URL")
                             .font(.subheadline)
@@ -108,7 +111,7 @@ struct AddFeedSheet: View {
                         FeedPreviewCard(feed: feed)
                     }
                     
-                    // Folder selection - Cleaner design
+                    // Add to folder section
                     if !folders.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Add to Folder")
@@ -117,7 +120,7 @@ struct AddFeedSheet: View {
                                 .foregroundStyle(.secondary)
                             
                             Picker("", selection: $selectedFolder) {
-                                Text("None").tag(nil as Folder?)
+                                Text("Aucun").tag(nil as Folder?)
                                 ForEach(folders) { folder in
                                     Text(folder.name).tag(folder as Folder?)
                                 }
@@ -148,7 +151,7 @@ struct AddFeedSheet: View {
             .buttonStyle(.plain)
             .padding(.bottom, 16)
             
-            // Footer - Clean button row
+            // Footer buttons
             HStack {
                 Button("Cancel") {
                     dismiss()
@@ -182,6 +185,9 @@ struct AddFeedSheet: View {
                 // Feeds added, dismiss this sheet too
                 dismiss()
             }
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradeSheet()
         }
         .onAppear {
             checkClipboardForURL()
@@ -229,6 +235,12 @@ struct AddFeedSheet: View {
     
     private func addFeed() async {
         guard previewFeed != nil else { return }
+        
+        // Check freemium limit
+        if !storeService.canAddFeed(currentCount: allFeeds.count) {
+            showingUpgrade = true
+            return
+        }
 
         isLoading = true
 
@@ -289,7 +301,7 @@ struct FeedPreviewCard: View {
                     .foregroundStyle(.green)
                     .font(.body)
                 
-                Text("Feed Found")
+                Text("Flux trouvé")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(.green)
@@ -345,13 +357,13 @@ struct DefaultFeedsSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Browse Feeds")
+                Text("Parcourir les flux")
                     .font(.headline)
                 
                 Spacer()
                 
                 if !selectedFeeds.isEmpty {
-                    Text("\(selectedFeeds.count) selected")
+                    Text("\(selectedFeeds.count) sélectionné(s)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -406,8 +418,8 @@ struct DefaultFeedsSheet: View {
             // Footer
             VStack(spacing: 12) {
                 if !folders.isEmpty {
-                    Picker("Add to Folder", selection: $selectedFolder) {
-                        Text("None").tag(nil as Folder?)
+                    Picker("Ajouter au dossier", selection: $selectedFolder) {
+                        Text("Aucun").tag(nil as Folder?)
                         ForEach(folders) { folder in
                             Text(folder.name).tag(folder as Folder?)
                         }
@@ -416,7 +428,7 @@ struct DefaultFeedsSheet: View {
                 }
                 
                 HStack {
-                    Button("Cancel") {
+                    Button("Annuler") {
                         dismiss()
                     }
                     .keyboardShortcut(.escape)
@@ -430,7 +442,7 @@ struct DefaultFeedsSheet: View {
                             ProgressView()
                                 .controlSize(.small)
                         } else {
-                            Text("Add \(selectedFeeds.count) Feed\(selectedFeeds.count == 1 ? "" : "s")")
+                            Text("Ajouter \(selectedFeeds.count) flux")
                         }
                     }
                     .buttonStyle(.borderedProminent)

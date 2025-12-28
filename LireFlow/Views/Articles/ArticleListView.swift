@@ -10,6 +10,10 @@ struct ArticleListView: View {
     @Query(sort: \ReadingList.createdAt) private var readingLists: [ReadingList]
     @ObservedObject private var configService = ConfigService.shared
     
+    private var currentTheme: AppTheme {
+        configService.config.selectedTheme
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
             // Layout picker header
@@ -40,6 +44,15 @@ struct ArticleListView: View {
             Group {
                 if articles.isEmpty {
                     EmptyArticleListView(isSearching: !searchText.isEmpty)
+                    ContentUnavailableView {
+                        Label("No Articles", systemImage: "newspaper")
+                    } description: {
+                        if !searchText.isEmpty {
+                            Text("No articles match your search")
+                        } else {
+                            Text("No articles found")
+                        }
+                    }
                 } else {
                     ScrollView {
                         LazyVStack(spacing: layoutSpacing) {
@@ -60,7 +73,7 @@ struct ArticleListView: View {
             }
         }
         .frame(minWidth: 280)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(currentTheme.secondaryBackground)
     }
     
     private var layoutSpacing: CGFloat {
@@ -85,9 +98,9 @@ struct ArticleListView: View {
     
     @ViewBuilder
     private func articleContextMenu(for article: Article) -> some View {
-        Menu("Save to Reading List") {
+        Menu("Save to...") {
             if readingLists.isEmpty {
-                Text("No reading lists")
+                Text("No lists")
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(readingLists) { readingList in
@@ -105,7 +118,7 @@ struct ArticleListView: View {
         }
         
         if let lists = article.readingLists, !lists.isEmpty {
-            Menu("Remove from Reading List") {
+            Menu("Remove from list") {
                 ForEach(lists) { readingList in
                     Button(readingList.name) {
                         removeArticle(article, from: readingList)
@@ -119,13 +132,13 @@ struct ArticleListView: View {
         Button {
             article.isStarred.toggle()
         } label: {
-            Label(article.isStarred ? "Unstar" : "Star", systemImage: article.isStarred ? "star.slash" : "star")
+            Label(article.isStarred ? "Remove from starred" : "Add to starred", systemImage: article.isStarred ? "star.slash" : "star")
         }
         
         Button {
             article.isRead.toggle()
         } label: {
-            Label(article.isRead ? "Mark as Unread" : "Mark as Read", systemImage: article.isRead ? "circle" : "circle.fill")
+            Label(article.isRead ? "Mark as unread" : "Mark as read", systemImage: article.isRead ? "circle" : "circle.fill")
         }
 
         Button {
@@ -199,11 +212,11 @@ struct EmptyArticleListView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.tertiary)
             
-            Text(isSearching ? "No matching articles" : "No articles yet")
+            Text(isSearching ? "Aucun article trouvé" : "Aucun article")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
-            Text(isSearching ? "Try a different search term" : "Add some feeds to get started")
+            Text(isSearching ? "Essayez une autre recherche" : "Ajoutez des flux pour commencer")
                 .font(.subheadline)
                 .foregroundStyle(.tertiary)
         }
@@ -217,6 +230,7 @@ struct ArticleRow: View {
     @Bindable var article: Article
     let isSelected: Bool
     @State private var isHovered = false
+    @Environment(\.appTheme) private var theme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -236,7 +250,7 @@ struct ArticleRow: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Color.blue.opacity(0.1))
+                    .background(theme.accentColor.opacity(0.1))
                     .clipShape(Capsule())
 
                 Text(article.formattedDate)
@@ -263,7 +277,7 @@ struct ArticleRow: View {
             HStack {
                 if !article.isRead {
                     Circle()
-                        .fill(.blue)
+                        .fill(theme.accentColor)
                         .frame(width: 8, height: 8)
                 }
                 
@@ -292,17 +306,17 @@ struct ArticleRow: View {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(.ultraThinMaterial)
                 }
-                // Selection highlight - using explicit blue instead of accentColor
+                // Selection highlight - using theme selection color
                 if isSelected {
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(theme.selectionColor)
                 }
             }
             .animation(.easeOut(duration: 0.15), value: isHovered)
         }
         .overlay {
             RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(isSelected ? Color.blue.opacity(0.3) : .clear, lineWidth: 1)
+                .strokeBorder(isSelected ? theme.accentColor.opacity(0.3) : .clear, lineWidth: 1)
         }
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -324,6 +338,7 @@ struct CardArticleRow: View {
     @Bindable var article: Article
     let isSelected: Bool
     @State private var isHovered = false
+    @Environment(\.appTheme) private var theme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -341,7 +356,7 @@ struct CardArticleRow: View {
                     }
                     .frame(width: 32, height: 32)
                     .background(
-                        LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [theme.accentColor, theme.accentColor.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
@@ -352,7 +367,7 @@ struct CardArticleRow: View {
                     .font(.caption2)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(.blue.opacity(0.1))
+                    .background(theme.accentColor.opacity(0.1))
                     .clipShape(Capsule())
             }
             VStack(alignment: .leading, spacing: 8) {
@@ -388,7 +403,7 @@ struct CardArticleRow: View {
                 HStack {
                     if !article.isRead {
                         Circle()
-                            .fill(.blue)
+                            .fill(theme.accentColor)
                             .frame(width: 8, height: 8)
                     }
                     
@@ -410,12 +425,12 @@ struct CardArticleRow: View {
         .padding(12)
         .background {
             RoundedRectangle(cornerRadius: 12)
-                .fill(isSelected ? Color.blue.opacity(0.1) : Color(nsColor: .controlBackgroundColor))
+                .fill(isSelected ? theme.selectionColor : Color(nsColor: .controlBackgroundColor))
                 .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
         }
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(isSelected ? Color.blue.opacity(0.3) : Color.gray.opacity(0.1), lineWidth: 1)
+                .strokeBorder(isSelected ? theme.accentColor.opacity(0.3) : Color.gray.opacity(0.1), lineWidth: 1)
         }
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -437,12 +452,13 @@ struct CompactArticleRow: View {
     @Bindable var article: Article
     let isSelected: Bool
     @State private var isHovered = false
+    @Environment(\.appTheme) private var theme
     
     var body: some View {
         HStack(spacing: 10) {
             // Unread indicator
             Circle()
-                .fill(article.isRead ? .clear : .blue)
+                .fill(article.isRead ? .clear : theme.accentColor)
                 .frame(width: 6, height: 6)
             
             // Title
@@ -481,7 +497,7 @@ struct CompactArticleRow: View {
         .background {
             if isSelected {
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.blue.opacity(0.15))
+                    .fill(theme.selectionColor)
             } else if isHovered {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(.ultraThinMaterial)

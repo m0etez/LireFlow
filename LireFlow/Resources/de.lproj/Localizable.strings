@@ -1,0 +1,225 @@
+/* content */
+"All Articles" = "Alle Artikel";
+"Unread" = "Ungelesen";
+"Starred" = "Favoriten";
+"Archived" = "Archiviert";
+"Reading Lists" = "Leselisten";
+"Feeds" = "Feeds";
+"Search" = "Suchen";
+
+/* Sheets */
+"Add Feed" = "Feed hinzufügen";
+"Feed URL" = "Feed-URL";
+"Fetch" = "Abrufen";
+"Add to Folder" = "Zu Ordner hinzufügen";
+"Browse Default Feeds" = "Standard-Feeds durchsuchen";
+"Cancel" = "Abbrechen";
+"Create" = "Erstellen";
+"Save" = "Speichern";
+"Done" = "Fertig";
+"Close" = "Schließen";
+
+"New Folder" = "Neuer Ordner";
+"Folder Name" = "Ordnername";
+"Icon" = "Symbol";
+"Preview" = "Vorschau";
+
+"New Reading List" = "Neue Leseliste";
+"Name" = "Name";
+"Enter reading list name" = "Leselistennamen eingeben";
+
+/* Settings */
+"Settings" = "Einstellungen";
+"General" = "Allgemein";
+"Appearance" = "Darstellung";
+"Account" = "Konto";
+"About" = "Über";
+"Backup" = "Backup";
+"Refresh Interval" = "Aktualisierungsintervall";
+"Manually" = "Manuell";
+"Every 15 minutes" = "Alle 15 Minuten";
+"Every 30 minutes" = "Alle 30 Minuten";
+"Every hour" = "Jede Stunde";
+"Theme" = "Design";
+"System" = "System";
+"Light" = "Hell";
+"Dark" = "Dunkel";
+"Forest" = "Wald";
+"Ocean" = "Ozean";
+"Sepia" = "Sepia";
+"Nord" = "Nord";
+"App Icon" = "App-Symbol";
+"Notifications" = "Mitteilungen";
+"Enable notifications" = "Mitteilungen aktivieren";
+"Sounds" = "Töne";
+"Version" = "Version";
+"Made with ❤️" = "Gemacht mit ❤️";
+"Check for Updates" = "Nach Updates suchen";
+"Export" = "Exportieren";
+"Import" = "Importieren";
+"OPML File" = "OPML-Datei";
+"JSON Backup" = "JSON-Backup";
+
+/* Upgrade */
+"Unlock Pro" = "Pro freischalten";
+"Get the most out of LireFlow" = "Holen Sie das Beste aus LireFlow heraus";
+"Unlimited Feeds" = "Unbegrenzte Feeds";
+"Unlimited Reading Lists" = "Unbegrenzte Leselisten";
+"Premium Themes" = "Premium-Designs";
+"Sepia, Nord, and Ocean themes" = "Sepia-, Nord- und Ozean-Designs";
+"Free: 15 feeds • Pro: Unlimited" = "Kostenlos: 15 Feeds • Pro: Unbegrenzt";
+"Free: 1 list • Pro: Unlimited" = "Kostenlos: 1 Liste • Pro: Unbegrenzt";
+"Pro Unlocked!" = "Pro freigeschaltet!";
+"Processing..." = "Verarbeitung...";
+"Unlock Pro – %@" = "Pro freischalten – %@";
+"One-time purchase • No subscription" = "Einmalkauf • Kein Abo";
+"Restore Purchase" = "Kauf wiederherstellen";
+
+/* Onboarding */
+"Welcome to LireFlow" = "Willkommen bei LireFlow";
+"A modern RSS reader for macOS" = "Ein moderner RSS-Reader für macOS";
+"Get Started" = "Loslegen";
+"Back" = "Zurück";
+"Next" = "Weiter";
+"Subscribe to Your Favorite Sites" = "Abonnieren Sie Ihre Lieblingsseiten";
+"Add RSS feeds from news sites, blogs, and more. Organize them into folders." = "Fügen Sie RSS-Feeds von Nachrichtenseiten, Blogs und mehr hinzu. In Ordnern organisieren.";
+"Read Full Articles via Europresse" = "Vollständige Artikel via Europresse";
+"If you have a university or library account, read paywalled articles through Europresse." = "Wenn Sie ein Universitäts- oder Bibliothekskonto haben, lesen Sie kostenpflichtige Artikel über Europresse.";
+"Weather Widget" = "Wetter-Widget";
+"See local weather at a glance in the sidebar." = "Sehen Sie das lokale Wetter auf einen Blick in der Seitenleiste.";
+"Keyboard Shortcuts" = "Tastaturkürzel";
+"Navigate with J/K, star with S, mark read with M, and more." = "Navigieren mit J/K, Stern mit S, als gelesen markieren mit M, und mehr.";
+"Privacy First" = "Privatsphäre zuerst";
+"All data is stored locally on your Mac. No tracking, no cloud sync." = "Alle Daten werden lokal auf Ihrem Mac gespeichert. Kein Tracking, kein Cloud-Sync.";
+"Connect to Europresse" = "Mit Europresse verbinden";
+"If your university or library offers Europresse access, select it below to read full articles from major newspapers." = "Wenn Ihre Universität oder Bibliothek Europresse-Zugang bietet, wählen Sie ihn unten aus, um Zeitungsartikel zu lesen.";
+"Search institutions..." = "Institutionen suchen...";
+"None (Skip Europresse)" = "Keine (Europresse überspringen)";
+"You can configure this later in Settings" = "Sie können dies später in den Einstellungen konfigurieren";
+"Selected: %@" = "Ausgewählt: %@";
+
+/* Article Detail */
+"Open in browser" = "Im Browser öffnen";
+"Fetch full article" = "Vollständigen Artikel laden";
+"Fetching article..." = "Artikel wird geladen...";
+"No content available. Click 'Fetch full article' to load the content." = "Kein Inhalt verfügbar. Klicken Sie auf 'Vollständigen Artikel laden'.";
+"Export to PDF" = "Als PDF exportieren";
+"Export to Markdown" = "Als Markdown exportieren";
+"Export Successful" = "Export erfolgreich";
+"Export Failed" = "Export fehlgeschlagen";
+"Successfully exported to:\n%@" = "Erfolgreich exportiert nach:\n%@";
+"Could not extract article content. Try opening in Safari." = "Artikelinhalt konnte nicht extrahiert werden. Versuchen Sie es in Safari.";
+"No additional content found." = "Kein zusätzlicher Inhalt gefunden.";
+"Search on Europresse" = "Auf Europresse suchen";
+"via %@" = "via %@";
+"Search query copied!" = "Suchanfrage kopiert!";
+"After logging in, paste (⌘V) in the search bar" = "Nach dem Einloggen in die Suchleiste einfügen (⌘V)";
+"Opens Europresse - paste the search query from clipboard" = "Öffnet Europresse - Suchanfrage aus der Zwischenablage einfügen";
+
+/* Content View & General */
+"Good Morning" = "Guten Morgen";
+"Good Afternoon" = "Guten Tag";
+"Good Evening" = "Guten Abend";
+"%@, what would you like to read?" = "%@, was möchten Sie lesen?";
+"Refresh all feeds" = "Alle Feeds aktualisieren";
+"Add new feed" = "Neuen Feed hinzufügen";
+"Search articles" = "Artikel suchen";
+
+/* Default Feeds Categories */
+"News" = "Nachrichten";
+"Tech" = "Technologie";
+"France" = "Frankreich";
+"France Tech" = "Frankreich Tech";
+"France Science" = "Frankreich Wissenschaft";
+"France Sports" = "Frankreich Sport";
+"Science" = "Wissenschaft";
+"AI" = "KI";
+"Security" = "Sicherheit";
+"Space" = "Weltraum";
+"Reddit" = "Reddit";
+"Apple" = "Apple";
+"Development" = "Entwicklung";
+
+/* About Settings */
+"Modern RSS Reader for macOS" = "Moderner RSS-Reader für macOS";
+"Native SwiftUI & SwiftData" = "Natives SwiftUI & SwiftData";
+"Dark & Light Mode Support" = "Hell- und Dunkelmodus";
+"Weather Widget Integration" = "Wetter-Widget-Integration";
+"Reading Lists & Starred Articles" = "Leselisten & Favoriten";
+"View on GitHub" = "Auf GitHub ansehen";
+"Follow on Twitter" = "Auf Twitter folgen";
+"Built with" = "Erstellt mit";
+
+/* Settings General Tab */
+"LireFlow Pro" = "LireFlow Pro";
+"All features unlocked" = "Alle Funktionen freigeschaltet";
+"Unlock premium features" = "Premium-Funktionen freischalten";
+"Unlocked" = "Freigeschaltet";
+"Customize LireFlow's appearance" = "Passen Sie das Aussehen von LireFlow an";
+"Show Unread Count" = "Ungelesene Anzahl anzeigen";
+"Show the number of unread articles in the sidebar" = "Anzahl der ungelesenen Artikel in der Seitenleiste anzeigen";
+"Reading" = "Lesen";
+"Configure article reading preferences" = "Konfigurieren Sie Ihre Leseeinstellungen";
+"Article Font Size:" = "Artikel-Schriftgröße:";
+"Mark as Read on Scroll" = "Beim Scrollen als gelesen markieren";
+"Automatically mark articles as read when scrolling past them" = "Artikel automatisch als gelesen markieren beim Scrollen";
+"Feed refresh and organization settings" = "Feed-Aktualisierung und Organisationseinstellungen";
+"Refresh Interval:" = "Aktualisierungsintervall:";
+"Default Feed Category:" = "Standard-Feed-Kategorie:";
+"Show Weather Widget" = "Wetter-Widget anzeigen";
+"Show weather information in the sidebar" = "Wetterinformationen in der Seitenleiste anzeigen";
+"Location:" = "Standort:";
+"Leave empty to auto-detect your location" = "Leer lassen für automatische Standorterkennung";
+"Europresse Integration" = "Europresse-Integration";
+"Access news articles via your university or library" = "Zugang zu Artikeln über Ihre Universität oder Bibliothek";
+"Select your institution:" = "Wählen Sie Ihre Institution:";
+"None (Disabled)" = "Keine (Deaktiviert)";
+"Connected to %@" = "Verbunden mit %@";
+"A \"Read on Europresse\" button will appear on articles." = "Eine Schaltfläche \"Auf Europresse lesen\" erscheint bei Artikeln.";
+"About Europresse" = "Über Europresse";
+"Europresse is a news archive service available through many European universities and libraries. If your institution has a subscription, you can read full articles from major newspapers." = "Europresse ist ein Nachrichtenarchiv-Dienst, der über viele europäische Universitäten und Bibliotheken verfügbar ist. Wenn Ihre Institution ein Abonnement hat, können Sie vollständige Artikel lesen.";
+"Your institution not listed? Check with your library if they offer Europresse access." = "Ihre Institution nicht aufgelistet? Fragen Sie bei Ihrer Bibliothek nach Europresse-Zugang.";
+"Performance" = "Leistung";
+"Optimize app performance and storage" = "App-Leistung und Speicher optimieren";
+"Load Images in Articles" = "Bilder in Artikeln laden";
+"Disable to save bandwidth and improve performance" = "Deaktivieren, um Bandbreite zu sparen und Leistung zu verbessern";
+"Background Refresh" = "Hintergrundaktualisierung";
+"Allow feeds to refresh in the background" = "Feeds im Hintergrund aktualisieren lassen";
+"Max Articles per Feed:" = "Max. Artikel pro Feed:";
+"Clean up articles older than:" = "Artikel älter als löschen:";
+"Clean up old articles now" = "Alte Artikel jetzt löschen";
+"Advanced" = "Erweitert";
+"Configuration file and advanced options" = "Konfigurationsdatei und erweiterte Optionen";
+"Configuration File:" = "Konfigurationsdatei:";
+"Reveal in Finder" = "Im Finder anzeigen";
+"Cleanup Complete" = "Bereinigung abgeschlossen";
+"Successfully deleted %d old articles." = "%d alte Artikel erfolgreich gelöscht.";
+
+/* Backup Settings */
+"Export Library" = "Bibliothek exportieren";
+"Back up your feeds, folders, and reading lists to a file" = "Sichern Sie Ihre Feeds, Ordner und Leselisten in einer Datei";
+"Export to JSON" = "Als JSON exportieren";
+"Export a complete library backup (recommended)" = "Vollständiges Bibliotheks-Backup exportieren (empfohlen)";
+"Export to OPML" = "Als OPML exportieren";
+"Export feeds only (compatible with other RSS readers)" = "Nur Feeds exportieren (kompatibel mit anderen RSS-Readern)";
+"Exporting..." = "Exportiere...";
+"Import Library" = "Bibliothek importieren";
+"Restore feeds from a JSON or OPML file. Duplicates will be ignored." = "Feeds aus JSON- oder OPML-Datei wiederherstellen. Duplikate werden ignoriert.";
+"Import from JSON" = "Aus JSON importieren";
+"Import a LireFlow backup file" = "LireFlow-Backup-Datei importieren";
+"Import from OPML" = "Aus OPML importieren";
+"Import feeds from an OPML file" = "Feeds aus OPML-Datei importieren";
+"Importing..." = "Importiere...";
+"Note: Existing feeds with the same URL will not be duplicated." = "Hinweis: Vorhandene Feeds mit derselben URL werden nicht dupliziert.";
+"About Export Formats" = "Über Exportformate";
+"Complete backup including feeds, folders, and reading lists. Use this for full backups." = "Vollständige Sicherung inkl. Feeds, Ordner und Leselisten. Für vollständige Backups verwenden.";
+"Standard RSS format. Exports feeds and folders only. Use this to migrate to other RSS readers." = "Standard-RSS-Format. Exportiert nur Feeds und Ordner. Für Migration zu anderen RSS-Readern verwenden.";
+"Success" = "Erfolg";
+"Error" = "Fehler";
+"Import complete!" = "Import abgeschlossen!";
+"Imported:" = "Importiert:";
+"folders" = "Ordner";
+"feeds" = "Feeds";
+"reading lists" = "Leselisten";
+"Duplicates skipped:" = "Übersprungene Duplikate:";
+

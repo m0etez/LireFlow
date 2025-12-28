@@ -72,7 +72,7 @@ struct SidebarView: View {
             Section {
                 SidebarRow(
                     icon: "tray.full",
-                    title: "All Articles",
+                    title: "Tous les articles",
                     count: allArticles.count,
                     showCount: configService.config.showUnreadCount,
                     color: .blue
@@ -81,7 +81,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "circle.fill",
-                    title: "Unread",
+                    title: "Non lus",
                     count: allArticles.filter { !$0.isRead }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .orange
@@ -90,7 +90,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "star.fill",
-                    title: "Starred",
+                    title: "Favoris",
                     count: allArticles.filter { $0.isStarred }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .yellow
@@ -99,7 +99,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "archivebox",
-                    title: "Archived",
+                    title: "Archivés",
                     count: allArticles.filter { $0.isArchived }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .gray
@@ -114,7 +114,7 @@ struct SidebarView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
                             .font(.caption)
-                        TextField("Search feeds...", text: $feedSearchText)
+                        TextField("Search...", text: $feedSearchText)
                             .textFieldStyle(.plain)
                         if !feedSearchText.isEmpty {
                             Button {
@@ -180,7 +180,7 @@ struct SidebarView: View {
                                 Divider()
 
                                 // Move to folder
-                                Menu("Move to Folder") {
+                                Menu("Move to...") {
                                     Button("None (Remove from folder)") {
                                         moveFeed(feed, to: nil)
                                     }
@@ -220,7 +220,7 @@ struct SidebarView: View {
                 Button {
                     showingAddReadingList = true
                 } label: {
-                    Label("New Reading List", systemImage: "plus")
+                    Label("New List", systemImage: "plus")
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -257,7 +257,7 @@ struct SidebarView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "plus")
                             .font(.system(size: 12, weight: .bold))
-                        Text("Add Feed")
+                        Text("Add")
                             .font(.system(size: 12, weight: .semibold))
                     }
                     .foregroundStyle(.white)
@@ -284,7 +284,7 @@ struct SidebarView: View {
             applyAppearance()
         }
         .alert("Rename Folder", isPresented: $showingRenameFolder) {
-            TextField("Folder name", text: $newFolderName)
+            TextField("Folder Name", text: $newFolderName)
             Button("Cancel", role: .cancel) { }
             Button("Rename") {
                 renameFolder()
@@ -293,7 +293,7 @@ struct SidebarView: View {
             Text("Enter a new name for the folder")
         }
         .alert("Rename Feed", isPresented: $showingRenameFeed) {
-            TextField("Feed name", text: $newFeedName)
+            TextField("Feed Name", text: $newFeedName)
             Button("Cancel", role: .cancel) { }
             Button("Rename") {
                 renameFeed()
@@ -422,7 +422,7 @@ struct FolderRow: View {
                         Divider()
 
                         // Move to folder
-                        Menu("Move to Folder") {
+                        Menu("Move to...") {
                             Button("None (Remove from folder)") {
                                 feed.folder = nil
                                 try? modelContext.save()

@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>LireFlow</string>
+	<key>CFBundleExecutable</key>
+	<string>LireFlow</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.lireflow.app</string>
+	<key>CFBundleName</key>
+	<string>LireFlow</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.2.1</string>
+	<key>CFBundleVersion</key>
+	<string>2</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.news</string>
+	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>CFBundleIdentifier</key>
-		<string>com.lireflow.app</string>
-		<key>CFBundleName</key>
-		<string>LireFlow</string>
-		<key>CFBundleDisplayName</key>
-		<string>LireFlow</string>
-		<key>CFBundleVersion</key>
-		<string>2</string>
-		<key>CFBundleShortVersionString</key>
-		<string>1.2.1</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleExecutable</key>
-		<string>LireFlow</string>
-		<key>LSApplicationCategoryType</key>
-		<string>public.app-category.news</string>
-		<key>NSHumanReadableCopyright</key>
-		<string></string>
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Your location is used to show local weather.</string>
-		<key>NSAppTransportSecurity</key>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSExceptionDomains</key>
 		<dict>
-			<key>NSAllowsArbitraryLoads</key>
-			<true />
-			<key>NSAllowsArbitraryLoadsInWebContent</key>
-			<true />
-			<key>NSExceptionDomains</key>
+			<key>cnn.com</key>
 			<dict>
-				<key>rss.cnn.com</key>
-				<dict>
-					<key>NSExceptionAllowsInsecureHTTPLoads</key>
-					<true />
-					<key>NSIncludesSubdomains</key>
-					<true />
-				</dict>
-				<key>cnn.com</key>
-				<dict>
-					<key>NSExceptionAllowsInsecureHTTPLoads</key>
-					<true />
-					<key>NSIncludesSubdomains</key>
-					<true />
-				</dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>rss.cnn.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
 			</dict>
 		</dict>
 	</dict>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright 2024-2025 LireFlow. All rights reserved.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to show local weather.</string>
+</dict>
 </plist>

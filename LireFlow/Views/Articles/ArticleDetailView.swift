@@ -4,6 +4,7 @@ import WebKit
 struct ArticleDetailView: View {
     @Bindable var article: Article
     var onClose: (() -> Void)?
+    @ObservedObject private var configService = ConfigService.shared
     @State private var webViewHeight: CGFloat = 400
     @State private var isFetchingFullArticle = false
     @State private var fetchError: String?
@@ -15,6 +16,10 @@ struct ArticleDetailView: View {
     @State private var exportSuccessMessage = ""
     @State private var showingExportError = false
     @State private var exportErrorMessage = ""
+    
+    private var currentTheme: AppTheme {
+        configService.config.selectedTheme
+    }
 
     // Use content if available, otherwise fall back to summary
     private var displayContent: String {
@@ -23,7 +28,7 @@ struct ArticleDetailView: View {
         } else if !article.summary.isEmpty {
             return article.summary
         } else {
-            return "<p><em>No content available. Click 'Fetch full article' to load the content.</em></p>"
+            return "<p><em>Aucun contenu disponible. Cliquez sur 'Récupérer l'article complet' pour charger le contenu.</em></p>"
         }
     }
     
@@ -54,7 +59,7 @@ struct ArticleDetailView: View {
                                 .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
                         }
                         .buttonStyle(.plain)
-                        .help("Close article")
+                        .help("Fermer l'article")
                     }
                 }
                 
@@ -161,100 +166,12 @@ struct ArticleDetailView: View {
                         }
                         .buttonStyle(.plain)
                         
-                        // Paywall bypass options
-                        HStack(spacing: 12) {
-                            // 12ft.io - removes paywalls
-                            if let bypassURL = URL(string: "https://12ft.io/\(article.url)") {
-                                Link(destination: bypassURL) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "lock.open")
-                                            .font(.system(size: 16))
-                                        Text("12ft.io")
-                                            .font(.caption)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 10)
-                                    .background(Color.green.opacity(0.1))
-                                    .foregroundStyle(.green)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                                .buttonStyle(.plain)
-                                .help("Bypass paywall with 12ft.io")
-                            }
-                            
-                            // Archive.today
-                            if let archiveURL = URL(string: "https://archive.today/\(article.url)") {
-                                Link(destination: archiveURL) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "archivebox")
-                                            .font(.system(size: 16))
-                                        Text("Archive")
-                                            .font(.caption)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 10)
-                                    .background(Color.purple.opacity(0.1))
-                                    .foregroundStyle(.purple)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                                .buttonStyle(.plain)
-                                .help("View archived version")
-                            }
-                            
-                            // Google Cache
-                            if let encodedURL = article.url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                               let cacheURL = URL(string: "https://webcache.googleusercontent.com/search?q=cache:\(encodedURL)") {
-                                Link(destination: cacheURL) {
-                                    VStack(spacing: 4) {
-                                        Image(systemName: "globe")
-                                            .font(.system(size: 16))
-                                        Text("Google Cache")
-                                            .font(.caption)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 10)
-                                    .background(Color.blue.opacity(0.1))
-                                    .foregroundStyle(.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-                                .buttonStyle(.plain)
-                                .help("View Google's cached version")
-                            }
+                        // Europresse - Press archives via university (only if configured AND source is supported)
+                        if let portal = ConfigService.shared.config.europressePortal,
+                           !portal.authURL.isEmpty,
+                           DefaultFeeds.isEuropresseSupported(url: article.url) {
+                            EuropresseButton(article: article, portal: portal)
                         }
-                        
-                        // Europresse - Press archives via university
-                        Button {
-                            // Copy search query to clipboard
-                            let searchQuery = "TIT_HEAD=\(article.title)"
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(searchQuery, forType: .string)
-                            
-                            // Open Europresse
-                            if let europresseURL = URL(string: "https://ezproxy.universite-paris-saclay.fr/login?url=https://nouveau.europresse.com/access/ip/default.aspx?un=U031535T_11") {
-                                NSWorkspace.shared.open(europresseURL)
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "newspaper")
-                                    .font(.system(size: 16))
-                                Text("Europresse")
-                                Spacer()
-                                Image(systemName: "doc.on.clipboard")
-                                    .font(.caption)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .padding(.horizontal, 12)
-                            .background(Color.orange.opacity(0.1))
-                            .foregroundStyle(.orange)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .buttonStyle(.plain)
-                        .help("Opens Europresse and copies search query to clipboard")
-                        
-                        Text("Use these services to read paywalled articles")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
                     }
                 }
             }
@@ -262,7 +179,8 @@ struct ArticleDetailView: View {
             .frame(maxWidth: 720)
             .frame(maxWidth: .infinity)
         }
-        .background(Color(nsColor: .textBackgroundColor))
+        .background(currentTheme.backgroundColor)
+        .foregroundStyle(currentTheme.textColor)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
@@ -274,7 +192,7 @@ struct ArticleDetailView: View {
                         .foregroundStyle(article.isStarred ? .yellow : .primary)
                         .scaleEffect(article.isStarred ? 1.15 : 1.0)
                 }
-                .help(article.isStarred ? "Remove from starred" : "Add to starred")
+                .help(article.isStarred ? "Remove from favorites" : "Add to favorites")
                 
                 Button {
                     article.isRead.toggle()
@@ -313,12 +231,12 @@ struct ArticleDetailView: View {
                 }
             }
         }
-        .alert("Export Successful", isPresented: $showingExportSuccess) {
+        .alert("Export successful", isPresented: $showingExportSuccess) {
             Button("OK") { showingExportSuccess = false }
         } message: {
             Text(exportSuccessMessage)
         }
-        .alert("Export Failed", isPresented: $showingExportError) {
+        .alert("Export failed", isPresented: $showingExportError) {
             Button("OK") { showingExportError = false }
         } message: {
             Text(exportErrorMessage)
@@ -635,6 +553,92 @@ struct ArticleContentView: NSViewRepresentable {
                 DispatchQueue.main.async {
                     self.parent.height = max(height + 20, 100)
                 }
+            }
+        }
+    }
+}
+
+// MARK: - Europresse Button
+
+struct EuropresseButton: View {
+    let article: Article
+    let portal: EuropressePortal
+    
+    @State private var showCopiedFeedback = false
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Button {
+                openEuropresse()
+            } label: {
+                HStack {
+                    Image(systemName: "newspaper")
+                        .font(.system(size: 16))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Search on Europresse")
+                            .font(.subheadline)
+                        Text("via \(portal.name)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if showCopiedFeedback {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    } else {
+                        Image(systemName: "arrow.up.forward.square")
+                            .font(.caption)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
+                .background(Color.orange.opacity(0.1))
+                .foregroundStyle(.orange)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+            .help("Opens Europresse - paste the search query from clipboard")
+            
+            // Instructions
+            VStack(alignment: .leading, spacing: 4) {
+                if showCopiedFeedback {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                        Text("Search query copied!")
+                            .fontWeight(.medium)
+                    }
+                    .font(.caption)
+                }
+                
+                Text("After logging in, paste (⌘V) in the search bar")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+    }
+    
+    private func openEuropresse() {
+        // Copy search query to clipboard
+        let searchQuery = "TIT_HEAD=\"\(article.title)\""
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(searchQuery, forType: .string)
+        
+        // Show feedback
+        withAnimation {
+            showCopiedFeedback = true
+        }
+        
+        // Open Europresse via configured portal
+        if let europresseURL = URL(string: portal.authURL) {
+            NSWorkspace.shared.open(europresseURL)
+        }
+        
+        // Reset feedback after delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            withAnimation {
+                showCopiedFeedback = false
             }
         }
     }

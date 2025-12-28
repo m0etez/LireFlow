@@ -89,12 +89,19 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 - **Manual cleanup** - One-click cleanup of old articles (preserves starred/archived)
 - Optimized database queries and SwiftData performance
 
+### 🌐 Localization
+
+- **Multi-language support** - English, French, and German
+- Automatically detects system language
+- Fully localized UI including Settings, Onboarding, and all dialogs
+
 ### 🔧 Additional Features
 
 - Reddit, Mastodon, and Lemmy feed support
-- Paywall bypass options (12ft.io, Archive.today)
-- Europresse integration for press archives
+- **Europresse integration** - Access press articles via your university or library (configurable)
+- **LireFlow Pro** - Unlock unlimited feeds, reading lists, and premium themes
 - File-based configuration (`~/Library/Application Support/LireFlow/config.json`)
+- **Privacy-focused** - All data stored locally, no tracking or analytics
 
 ## Requirements
 
@@ -148,12 +155,17 @@ LireFlow/
 │   ├── Folder.swift            # Folder data model
 │   ├── ReadingList.swift       # Reading list model
 │   └── ExportableModels.swift  # Export/import DTOs
+├── Resources/
+│   ├── en.lproj/               # English localization
+│   ├── fr.lproj/               # French localization
+│   └── de.lproj/               # German localization
 ├── Services/
 │   ├── FeedParser.swift        # RSS/Atom parsing
 │   ├── FeedService.swift       # Feed management
 │   ├── ArticleExtractor.swift  # Full article extraction
 │   ├── WeatherService.swift    # Weather API integration
 │   ├── ConfigService.swift     # File-based settings
+│   ├── StoreService.swift      # In-app purchases
 │   ├── ExportService.swift     # JSON/OPML export
 │   ├── ImportService.swift     # JSON/OPML import
 │   └── DefaultFeeds.swift      # Starter feed suggestions
@@ -170,9 +182,12 @@ LireFlow/
 │       ├── AddFeedSheet.swift
 │       ├── AddFolderSheet.swift
 │       ├── AddReadingListSheet.swift
-│       └── SettingsSheet.swift
+│       ├── SettingsSheet.swift
+│       ├── OnboardingSheet.swift
+│       └── UpgradeSheet.swift
 └── Utilities/
-    └── Extensions.swift
+    ├── Extensions.swift
+    └── AppTheme.swift          # Theme definitions
 ```
 
 ## Configuration

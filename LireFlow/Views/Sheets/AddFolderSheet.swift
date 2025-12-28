@@ -111,7 +111,7 @@ struct AddFolderSheet: View {
                 
                 Spacer()
                 
-                Button("Create Folder") {
+                Button("Create") {
                     createFolder()
                 }
                 .keyboardShortcut(.return)

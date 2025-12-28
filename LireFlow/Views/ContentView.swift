@@ -3,6 +3,8 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var storeService: StoreService
+    @ObservedObject private var configService = ConfigService.shared
     @Query(sort: \Folder.order) private var folders: [Folder]
     @Query private var feeds: [Feed]
     @Query private var articles: [Article]
@@ -17,7 +19,13 @@ struct ContentView: View {
     @State private var showingAddFolder = false
     @State private var showingAddReadingList = false
     @State private var showingSettings = false
+    @State private var showingOnboarding = false
+    @State private var showingUpgrade = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    
+    private var currentTheme: AppTheme {
+        configService.config.selectedTheme
+    }
     
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -85,15 +93,54 @@ struct ContentView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsSheet()
         }
+        .sheet(isPresented: $showingOnboarding) {
+            OnboardingSheet()
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradeSheet()
+        }
         .onAppear {
-            setupNotificationObservers()
             seedDefaultFeedsIfNeeded()
             updateBadgeCount()
+            checkOnboarding()
+            currentTheme.apply()
         }
         .onChange(of: articles) {
             updateBadgeCount()
         }
+        .onChange(of: configService.config.selectedTheme) { _, newTheme in
+            newTheme.apply()
+        }
+        .applyTheme(currentTheme)
+        .applyTheme(currentTheme)
+        .transform(attachSheetNotifications)
+        .transform(attachActionNotifications)
     }
+
+    private func attachSheetNotifications(_ view: some View) -> some View {
+        view
+            .onReceive(NotificationCenter.default.publisher(for: .addNewFeed)) { _ in showingAddFeed = true }
+            .onReceive(NotificationCenter.default.publisher(for: .addNewFolder)) { _ in showingAddFolder = true }
+            .onReceive(NotificationCenter.default.publisher(for: .showSettings)) { _ in showingSettings = true }
+            .onReceive(NotificationCenter.default.publisher(for: .exportToJSON)) { _ in showingSettings = true }
+            .onReceive(NotificationCenter.default.publisher(for: .exportToOPML)) { _ in showingSettings = true }
+            .onReceive(NotificationCenter.default.publisher(for: .importFromJSON)) { _ in showingSettings = true }
+            .onReceive(NotificationCenter.default.publisher(for: .importFromOPML)) { _ in showingSettings = true }
+    }
+
+    private func attachActionNotifications(_ view: some View) -> some View {
+        view
+            .onReceive(NotificationCenter.default.publisher(for: .refreshAllFeeds)) { _ in
+                Task { await feedService.refreshAllFeeds(feeds: feeds, in: modelContext) }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .nextArticle)) { _ in navigateToNextArticle() }
+            .onReceive(NotificationCenter.default.publisher(for: .previousArticle)) { _ in navigateToPreviousArticle() }
+            .onReceive(NotificationCenter.default.publisher(for: .toggleRead)) { _ in toggleCurrentArticleRead() }
+            .onReceive(NotificationCenter.default.publisher(for: .markAllAsRead)) { _ in markAllArticlesAsRead() }
+            .onReceive(NotificationCenter.default.publisher(for: .toggleStar)) { _ in toggleCurrentArticleStar() }
+            .onReceive(NotificationCenter.default.publisher(for: .openInBrowser)) { _ in openCurrentArticleInBrowser() }
+    }
+
 
     private func updateBadgeCount() {
         let unreadCount = articles.filter { !$0.isRead }.count
@@ -136,54 +183,7 @@ struct ContentView: View {
         return result.sorted { $0.publishedDate > $1.publishedDate }
     }
     
-    private func setupNotificationObservers() {
-        NotificationCenter.default.addObserver(forName: .addNewFeed, object: nil, queue: .main) { _ in
-            showingAddFeed = true
-        }
-        NotificationCenter.default.addObserver(forName: .addNewFolder, object: nil, queue: .main) { _ in
-            showingAddFolder = true
-        }
-        NotificationCenter.default.addObserver(forName: .refreshAllFeeds, object: nil, queue: .main) { _ in
-            Task {
-                await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
-            }
-        }
-        NotificationCenter.default.addObserver(forName: .showSettings, object: nil, queue: .main) { _ in
-            showingSettings = true
-        }
-        NotificationCenter.default.addObserver(forName: .exportToJSON, object: nil, queue: .main) { _ in
-            showingSettings = true
-        }
-        NotificationCenter.default.addObserver(forName: .exportToOPML, object: nil, queue: .main) { _ in
-            showingSettings = true
-        }
-        NotificationCenter.default.addObserver(forName: .importFromJSON, object: nil, queue: .main) { _ in
-            showingSettings = true
-        }
-        NotificationCenter.default.addObserver(forName: .importFromOPML, object: nil, queue: .main) { _ in
-            showingSettings = true
-        }
 
-        // Keyboard shortcuts
-        NotificationCenter.default.addObserver(forName: .nextArticle, object: nil, queue: .main) { _ in
-            navigateToNextArticle()
-        }
-        NotificationCenter.default.addObserver(forName: .previousArticle, object: nil, queue: .main) { _ in
-            navigateToPreviousArticle()
-        }
-        NotificationCenter.default.addObserver(forName: .toggleRead, object: nil, queue: .main) { _ in
-            toggleCurrentArticleRead()
-        }
-        NotificationCenter.default.addObserver(forName: .markAllAsRead, object: nil, queue: .main) { _ in
-            markAllArticlesAsRead()
-        }
-        NotificationCenter.default.addObserver(forName: .toggleStar, object: nil, queue: .main) { _ in
-            toggleCurrentArticleStar()
-        }
-        NotificationCenter.default.addObserver(forName: .openInBrowser, object: nil, queue: .main) { _ in
-            openCurrentArticleInBrowser()
-        }
-    }
 
     private func navigateToNextArticle() {
         guard let currentArticle = selectedArticle else {
@@ -239,6 +239,15 @@ struct ContentView: View {
     private func seedDefaultFeedsIfNeeded() {
         // No default feeds - start with empty app
     }
+    
+    private func checkOnboarding() {
+        if !ConfigService.shared.config.hasCompletedOnboarding {
+            // Small delay to let the main window appear first
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                showingOnboarding = true
+            }
+        }
+    }
 }
 
 // MARK: - Sidebar Item
@@ -285,4 +294,10 @@ struct EmptyDetailView: View {
 #Preview {
     ContentView()
         .modelContainer(for: [Feed.self, Article.self, Folder.self], inMemory: true)
+}
+
+extension View {
+    func transform<Content: View>(_ transform: (Self) -> Content) -> Content {
+        transform(self)
+    }
 }

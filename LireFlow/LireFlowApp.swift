@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct LireFlowApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject private var storeService = StoreService.shared
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -25,6 +26,7 @@ struct LireFlowApp: App {
         WindowGroup {
             ContentView()
                 .frame(minWidth: 900, minHeight: 600)
+                .environmentObject(storeService)
         }
         .modelContainer(sharedModelContainer)
         .windowStyle(.hiddenTitleBar)

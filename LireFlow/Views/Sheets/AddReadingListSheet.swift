@@ -5,8 +5,12 @@ struct AddReadingListSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
+    @Query private var existingReadingLists: [ReadingList]
+    @StateObject private var storeService = StoreService.shared
+    
     @State private var name = ""
     @State private var selectedIcon = "bookmark"
+    @State private var showingUpgrade = false
     
     private let icons = [
         "bookmark", "bookmark.fill",
@@ -72,15 +76,25 @@ struct AddReadingListSheet: View {
         }
         .padding(24)
         .frame(width: 400, height: 380)
+        .sheet(isPresented: $showingUpgrade) {
+            UpgradeSheet()
+        }
     }
     
     private func createReadingList() {
+        // Check freemium limit
+        if !storeService.canAddReadingList(currentCount: existingReadingLists.count) {
+            showingUpgrade = true
+            return
+        }
+        
         let readingList = ReadingList(name: name, icon: selectedIcon)
         modelContext.insert(readingList)
         try? modelContext.save()
         dismiss()
     }
 }
+
 
 #Preview {
     AddReadingListSheet()
