@@ -1,3 +1,4 @@
+#if os(macOS)
 import SwiftUI
 import SwiftData
 
@@ -211,3 +212,4 @@ struct DefaultFeedIconSmall: View {
             }
     }
 }
+#endif

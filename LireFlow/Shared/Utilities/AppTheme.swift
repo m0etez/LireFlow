@@ -1,8 +1,12 @@
 import SwiftUI
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 /// App theme definitions for LireFlow
-/// Uses macOS semantic colors for system compliance
+/// Uses platform semantic colors for system compliance
 enum AppTheme: String, Codable, CaseIterable, Identifiable {
     case system = "system"
     case light = "light"
@@ -56,9 +60,17 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     var backgroundColor: Color {
         switch self {
         case .system:
+            #if os(macOS)
             return Color(nsColor: .windowBackgroundColor)
+            #else
+            return Color(uiColor: .systemBackground)
+            #endif
         case .light:
+            #if os(macOS)
             return Color(nsColor: .windowBackgroundColor)
+            #else
+            return Color(uiColor: .systemBackground)
+            #endif
         case .dark:
             return Color(red: 0.11, green: 0.11, blue: 0.12)
         case .sepia:
@@ -76,9 +88,17 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     var secondaryBackground: Color {
         switch self {
         case .system:
+            #if os(macOS)
             return Color(nsColor: .controlBackgroundColor)
+            #else
+            return Color(uiColor: .secondarySystemBackground)
+            #endif
         case .light:
+            #if os(macOS)
             return Color(nsColor: .controlBackgroundColor)
+            #else
+            return Color(uiColor: .secondarySystemBackground)
+            #endif
         case .dark:
             return Color(red: 0.16, green: 0.16, blue: 0.18)
         case .sepia:
@@ -96,7 +116,11 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     var textColor: Color {
         switch self {
         case .system:
+            #if os(macOS)
             return Color(nsColor: .textColor)
+            #else
+            return Color(uiColor: .label)
+            #endif
         case .light:
             return Color(red: 0.10, green: 0.10, blue: 0.10)
         case .dark:
@@ -116,7 +140,11 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     var secondaryTextColor: Color {
         switch self {
         case .system:
+            #if os(macOS)
             return Color(nsColor: .secondaryLabelColor)
+            #else
+            return Color(uiColor: .secondaryLabel)
+            #endif
         case .light:
             return Color(red: 0.45, green: 0.45, blue: 0.47)
         case .dark:
@@ -157,7 +185,8 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
         accentColor.opacity(0.15)
     }
     
-    // MARK: - NSAppearance
+    #if os(macOS)
+    // MARK: - NSAppearance (macOS only)
     
     /// Returns the NSAppearance to apply for this theme
     var nsAppearance: NSAppearance? {
@@ -173,13 +202,22 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     
     // MARK: - Application
     
-    /// Apply this theme to the app
+    /// Apply this theme to the app (macOS only)
     func apply() {
         NSApp.appearance = nsAppearance
         for window in NSApplication.shared.windows {
             window.appearance = nsAppearance
         }
     }
+    #else
+    // MARK: - Application (iOS)
+    
+    /// Apply this theme to the app (iOS - no-op, use preferredColorScheme instead)
+    func apply() {
+        // On iOS, themes are applied via SwiftUI's preferredColorScheme modifier
+        // This method is kept for API compatibility
+    }
+    #endif
     
     // MARK: - All Themes
     
