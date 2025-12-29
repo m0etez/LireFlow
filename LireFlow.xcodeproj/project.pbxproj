@@ -464,7 +464,7 @@
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = LireFlow/LireFlow.entitlements;
+				CODE_SIGN_ENTITLEMENTS = LireFlow/macOS/macOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -480,7 +480,7 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = LireFlow/Info.plist;
+				INFOPLIST_FILE = LireFlow/macOS/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2024-2025 LireFlow. All rights reserved.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
@@ -503,7 +503,7 @@
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = LireFlow/LireFlow.entitlements;
+				CODE_SIGN_ENTITLEMENTS = LireFlow/macOS/macOS.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -518,7 +518,7 @@
 				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = LireFlow/Info.plist;
+				INFOPLIST_FILE = LireFlow/macOS/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2024-2025 LireFlow. All rights reserved.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
