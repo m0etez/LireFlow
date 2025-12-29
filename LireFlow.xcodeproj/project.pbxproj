@@ -211,7 +211,7 @@
 			children = (
 				B62D061BBF6926B02715222C /* Localizable.strings */,
 			);
-			path = Resources;
+			path = Shared/Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
