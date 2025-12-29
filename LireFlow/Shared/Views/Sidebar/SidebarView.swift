@@ -39,11 +39,14 @@ struct SidebarView: View {
     }
     
     private func applyAppearance() {
+        #if os(macOS)
         let appearance = configService.config.isDarkMode ? NSAppearance(named: .darkAqua) : NSAppearance(named: .aqua)
         NSApp.appearance = appearance
         for window in NSApplication.shared.windows {
             window.appearance = appearance
         }
+        #endif
+        // On iOS, appearance is handled via SwiftUI's preferredColorScheme
     }
 
     private var filteredFolders: [Folder] {

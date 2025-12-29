@@ -306,14 +306,17 @@ struct ArticleDetailView: View {
     }
 }
 
-// Custom WKWebView that passes scroll events to parent
+// Custom WKWebView that passes scroll events to parent (macOS only)
+#if os(macOS)
 class NonScrollableWebView: WKWebView {
     override func scrollWheel(with event: NSEvent) {
         // Pass scroll events to the next responder (parent ScrollView)
         self.nextResponder?.scrollWheel(with: event)
     }
 }
+#endif
 
+#if os(macOS)
 struct ArticleContentView: NSViewRepresentable {
     let html: String
     @Binding var height: CGFloat
@@ -342,6 +345,30 @@ struct ArticleContentView: NSViewRepresentable {
         let styledHTML = wrapWithStyles(html)
         webView.loadHTMLString(styledHTML, baseURL: nil)
     }
+#else
+struct ArticleContentView: UIViewRepresentable {
+    let html: String
+    @Binding var height: CGFloat
+
+    func makeUIView(context: Context) -> WKWebView {
+        let config = WKWebViewConfiguration()
+        config.preferences.isElementFullscreenEnabled = false
+
+        let webView = WKWebView(frame: .zero, configuration: config)
+        webView.navigationDelegate = context.coordinator
+        webView.isOpaque = false
+        webView.backgroundColor = .clear
+        webView.scrollView.isScrollEnabled = false
+
+        return webView
+    }
+    
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        context.coordinator.parent = self
+        let styledHTML = wrapWithStyles(html)
+        webView.loadHTMLString(styledHTML, baseURL: nil)
+    }
+#endif
     
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -541,7 +568,7 @@ struct ArticleContentView: NSViewRepresentable {
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if navigationAction.navigationType == .linkActivated,
                let url = navigationAction.request.url {
-                NSWorkspace.shared.open(url)
+                PlatformApplication.openURL(url)
                 decisionHandler(.cancel)
             } else {
                 decisionHandler(.allow)
@@ -632,7 +659,7 @@ struct EuropresseButton: View {
         
         // Open Europresse via configured portal
         if let europresseURL = URL(string: portal.authURL) {
-            NSWorkspace.shared.open(europresseURL)
+            PlatformApplication.openURL(europresseURL)
         }
         
         // Reset feedback after delay

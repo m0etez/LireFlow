@@ -196,8 +196,7 @@ struct ArticleListView: View {
         markdown += strippedContent
 
         // Copy to clipboard
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(markdown, forType: .string)
+        PlatformPasteboard.copyToClipboard(markdown)
     }
 }
 
@@ -425,7 +424,7 @@ struct CardArticleRow: View {
         .padding(12)
         .background {
             RoundedRectangle(cornerRadius: 12)
-                .fill(isSelected ? theme.selectionColor : Color(nsColor: .controlBackgroundColor))
+                .fill(isSelected ? theme.selectionColor : Color.platformSecondaryBackground)
                 .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
         }
         .overlay {

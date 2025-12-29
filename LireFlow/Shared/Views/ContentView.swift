@@ -144,11 +144,7 @@ struct ContentView: View {
 
     private func updateBadgeCount() {
         let unreadCount = articles.filter { !$0.isRead }.count
-        if unreadCount > 0 {
-            NSApp.dockTile.badgeLabel = "\(unreadCount)"
-        } else {
-            NSApp.dockTile.badgeLabel = nil
-        }
+        PlatformApplication.setBadgeCount(unreadCount)
     }
     
     private var filteredArticles: [Article] {
@@ -233,7 +229,7 @@ struct ContentView: View {
     private func openCurrentArticleInBrowser() {
         guard let article = selectedArticle,
               let url = URL(string: article.url) else { return }
-        NSWorkspace.shared.open(url)
+        PlatformApplication.openURL(url)
     }
     
     private func seedDefaultFeedsIfNeeded() {
@@ -287,7 +283,7 @@ struct EmptyDetailView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(nsColor: .textBackgroundColor))
+        .background(Color.platformTertiaryBackground)
     }
 }
 
