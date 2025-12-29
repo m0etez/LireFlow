@@ -24,19 +24,25 @@ struct UpgradeSheet: View {
             
             // Header
             VStack(spacing: 16) {
-                Image(systemName: "star.circle.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.linearGradient(
-                        colors: [.yellow, .orange],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(
+                            colors: [.orange, .yellow],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 80, height: 80)
+                    
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white)
+                }
                 
-                Text("Unlock Pro")
+                Text("LireFlow Pro")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                Text("Get the most out of LireFlow")
+                Text("Unlock the full experience")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -51,11 +57,49 @@ struct UpgradeSheet: View {
             ScrollView {
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 16) {
-                        featureRow(icon: "infinity", title: "Unlimited Feeds", description: "Free: 15 feeds • Pro: Unlimited")
-                        featureRow(icon: "list.bullet.rectangle", title: "Unlimited Reading Lists", description: "Free: 1 list • Pro: Unlimited")
-                        featureRow(icon: "paintpalette", title: "Premium Themes", description: "Sepia, Nord, and Ocean themes")
+                        featureRow(
+                            icon: "infinity",
+                            title: "Unlimited Feeds",
+                            freeText: "15 feeds",
+                            proText: "Unlimited"
+                        )
+                        
+                        featureRow(
+                            icon: "bookmark.fill",
+                            title: "Reading Lists",
+                            freeText: "3 lists",
+                            proText: "Unlimited"
+                        )
+                        
+                        featureRow(
+                            icon: "paintpalette.fill",
+                            title: "Premium Themes",
+                            freeText: "Light & Dark",
+                            proText: "Sepia, Nord, Ocean, Forest"
+                        )
+                        
+                        featureRow(
+                            icon: "magnifyingglass",
+                            title: "Full-Text Search",
+                            freeText: "Titles only",
+                            proText: "All content"
+                        )
+                        
+                        featureRow(
+                            icon: "slider.horizontal.3",
+                            title: "Advanced Filters",
+                            freeText: "Basic",
+                            proText: "Date, author, keywords"
+                        )
+                        
+                        featureRow(
+                            icon: "heart.fill",
+                            title: "Support Development",
+                            freeText: "",
+                            proText: "Help us improve LireFlow!"
+                        )
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 24)
                 }
                 .padding(.vertical, 24)
             }
@@ -64,6 +108,16 @@ struct UpgradeSheet: View {
             
             // Footer with purchase button
             VStack(spacing: 16) {
+                // Price display
+                VStack(spacing: 4) {
+                    Text("One-time purchase")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    Text(storeService.formattedPrice)
+                        .font(.system(size: 32, weight: .bold))
+                }
+                
                 // Purchase button
                 Button {
                     Task {
@@ -77,7 +131,7 @@ struct UpgradeSheet: View {
                             Text("Processing...")
                         } else {
                             Image(systemName: "star.fill")
-                            Text("Unlock Pro – \(storeService.formattedPrice)")
+                            Text("Unlock Pro")
                         }
                     }
                     .font(.headline)
@@ -87,10 +141,6 @@ struct UpgradeSheet: View {
                 .buttonStyle(.borderedProminent)
                 .tint(.orange)
                 .disabled(storeService.purchaseState == .purchasing || storeService.isLoading || storeService.isPro)
-                
-                Text("One-time purchase • No subscription")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
                 
                 // Restore purchases
                 Button("Restore Purchase") {
@@ -113,7 +163,7 @@ struct UpgradeSheet: View {
             }
             .padding(24)
         }
-        .frame(width: 580, height: 650)
+        .frame(width: 520, height: 700)
         .onChange(of: storeService.purchaseState) { _, newState in
             switch newState {
             case .purchased, .restored:
@@ -127,14 +177,14 @@ struct UpgradeSheet: View {
                 break
             }
         }
-        .alert("Bienvenue dans Pro !", isPresented: $showingSuccess) {
-            Button("Génial !") {
+        .alert("Welcome to Pro!", isPresented: $showingSuccess) {
+            Button("Awesome!") {
                 dismiss()
             }
         } message: {
-            Text("Merci pour votre achat ! Toutes les fonctionnalités Pro sont débloquées.")
+            Text("Thank you for your purchase! All Pro features are now unlocked.")
         }
-        .alert("Échec de l'achat", isPresented: $showingError) {
+        .alert("Purchase Failed", isPresented: $showingError) {
             Button("OK") {
                 storeService.resetPurchaseState()
             }
@@ -142,29 +192,184 @@ struct UpgradeSheet: View {
             if case .failed(let message) = storeService.purchaseState {
                 Text(message)
             } else {
-                Text("Une erreur est survenue. Veuillez réessayer.")
+                Text("An error occurred. Please try again.")
             }
         }
     }
     
-    // MARK: - Feature Column
+    // MARK: - Feature Row
     
-    private func featureRow(icon: String, title: String, description: String) -> some View {
-        HStack(spacing: 12) {
+    private func featureRow(icon: String, title: String, freeText: String, proText: String) -> some View {
+        HStack(alignment: .top, spacing: 16) {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(.orange)
-                .frame(width: 32)
+                .frame(width: 28)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.headline)
-                Text(description)
+                
+                HStack(spacing: 20) {
+                    // Free tier
+                    if !freeText.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            Text(freeText)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(minWidth: 80, alignment: .leading)
+                    }
+                    
+                    // Pro tier
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                        Text(proText)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Upgrade Banner (for Settings)
+
+struct UpgradeBanner: View {
+    @StateObject private var storeService = StoreService.shared
+    @Binding var showUpgradeSheet: Bool
+    
+    var body: some View {
+        if !storeService.isPro {
+            Button {
+                showUpgradeSheet = true
+            } label: {
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(
+                                colors: [.orange, .yellow],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 44, height: 44)
+                        
+                        Image(systemName: "star.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Upgrade to Pro")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        Text("Unlimited feeds, themes & more")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(storeService.formattedPrice)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.orange)
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.orange.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+}
+
+// MARK: - Pro Badge
+
+struct ProBadge: View {
+    var small: Bool = false
+    
+    var body: some View {
+        Text("PRO")
+            .font(small ? .caption2 : .caption)
+            .fontWeight(.bold)
+            .padding(.horizontal, small ? 4 : 6)
+            .padding(.vertical, small ? 2 : 3)
+            .background(
+                LinearGradient(
+                    colors: [.orange, .yellow],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: small ? 3 : 4))
+    }
+}
+
+// MARK: - Pro Status View (for Settings when Pro)
+
+struct ProStatusView: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [.orange, .yellow],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 44, height: 44)
+                
+                Image(systemName: "star.fill")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 8) {
+                    Text("LireFlow Pro")
+                        .font(.headline)
+                    
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundStyle(.green)
+                }
+                
+                Text("All features unlocked")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            
+            Spacer()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.green.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                )
+        )
     }
 }
 

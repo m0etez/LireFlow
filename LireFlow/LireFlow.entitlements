@@ -10,5 +10,9 @@
 		<true />
 		<key>com.apple.security.personal-information.location</key>
 		<true />
+		<key>com.apple.developer.in-app-payments</key>
+		<array>
+			<string>merchant.com.lireflow.app</string>
+		</array>
 	</dict>
 </plist>

@@ -151,6 +151,12 @@ extension Notification.Name {
 // MARK: - App Delegate
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Apply saved theme on launch
+        let theme = ConfigService.shared.config.selectedTheme
+        theme.apply()
+    }
+    
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         let dockMenu = NSMenu()
 
