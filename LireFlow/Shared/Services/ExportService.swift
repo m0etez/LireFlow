@@ -1,5 +1,9 @@
 import Foundation
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 import UniformTypeIdentifiers
 import WebKit
 
@@ -60,7 +64,8 @@ final class ExportService: ObservableObject {
             throw ExportError.encodingFailed(error)
         }
 
-        // 3. Present save panel
+        #if os(macOS)
+        // 3. Present save panel (macOS)
         let savePanel = NSSavePanel()
         savePanel.nameFieldStringValue = "LireFlow-Export-\(dateString()).json"
         savePanel.allowedContentTypes = [.json]
@@ -81,6 +86,20 @@ final class ExportService: ObservableObject {
         }
 
         return url
+        #else
+        // 3. Create temporary file (iOS - will be shared via ShareSheet)
+        let tempDir = FileManager.default.temporaryDirectory
+        let url = tempDir.appendingPathComponent("LireFlow-Export-\(dateString()).json")
+        
+        // 4. Write to temporary file
+        do {
+            try jsonData.write(to: url, options: .atomic)
+        } catch {
+            throw ExportError.fileWriteFailed(error)
+        }
+        
+        return url
+        #endif
     }
 
     // MARK: - OPML Export
@@ -94,7 +113,8 @@ final class ExportService: ObservableObject {
         // 1. Build OPML XML structure
         let opmlContent = buildOPMLDocument(folders: folders, feeds: feeds)
 
-        // 2. Present save panel
+        #if os(macOS)
+        // 2. Present save panel (macOS)
         let savePanel = NSSavePanel()
         savePanel.nameFieldStringValue = "LireFlow-Export-\(dateString()).opml"
         if let opmlType = UTType(filenameExtension: "opml") {
@@ -117,6 +137,20 @@ final class ExportService: ObservableObject {
         }
 
         return url
+        #else
+        // 2. Create temporary file (iOS)
+        let tempDir = FileManager.default.temporaryDirectory
+        let url = tempDir.appendingPathComponent("LireFlow-Export-\(dateString()).opml")
+        
+        // 3. Write to file
+        do {
+            try opmlContent.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            throw ExportError.fileWriteFailed(error)
+        }
+        
+        return url
+        #endif
     }
 
     // MARK: - Article PDF Export
@@ -127,7 +161,8 @@ final class ExportService: ObservableObject {
         let displayContent = article.content.isEmpty ? article.summary : article.content
         let htmlContent = buildArticlePrintHTML(article: article, content: displayContent)
 
-        // 2. Present save panel
+        #if os(macOS)
+        // 2. Present save panel (macOS)
         let savePanel = NSSavePanel()
         let sanitizedTitle = sanitizeFilename(article.displayTitle)
         savePanel.nameFieldStringValue = "\(sanitizedTitle).pdf"
@@ -149,6 +184,21 @@ final class ExportService: ObservableObject {
         }
 
         return url
+        #else
+        // 2. Create temporary file (iOS)
+        let tempDir = FileManager.default.temporaryDirectory
+        let sanitizedTitle = sanitizeFilename(article.displayTitle)
+        let url = tempDir.appendingPathComponent("\(sanitizedTitle).pdf")
+        
+        // 3. Generate PDF using WebKit
+        do {
+            try await generatePDF(from: htmlContent, to: url)
+        } catch {
+            throw ExportError.pdfGenerationFailed(error)
+        }
+        
+        return url
+        #endif
     }
 
     // MARK: - Article Markdown Export
@@ -158,7 +208,8 @@ final class ExportService: ObservableObject {
         // 1. Generate markdown content
         let markdown = buildArticleMarkdown(article: article)
 
-        // 2. Present save panel
+        #if os(macOS)
+        // 2. Present save panel (macOS)
         let savePanel = NSSavePanel()
         let sanitizedTitle = sanitizeFilename(article.displayTitle)
         savePanel.nameFieldStringValue = "\(sanitizedTitle).md"
@@ -184,6 +235,21 @@ final class ExportService: ObservableObject {
         }
 
         return url
+        #else
+        // 2. Create temporary file (iOS)
+        let tempDir = FileManager.default.temporaryDirectory
+        let sanitizedTitle = sanitizeFilename(article.displayTitle)
+        let url = tempDir.appendingPathComponent("\(sanitizedTitle).md")
+        
+        // 3. Write to file
+        do {
+            try markdown.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            throw ExportError.fileWriteFailed(error)
+        }
+        
+        return url
+        #endif
     }
 
     // MARK: - Private Helpers

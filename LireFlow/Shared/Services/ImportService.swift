@@ -1,5 +1,7 @@
 import Foundation
+#if os(macOS)
 import AppKit
+#endif
 import SwiftData
 import UniformTypeIdentifiers
 
@@ -49,7 +51,8 @@ final class ImportService: ObservableObject {
 
     // MARK: - JSON Import
 
-    /// Import library from JSON (merge with existing data)
+    #if os(macOS)
+    /// Import library from JSON (merge with existing data) - macOS version with file picker
     func importFromJSON(in context: ModelContext) async throws -> ImportResult {
 
         // 1. Present open panel
@@ -65,6 +68,13 @@ final class ImportService: ObservableObject {
               let url = openPanel.url else {
             throw ImportError.userCancelled
         }
+        
+        return try await importFromJSON(from: url, in: context)
+    }
+    #endif
+    
+    /// Import library from JSON file URL (works on both platforms)
+    func importFromJSON(from url: URL, in context: ModelContext) async throws -> ImportResult {
 
         // 2. Read and decode JSON
         let jsonData: Data
@@ -96,6 +106,8 @@ final class ImportService: ObservableObject {
     // MARK: - OPML Import
 
     /// Import feeds from OPML file (merge with existing)
+    #if os(macOS)
+    /// Import feeds from OPML (merge with existing data) - macOS version with file picker
     func importFromOPML(in context: ModelContext) async throws -> ImportResult {
 
         // 1. Present open panel
@@ -113,6 +125,13 @@ final class ImportService: ObservableObject {
               let url = openPanel.url else {
             throw ImportError.userCancelled
         }
+        
+        return try await importFromOPML(from: url, in: context)
+    }
+    #endif
+    
+    /// Import feeds from OPML file URL (works on both platforms)
+    func importFromOPML(from url: URL, in context: ModelContext) async throws -> ImportResult {
 
         // 2. Parse OPML XML
         let xmlData: Data
