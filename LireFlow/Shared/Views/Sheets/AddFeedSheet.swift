@@ -257,7 +257,7 @@ struct AddFeedSheet: View {
     private func checkClipboardForURL() {
         guard urlString.isEmpty else { return }  // Don't override if user already typed something
 
-        if let clipboardString = NSPasteboard.general.string(forType: .string) {
+        if let clipboardString = PlatformPasteboard.getFromClipboard() {
             let trimmed = clipboardString.trimmingCharacters(in: .whitespacesAndNewlines)
 
             // Validate clipboard content is a safe URL

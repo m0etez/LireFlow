@@ -85,7 +85,7 @@ struct SettingsSheet: View {
             }
         }
         .frame(width: 650, height: 550)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Color.platformBackground)
         .alert("Success", isPresented: $showingSuccessAlert) {
             Button("OK") { showingSuccessAlert = false }
         } message: {
@@ -173,7 +173,7 @@ struct SettingsSheet: View {
                 }
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Import Section
@@ -227,7 +227,7 @@ struct SettingsSheet: View {
                     .padding(.top, 4)
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Info Section
@@ -264,7 +264,7 @@ struct SettingsSheet: View {
                 .foregroundStyle(.secondary)
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
+            .background(Color.platformSecondaryBackground.opacity(0.5))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding()
@@ -483,7 +483,7 @@ struct SettingsSheet: View {
                     .help("Show the number of unread articles in the sidebar")
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Reading Section
@@ -521,7 +521,7 @@ struct SettingsSheet: View {
                     .help("Automatically mark articles as read when scrolling past them")
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Feeds Section
@@ -564,7 +564,7 @@ struct SettingsSheet: View {
                 }
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Weather Section
@@ -604,7 +604,7 @@ struct SettingsSheet: View {
                     .foregroundStyle(.tertiary)
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Europresse Section
@@ -682,7 +682,7 @@ struct SettingsSheet: View {
                 }
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Performance Section
@@ -748,7 +748,7 @@ struct SettingsSheet: View {
                 .buttonStyle(.bordered)
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             // Advanced Section
@@ -780,16 +780,18 @@ struct SettingsSheet: View {
 
                     Spacer()
 
+                    #if os(macOS)
                     Button("Reveal in Finder") {
                         if let url = URL(string: "file://" + configService.configFilePath) {
                             NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
                         }
                     }
                     .buttonStyle(.bordered)
+                    #endif
                 }
             }
             .padding()
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding()
@@ -865,7 +867,7 @@ struct SettingsSheet: View {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(configService.config.selectedTheme == theme ? Color.accentColor.opacity(0.15) : Color(nsColor: .controlBackgroundColor))
+                    .fill(configService.config.selectedTheme == theme ? Color.accentColor.opacity(0.15) : Color.platformSecondaryBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
@@ -928,7 +930,7 @@ struct SettingsSheet: View {
             VStack(spacing: 10) {
                 Button {
                     if let url = URL(string: "https://github.com/m0etez/LireFlow") {
-                        NSWorkspace.shared.open(url)
+                        PlatformApplication.openURL(url)
                     }
                 } label: {
                     Label("View on GitHub", systemImage: "globe")
@@ -938,7 +940,7 @@ struct SettingsSheet: View {
 
                 Button {
                     if let url = URL(string: "https://twitter.com/mo_saadani") {
-                        NSWorkspace.shared.open(url)
+                        PlatformApplication.openURL(url)
                     }
                 } label: {
                     Label("Follow on Twitter", systemImage: "at")
