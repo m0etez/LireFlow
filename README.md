@@ -4,9 +4,10 @@
   <img src="logo.jpg" alt="LireFlow Logo" width="200">
 </p>
 
-A modern, native macOS RSS reader built with SwiftUI and SwiftData.
+A modern, native RSS reader built with SwiftUI and SwiftData for macOS and iOS.
 
 ![macOS](https://img.shields.io/badge/macOS-14.0+-blue)
+![iOS](https://img.shields.io/badge/iOS-17.0+-green)
 ![Swift](https://img.shields.io/badge/Swift-5.9+-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -105,7 +106,14 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 ## Requirements
 
+### macOS
+
 - macOS 14.0 (Sonoma) or later
+- Xcode 15.0 or later
+
+### iOS
+
+- iOS 17.0 or later
 - Xcode 15.0 or later
 
 ## Installation
@@ -148,46 +156,61 @@ Download the latest release from the [releases page](https://github.com/m0etez/L
 
 ```
 LireFlow/
-├── LireFlowApp.swift           # App entry point
-├── Models/
-│   ├── Article.swift           # Article data model
-│   ├── Feed.swift              # Feed data model
-│   ├── Folder.swift            # Folder data model
-│   ├── ReadingList.swift       # Reading list model
-│   └── ExportableModels.swift  # Export/import DTOs
-├── Resources/
-│   ├── en.lproj/               # English localization
-│   ├── fr.lproj/               # French localization
-│   └── de.lproj/               # German localization
-├── Services/
-│   ├── FeedParser.swift        # RSS/Atom parsing
-│   ├── FeedService.swift       # Feed management
-│   ├── ArticleExtractor.swift  # Full article extraction
-│   ├── WeatherService.swift    # Weather API integration
-│   ├── ConfigService.swift     # File-based settings
-│   ├── StoreService.swift      # In-app purchases
-│   ├── ExportService.swift     # JSON/OPML export
-│   ├── ImportService.swift     # JSON/OPML import
-│   └── DefaultFeeds.swift      # Starter feed suggestions
-├── Views/
-│   ├── ContentView.swift       # Main app layout
-│   ├── Sidebar/
-│   │   ├── SidebarView.swift
-│   │   ├── WeatherWidget.swift
-│   │   └── WeatherDetailPopover.swift
-│   ├── Articles/
-│   │   ├── ArticleListView.swift
-│   │   └── ArticleDetailView.swift
-│   └── Sheets/
-│       ├── AddFeedSheet.swift
-│       ├── AddFolderSheet.swift
-│       ├── AddReadingListSheet.swift
-│       ├── SettingsSheet.swift
-│       ├── OnboardingSheet.swift
-│       └── UpgradeSheet.swift
-└── Utilities/
-    ├── Extensions.swift
-    └── AppTheme.swift          # Theme definitions
+├── Shared/                         # Cross-platform code
+│   ├── LireFlowAppCore.swift       # App core (shared state)
+│   ├── Models/
+│   │   ├── Article.swift           # Article data model
+│   │   ├── Feed.swift              # Feed data model
+│   │   ├── Folder.swift            # Folder data model
+│   │   ├── ReadingList.swift       # Reading list model
+│   │   └── ExportableModels.swift  # Export/import DTOs
+│   ├── Resources/
+│   │   ├── en.lproj/               # English localization
+│   │   ├── fr.lproj/               # French localization
+│   │   └── de.lproj/               # German localization
+│   ├── Services/
+│   │   ├── FeedParser.swift        # RSS/Atom parsing
+│   │   ├── FeedService.swift       # Feed management
+│   │   ├── ArticleExtractor.swift  # Full article extraction
+│   │   ├── WeatherService.swift    # Weather API integration
+│   │   ├── ConfigService.swift     # File-based settings
+│   │   ├── StoreService.swift      # In-app purchases
+│   │   ├── ExportService.swift     # JSON/OPML export
+│   │   ├── ImportService.swift     # JSON/OPML import
+│   │   └── DefaultFeeds.swift      # Starter feed suggestions
+│   ├── Views/
+│   │   ├── ContentView.swift       # Main app layout
+│   │   ├── Sidebar/
+│   │   │   ├── SidebarView.swift
+│   │   │   ├── WeatherWidget.swift
+│   │   │   └── WeatherDetailPopover.swift
+│   │   ├── Articles/
+│   │   │   ├── ArticleListView.swift
+│   │   │   └── ArticleDetailView.swift
+│   │   └── Sheets/
+│   │       ├── AddFeedSheet.swift
+│   │       ├── AddFolderSheet.swift
+│   │       ├── AddReadingListSheet.swift
+│   │       ├── SettingsSheet.swift
+│   │       ├── OnboardingSheet.swift
+│   │       └── UpgradeSheet.swift
+│   └── Utilities/
+│       ├── Extensions.swift
+│       ├── AppTheme.swift          # Theme definitions
+│       └── PlatformHelpers.swift   # Platform-specific helpers
+├── macOS/                          # macOS-specific code
+│   ├── LireFlowApp.swift           # macOS app entry point
+│   ├── MenuBarView.swift           # Menu bar extra
+│   ├── Info.plist
+│   └── macOS.entitlements
+├── iOS/                            # iOS-specific code
+│   ├── LireFlowApp+iOS.swift       # iOS app entry point
+│   ├── RootView.swift              # iOS root view
+│   ├── Helpers/
+│   │   └── ShareSheet.swift        # iOS share functionality
+│   ├── Info.plist
+│   └── iOS.entitlements
+└── Assets.xcassets                 # Shared assets
 ```
 
 ## Configuration

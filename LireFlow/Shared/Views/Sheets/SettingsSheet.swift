@@ -902,10 +902,15 @@ struct SettingsSheet: View {
                     .fontWeight(.bold)
                     .foregroundStyle(.primary)
 
+                #if os(macOS)
                 Text("Modern RSS Reader for macOS")
                     .foregroundStyle(.primary.opacity(0.7))
+                #else
+                Text("Modern RSS Reader for iOS")
+                    .foregroundStyle(.primary.opacity(0.7))
+                #endif
 
-                Text("Version 1.2.1")
+                Text("Version 1.3.0")
                     .font(.caption)
                     .foregroundStyle(.primary.opacity(0.5))
                     .padding(.top, 8)
