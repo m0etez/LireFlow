@@ -306,6 +306,7 @@ struct ArticleDetailView: View {
     }
 }
 
+
 // Custom WKWebView that passes scroll events to parent (macOS only)
 #if os(macOS)
 class NonScrollableWebView: WKWebView {
@@ -324,6 +325,11 @@ struct ArticleContentView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.preferences.isElementFullscreenEnabled = false
+        
+        // Add message handler for height updates
+        let contentController = WKUserContentController()
+        contentController.add(context.coordinator, name: "heightHandler")
+        config.userContentController = contentController
 
         let webView = NonScrollableWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -345,7 +351,224 @@ struct ArticleContentView: NSViewRepresentable {
         let styledHTML = wrapWithStyles(html)
         webView.loadHTMLString(styledHTML, baseURL: nil)
     }
-#else
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+    
+    private func wrapWithStyles(_ content: String) -> String {
+        // CSS and HTML wrapper - will add inline
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                :root {
+                    color-scheme: light dark;
+                }
+                
+                * {
+                    box-sizing: border-box;
+                }
+                
+                html, body {
+                    overflow: hidden;
+                }
+                
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.7;
+                    color: #1d1d1f;
+                    background: transparent;
+                    margin: 0;
+                    padding: 0;
+                    -webkit-font-smoothing: antialiased;
+                }
+                
+                @media (prefers-color-scheme: dark) {
+                    body {
+                        color: #f5f5f7;
+                    }
+                    
+                    a {
+                        color: #6eb6ff;
+                    }
+                    
+                    img {
+                        opacity: 0.9;
+                    }
+                }
+                
+                p {
+                    margin: 0 0 1.2em 0;
+                }
+                
+                a {
+                    color: #0066cc;
+                    text-decoration: none;
+                }
+                
+                a:hover {
+                    text-decoration: underline;
+                }
+                
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                    margin: 16px 0;
+                }
+                
+                figure {
+                    margin: 24px 0;
+                }
+                
+                figcaption {
+                    font-size: 14px;
+                    color: #86868b;
+                    text-align: center;
+                    margin-top: 8px;
+                }
+                
+                blockquote {
+                    margin: 24px 0;
+                    padding: 16px 24px;
+                    border-left: 4px solid #0066cc;
+                    background: rgba(0, 102, 204, 0.05);
+                    border-radius: 0 8px 8px 0;
+                    font-style: italic;
+                }
+                
+                pre, code {
+                    font-family: 'SF Mono', Menlo, Monaco, monospace;
+                    font-size: 14px;
+                    background: rgba(128, 128, 128, 0.1);
+                    border-radius: 4px;
+                }
+                
+                code {
+                    padding: 2px 6px;
+                }
+                
+                pre {
+                    padding: 16px;
+                    overflow-x: auto;
+                }
+                
+                pre code {
+                    padding: 0;
+                    background: transparent;
+                }
+                
+                h1, h2, h3, h4, h5, h6 {
+                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+                    font-weight: 600;
+                    line-height: 1.3;
+                    margin: 1.5em 0 0.5em 0;
+                }
+                
+                h1 { font-size: 28px; }
+                h2 { font-size: 24px; }
+                h3 { font-size: 20px; }
+                
+                ul, ol {
+                    padding-left: 24px;
+                    margin: 16px 0;
+                }
+                
+                li {
+                    margin: 8px 0;
+                }
+                
+                hr {
+                    border: none;
+                    border-top: 1px solid rgba(128, 128, 128, 0.2);
+                    margin: 32px 0;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 24px 0;
+                }
+                
+                th, td {
+                    padding: 12px;
+                    text-align: left;
+                    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+                }
+                
+                th {
+                    font-weight: 600;
+                }
+                
+                iframe {
+                    max-width: 100%;
+                    margin: 16px 0;
+                    border-radius: 8px;
+                }
+            </style>
+        </head>
+        <body>
+            \(content)
+            <script>
+                // Send height to Swift after load
+                function sendHeight() {
+                    const height = document.body.scrollHeight;
+                    window.webkit.messageHandlers.heightHandler.postMessage(height);
+                }
+                window.onload = sendHeight;
+                setTimeout(sendHeight, 100);
+                setTimeout(sendHeight, 500);
+            </script>
+        </body>
+        </html>
+        """
+    }
+    
+    class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        var parent: ArticleContentView
+        
+        init(parent: ArticleContentView) {
+            self.parent = parent
+            super.init()
+        }
+        
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // Get content height after load
+            webView.evaluateJavaScript("document.body.scrollHeight") { [weak self] result, error in
+                if let height = result as? CGFloat, height > 0 {
+                    DispatchQueue.main.async {
+                        self?.parent.height = max(height + 20, 100)
+                    }
+                }
+            }
+        }
+        
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            if navigationAction.navigationType == .linkActivated,
+               let url = navigationAction.request.url {
+                PlatformApplication.openURL(url)
+                decisionHandler(.cancel)
+            } else {
+                decisionHandler(.allow)
+            }
+        }
+        
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if let height = message.body as? CGFloat {
+                DispatchQueue.main.async {
+                    self.parent.height = max(height + 20, 100)
+                }
+            }
+        }
+    }
+}
+#endif
+#if os(iOS)
 struct ArticleContentView: UIViewRepresentable {
     let html: String
     @Binding var height: CGFloat
@@ -353,6 +576,11 @@ struct ArticleContentView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.preferences.isElementFullscreenEnabled = false
+        
+        // Add message handler for height updates
+        let contentController = WKUserContentController()
+        contentController.add(context.coordinator, name: "heightHandler")
+        config.userContentController = contentController
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -368,7 +596,6 @@ struct ArticleContentView: UIViewRepresentable {
         let styledHTML = wrapWithStyles(html)
         webView.loadHTMLString(styledHTML, baseURL: nil)
     }
-#endif
     
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -584,6 +811,7 @@ struct ArticleContentView: UIViewRepresentable {
         }
     }
 }
+#endif
 
 // MARK: - Europresse Button
 
