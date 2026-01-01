@@ -120,7 +120,9 @@ struct AddFolderSheet: View {
             }
             .padding()
         }
+        #if os(macOS)
         .frame(width: 380, height: 550)
+        #endif
     }
     
     private func createFolder() {

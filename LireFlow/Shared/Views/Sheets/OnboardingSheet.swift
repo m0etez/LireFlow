@@ -93,7 +93,9 @@ struct OnboardingSheet: View {
             }
             .padding(24)
         }
+        #if os(macOS)
         .frame(width: 600, height: 700)
+        #endif
     }
     
     // MARK: - Welcome Step

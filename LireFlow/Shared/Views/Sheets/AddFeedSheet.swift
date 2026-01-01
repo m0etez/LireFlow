@@ -178,7 +178,9 @@ struct AddFeedSheet: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 20)
         }
+        #if os(macOS)
         .frame(width: 480, height: 500)
+        #endif
         .background(.ultraThinMaterial)
         .sheet(isPresented: $showingDefaultFeeds) {
             DefaultFeedsSheet(folders: folders) {
@@ -451,7 +453,9 @@ struct DefaultFeedsSheet: View {
             }
             .padding()
         }
+        #if os(macOS)
         .frame(width: 500, height: 600)
+        #endif
     }
     
     private func addSelectedFeeds() async {

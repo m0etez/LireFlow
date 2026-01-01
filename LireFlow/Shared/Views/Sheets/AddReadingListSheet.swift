@@ -75,7 +75,9 @@ struct AddReadingListSheet: View {
             }
         }
         .padding(24)
+        #if os(macOS)
         .frame(width: 400, height: 380)
+        #endif
         .sheet(isPresented: $showingUpgrade) {
             UpgradeSheet()
         }

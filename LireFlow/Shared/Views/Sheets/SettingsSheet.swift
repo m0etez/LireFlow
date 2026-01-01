@@ -84,7 +84,9 @@ struct SettingsSheet: View {
                 }
             }
         }
+        #if os(macOS)
         .frame(width: 650, height: 550)
+        #endif
         .background(Color.platformBackground)
         .alert("Success", isPresented: $showingSuccessAlert) {
             Button("OK") { showingSuccessAlert = false }

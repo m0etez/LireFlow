@@ -163,7 +163,9 @@ struct UpgradeSheet: View {
             }
             .padding(24)
         }
+        #if os(macOS)
         .frame(width: 520, height: 700)
+        #endif
         .onChange(of: storeService.purchaseState) { _, newState in
             switch newState {
             case .purchased, .restored:
