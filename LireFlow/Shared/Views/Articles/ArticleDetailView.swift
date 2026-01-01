@@ -877,8 +877,7 @@ struct EuropresseButton: View {
     private func openEuropresse() {
         // Copy search query to clipboard
         let searchQuery = "TIT_HEAD=\"\(article.title)\""
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(searchQuery, forType: .string)
+        PlatformPasteboard.copyToClipboard(searchQuery)
         
         // Show feedback
         withAnimation {

@@ -247,6 +247,7 @@ final class ImportService: ObservableObject {
         )
     }
 
+    #if os(macOS)
     private func parseOPML(_ xmlData: Data) throws -> OPMLData {
         let xmlDoc = try XMLDocument(data: xmlData, options: [])
 
@@ -308,6 +309,14 @@ final class ImportService: ObservableObject {
             folderName: folderName
         )
     }
+    #else
+    // iOS: OPML parsing not yet supported (use JSON import instead)
+    private func parseOPML(_ xmlData: Data) throws -> OPMLData {
+        // XMLDocument is not available on iOS
+        // For now, return empty data - users can use JSON import instead
+        throw ImportError.invalidFormat
+    }
+    #endif
 
     private func mergeOPMLData(
         _ opmlData: OPMLData,

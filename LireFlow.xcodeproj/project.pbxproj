@@ -42,6 +42,9 @@
 		PRO00001BUILD /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRO00000FILE /* StoreService.swift */; };
 		PRO00003BUILD /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRO00002FILE /* AppTheme.swift */; };
 		PRO00005BUILD /* UpgradeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRO00004FILE /* UpgradeSheet.swift */; };
+		IOS00001BUILD /* LireFlowApp+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS00000FILE /* LireFlowApp+iOS.swift */; };
+		IOS00003BUILD /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS00002FILE /* RootView.swift */; };
+		IOS00005BUILD /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS00004FILE /* ShareSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +87,9 @@
 		PRO00000FILE /* StoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
 		PRO00002FILE /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		PRO00004FILE /* UpgradeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeSheet.swift; sourceTree = "<group>"; };
+		IOS00000FILE /* LireFlowApp+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "LireFlowApp+iOS.swift"; path = "iOS/LireFlowApp+iOS.swift"; sourceTree = "<group>"; };
+		IOS00002FILE /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RootView.swift; path = iOS/RootView.swift; sourceTree = "<group>"; };
+		IOS00004FILE /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareSheet.swift; path = iOS/Helpers/ShareSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +126,9 @@
 				00100001F /* LireFlow.entitlements */,
 				7DE601A82F01BB1A00963222 /* LireFlow.storekit */,
 				93C43A59AC31C094AA669DEA /* Shared/Resources */,
+				IOS00000FILE /* LireFlowApp+iOS.swift */,
+				IOS00002FILE /* RootView.swift */,
+				IOS00004FILE /* ShareSheet.swift */,
 			);
 			path = LireFlow;
 			sourceTree = "<group>";
@@ -325,6 +334,9 @@
 				PRO00001BUILD /* StoreService.swift in Sources */,
 				PRO00003BUILD /* AppTheme.swift in Sources */,
 				PRO00005BUILD /* UpgradeSheet.swift in Sources */,
+				IOS00001BUILD /* LireFlowApp+iOS.swift in Sources */,
+				IOS00003BUILD /* RootView.swift in Sources */,
+				IOS00005BUILD /* ShareSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,10 +414,13 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Debug;
 		};
@@ -460,9 +475,12 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				SDKROOT = macosx;
+				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Release;
 		};

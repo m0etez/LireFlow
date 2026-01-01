@@ -396,7 +396,7 @@ struct DefaultFeedsSheet: View {
                                         }
                                     }
                                 ))
-                                .toggleStyle(.checkbox)
+                                .labelsHidden()
                                 
                                 VStack(alignment: .leading) {
                                     Text(feedInfo.title)

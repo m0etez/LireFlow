@@ -314,6 +314,7 @@ struct SettingsSheet: View {
     // MARK: - Import Actions
 
     private func importJSON() async {
+        #if os(macOS)
         isImporting = true
         defer { isImporting = false }
 
@@ -336,9 +337,14 @@ struct SettingsSheet: View {
             errorMessage = error.localizedDescription
             showingErrorAlert = true
         }
+        #else
+        errorMessage = "Import is not yet available on iOS. Please use the macOS app to import feeds."
+        showingErrorAlert = true
+        #endif
     }
 
     private func importOPML() async {
+        #if os(macOS)
         isImporting = true
         defer { isImporting = false }
 
@@ -360,6 +366,10 @@ struct SettingsSheet: View {
             errorMessage = error.localizedDescription
             showingErrorAlert = true
         }
+        #else
+        errorMessage = "Import is not yet available on iOS. Please use the macOS app to import feeds."
+        showingErrorAlert = true
+        #endif
     }
 
     // MARK: - General Settings View

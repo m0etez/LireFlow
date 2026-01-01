@@ -178,7 +178,7 @@ struct OnboardingSheet: View {
                 }
             }
             .padding(10)
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .padding(.horizontal, 24)
             
@@ -297,7 +297,7 @@ struct OnboardingSheet: View {
                 proFeatureRow(icon: "paintpalette", title: "Premium Themes", description: "Sepia, Nord, and Ocean themes")
             }
             .padding(20)
-            .background(Color(nsColor: .controlBackgroundColor))
+            .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal, 24)
             
