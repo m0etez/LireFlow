@@ -40,7 +40,8 @@ struct ContentView: View {
                 onRefresh: {
                     await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
                 },
-                isReading: selectedArticle != nil
+                isReading: selectedArticle != nil,
+                isRefreshing: feedService.isRefreshing
             )
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 300)
         } content: {
@@ -73,7 +74,6 @@ struct ContentView: View {
                 #endif
             }
         }
-        .searchable(text: $searchText, placement: .sidebar, prompt: "Search articles")
         .sheet(isPresented: $showingAddFeed) {
             AddFeedSheet(folders: folders)
         }
@@ -109,6 +109,13 @@ struct ContentView: View {
         }
         .onChange(of: configService.config.selectedTheme) { _, newTheme in
             newTheme.apply()
+        }
+        .onChange(of: selectedArticle) { _, newValue in
+            NotificationCenter.default.post(
+                name: .articleSelectionChanged,
+                object: nil,
+                userInfo: ["isReading": newValue != nil]
+            )
         }
         .applyTheme(currentTheme)
         .applyTheme(currentTheme)

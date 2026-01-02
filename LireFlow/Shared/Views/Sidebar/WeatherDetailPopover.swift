@@ -5,6 +5,8 @@ struct WeatherDetailPopover: View {
     let dailyForecasts: [WeatherService.DailyForecast]
     let locationName: String
     
+    @Environment(\.openURL) private var openURL
+    
     var body: some View {
         ZStack {
             // Background Gradient
@@ -98,7 +100,21 @@ struct WeatherDetailPopover: View {
                 .padding()
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                 
-                Link(destination: URL(string: "https://weather.apple.com")!) {
+                Button {
+                    #if targetEnvironment(simulator)
+                    // Simulator doesn't support weather:// scheme/web link 403s
+                    // Use Google Weather search which is reliable
+                    let query = "weather \(locationName)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "weather"
+                    if let url = URL(string: "https://www.google.com/search?q=\(query)") {
+                        openURL(url)
+                    }
+                    #else
+                    // Real device supports native Weather app deep link
+                    if let url = URL(string: "weather://") {
+                        openURL(url)
+                    }
+                    #endif
+                } label: {
                     HStack {
                         Image(systemName: "arrow.up.right")
                         Text("Open in Weather")

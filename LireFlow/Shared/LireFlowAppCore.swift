@@ -39,4 +39,5 @@ extension Notification.Name {
     static let toggleStar = Notification.Name("toggleStar")
     static let openInBrowser = Notification.Name("openInBrowser")
     static let openArticle = Notification.Name("openArticle")
+    static let articleSelectionChanged = Notification.Name("articleSelectionChanged")
 }

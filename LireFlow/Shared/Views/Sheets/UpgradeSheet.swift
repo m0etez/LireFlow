@@ -14,7 +14,7 @@ struct UpgradeSheet: View {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                    Text("Pro Unlocked!")
+                    Text("Pro Débloqué !")
                 }
                 .font(.headline)
                 .padding(.vertical, 10)
@@ -42,7 +42,7 @@ struct UpgradeSheet: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                Text("Unlock the full experience")
+                Text("Libérez tout le potentiel")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -59,44 +59,44 @@ struct UpgradeSheet: View {
                     VStack(alignment: .leading, spacing: 16) {
                         featureRow(
                             icon: "infinity",
-                            title: "Unlimited Feeds",
-                            freeText: "15 feeds",
-                            proText: "Unlimited"
+                            title: "Flux illimités",
+                            freeText: "15 flux",
+                            proText: "Illimité"
                         )
                         
                         featureRow(
                             icon: "bookmark.fill",
-                            title: "Reading Lists",
-                            freeText: "3 lists",
-                            proText: "Unlimited"
+                            title: "Listes de lecture",
+                            freeText: "3 listes",
+                            proText: "Illimité"
                         )
                         
                         featureRow(
                             icon: "paintpalette.fill",
-                            title: "Premium Themes",
-                            freeText: "Light & Dark",
-                            proText: "Sepia, Nord, Ocean, Forest"
+                            title: "Thèmes Premium",
+                            freeText: "Clair & Sombre",
+                            proText: "Sépia, Nord, Océan, Forêt"
                         )
                         
                         featureRow(
                             icon: "magnifyingglass",
-                            title: "Full-Text Search",
-                            freeText: "Titles only",
-                            proText: "All content"
+                            title: "Recherche plein texte",
+                            freeText: "Titres uniquement",
+                            proText: "Tout le contenu"
                         )
                         
                         featureRow(
                             icon: "slider.horizontal.3",
-                            title: "Advanced Filters",
-                            freeText: "Basic",
-                            proText: "Date, author, keywords"
+                            title: "Filtres avancés",
+                            freeText: "Basique",
+                            proText: "Date, auteur, mots-clés"
                         )
                         
                         featureRow(
                             icon: "heart.fill",
-                            title: "Support Development",
+                            title: "Soutenir le développement",
                             freeText: "",
-                            proText: "Help us improve LireFlow!"
+                            proText: "Aidez-nous à améliorer LireFlow !"
                         )
                     }
                     .padding(.horizontal, 24)
@@ -110,7 +110,7 @@ struct UpgradeSheet: View {
             VStack(spacing: 16) {
                 // Price display
                 VStack(spacing: 4) {
-                    Text("One-time purchase")
+                    Text("Achat unique")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     
@@ -128,10 +128,10 @@ struct UpgradeSheet: View {
                         if storeService.purchaseState == .purchasing {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("Processing...")
+                            Text("Traitement...")
                         } else {
                             Image(systemName: "star.fill")
-                            Text("Unlock Pro")
+                            Text("Débloquer Pro")
                         }
                     }
                     .font(.headline)
@@ -143,7 +143,7 @@ struct UpgradeSheet: View {
                 .disabled(storeService.purchaseState == .purchasing || storeService.isLoading || storeService.isPro)
                 
                 // Restore purchases
-                Button("Restore Purchase") {
+                Button("Restaurer l'achat") {
                     Task {
                         await storeService.restorePurchases()
                     }
@@ -154,7 +154,7 @@ struct UpgradeSheet: View {
                 .disabled(storeService.isLoading)
                 
                 // Maybe Later
-                Button("Maybe Later") {
+                Button("Peut-être plus tard") {
                     dismiss()
                 }
                 .buttonStyle(.plain)
@@ -179,14 +179,14 @@ struct UpgradeSheet: View {
                 break
             }
         }
-        .alert("Welcome to Pro!", isPresented: $showingSuccess) {
-            Button("Awesome!") {
+        .alert("Bienvenue dans Pro !", isPresented: $showingSuccess) {
+            Button("Génial !") {
                 dismiss()
             }
         } message: {
-            Text("Thank you for your purchase! All Pro features are now unlocked.")
+            Text("Merci de votre achat ! Toutes les fonctionnalités Pro sont maintenant débloquées.")
         }
-        .alert("Purchase Failed", isPresented: $showingError) {
+        .alert("Achat échoué", isPresented: $showingError) {
             Button("OK") {
                 storeService.resetPurchaseState()
             }
@@ -194,7 +194,7 @@ struct UpgradeSheet: View {
             if case .failed(let message) = storeService.purchaseState {
                 Text(message)
             } else {
-                Text("An error occurred. Please try again.")
+                Text("Une erreur est survenue. Veuillez réessayer.")
             }
         }
     }
@@ -271,10 +271,10 @@ struct UpgradeBanner: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Upgrade to Pro")
+                        Text("Passer à Pro")
                             .font(.headline)
                             .foregroundStyle(.primary)
-                        Text("Unlimited feeds, themes & more")
+                        Text("Flux illimités, thèmes & plus")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -356,7 +356,7 @@ struct ProStatusView: View {
                         .foregroundStyle(.green)
                 }
                 
-                Text("All features unlocked")
+                Text("Toutes les fonctionnalités débloquées")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

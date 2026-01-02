@@ -8,7 +8,7 @@ struct OnboardingSheet: View {
     @State private var currentStep = 0
     @State private var searchText = ""
     
-    private let totalSteps = 3  // Welcome, Europresse, Pro
+    private let totalSteps = 4  // Welcome, Theme, Europresse, Pro
     
     private var filteredPortals: [EuropressePortal] {
         if searchText.isEmpty {
@@ -26,15 +26,17 @@ struct OnboardingSheet: View {
                 VStack(spacing: 24) {
                     // Compact header for iOS
                     VStack(spacing: 12) {
-                        Image(systemName: "newspaper.fill")
-                            .font(.system(size: 44))
-                            .foregroundStyle(.blue)
+                        Image("LireFlowLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         
-                        Text("Welcome to LireFlow")
+                        Text("Bienvenue sur LireFlow")
                             .font(.title)
                             .fontWeight(.bold)
                         
-                        Text("A modern RSS reader")
+                        Text("Un lecteur RSS moderne")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -58,8 +60,10 @@ struct OnboardingSheet: View {
                         case 0:
                             welcomeStepContent
                         case 1:
-                            europresseStepContent
+                            themeStepContent
                         case 2:
+                            europresseStepContent
+                        case 3:
                             proStepContent
                         default:
                             welcomeStepContent
@@ -78,32 +82,60 @@ struct OnboardingSheet: View {
                 // Footer buttons
                 HStack {
                     if currentStep > 0 {
-                        Button("Back") {
+                        Button {
                             withAnimation {
                                 currentStep -= 1
                             }
+                        } label: {
+                            Text("Retour")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
                         }
-                        .buttonStyle(.bordered)
+                        .buttonStyle(.plain)
                     }
                     
                     Spacer()
                     
                     if currentStep < totalSteps - 1 {
-                        Button("Next") {
+                        Button {
                             withAnimation {
                                 currentStep += 1
                             }
+                        } label: {
+                            Text("Suivant")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.blue)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 12)
+                                .background(.ultraThinMaterial)
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                                )
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.plain)
                     } else {
-                        Button("Get Started") {
+                        Button {
                             completeOnboarding()
+                        } label: {
+                            Text("Commencer")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 12)
+                                .background(Color.blue.gradient)
+                                .clipShape(Capsule())
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(20)
-                .background(.regularMaterial)
+                .background(.ultraThinMaterial)
             }
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -192,39 +224,114 @@ struct OnboardingSheet: View {
             featureRow(
                 icon: "list.bullet.rectangle",
                 iconColor: .blue,
-                title: "Subscribe to Your Favorite Sites",
-                description: "Add RSS feeds from news sites, blogs, and more."
+                title: "Abonnez-vous à vos sites préférés",
+                description: "Ajoutez des flux RSS de sites d'actualités, blogs, et plus encore."
+            )
+            
+            featureRow(
+                icon: "bubble.left.and.bubble.right",
+                iconColor: .purple,
+                title: "Réseaux sociaux décentralisés",
+                description: "Suivez des subreddits, comptes Mastodon, et communautés Lemmy."
             )
             
             featureRow(
                 icon: "newspaper",
                 iconColor: .orange,
-                title: "Read Full Articles",
-                description: "Access paywalled articles through Europresse."
+                title: "Articles complets via Europresse",
+                description: "Accédez aux articles payants grâce à votre bibliothèque."
             )
             
             featureRow(
                 icon: "cloud.sun",
                 iconColor: .cyan,
-                title: "Weather Widget",
-                description: "See local weather at a glance."
-            )
-            
-            featureRow(
-                icon: "keyboard",
-                iconColor: .purple,
-                title: "Keyboard Shortcuts",
-                description: "Navigate with J/K, star with S, mark read with M."
+                title: "Widget Météo",
+                description: "Consultez la météo locale en un coup d'œil."
             )
             
             featureRow(
                 icon: "lock.shield",
                 iconColor: .green,
-                title: "Privacy First",
-                description: "All data is stored locally. No tracking."
+                title: "Confidentialité garantie",
+                description: "Toutes vos données restent sur votre appareil. Aucun tracking."
             )
         }
         .padding(.horizontal, 24)
+    }
+    
+    private var themeStepContent: some View {
+        VStack(spacing: 20) {
+            VStack(spacing: 8) {
+                Image(systemName: "paintpalette")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.purple)
+                
+                Text("Choisissez votre thème")
+                    .font(.headline)
+                
+                Text("Personnalisez l'apparence de LireFlow")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ForEach(AppTheme.allCases.filter { $0 != .system }, id: \.self) { theme in
+                    let isPremium = theme.isPremium && !storeService.isPro
+                    Button {
+                        if !isPremium {
+                            configService.config.selectedTheme = theme
+                        }
+                    } label: {
+                        VStack(spacing: 8) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(theme.backgroundColor)
+                                    .frame(height: 60)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(configService.config.selectedTheme == theme ? theme.accentColor : Color.clear, lineWidth: 3)
+                                    )
+                                    .overlay(
+                                        Image(systemName: theme.icon)
+                                            .font(.title2)
+                                            .foregroundStyle(theme.accentColor)
+                                    )
+                                
+                                if isPremium {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(.black.opacity(0.4))
+                                        .frame(height: 60)
+                                    Image(systemName: "lock.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                            
+                            HStack(spacing: 4) {
+                                Text(theme.displayName)
+                                    .font(.caption)
+                                    .fontWeight(configService.config.selectedTheme == theme ? .semibold : .regular)
+                                    .foregroundStyle(isPremium ? .secondary : (configService.config.selectedTheme == theme ? theme.accentColor : .secondary))
+                                if isPremium {
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 8))
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isPremium)
+                }
+            }
+            .padding(.horizontal, 24)
+            
+            if !storeService.isPro {
+                Text("Thèmes premium disponibles avec LireFlow Pro")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
     
     private var europresseStepContent: some View {
@@ -234,10 +341,10 @@ struct OnboardingSheet: View {
                     .font(.system(size: 32))
                     .foregroundStyle(.orange)
                 
-                Text("Connect to Europresse")
+                Text("Connectez-vous à Europresse")
                     .font(.headline)
                 
-                Text("Select your university or library below.")
+                Text("Sélectionnez votre université ou bibliothèque.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -247,7 +354,7 @@ struct OnboardingSheet: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                TextField("Search...", text: $searchText)
+                TextField("Rechercher...", text: $searchText)
                     .textFieldStyle(.plain)
             }
             .padding(10)
@@ -274,18 +381,18 @@ struct OnboardingSheet: View {
                     .font(.system(size: 40))
                     .foregroundStyle(.orange)
                 
-                Text("Unlock Pro")
+                Text("Débloquer Pro")
                     .font(.headline)
                 
-                Text("Get the most out of LireFlow")
+                Text("Profitez pleinement de LireFlow")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             
             VStack(alignment: .leading, spacing: 12) {
-                proFeatureRow(icon: "infinity", title: "Unlimited Feeds", description: "Pro: Unlimited")
-                proFeatureRow(icon: "list.bullet.rectangle", title: "Unlimited Lists", description: "Pro: Unlimited")
-                proFeatureRow(icon: "paintpalette", title: "Premium Themes", description: "Sepia, Nord, Ocean")
+                proFeatureRow(icon: "infinity", title: "Flux illimités", description: "Pro : Illimité")
+                proFeatureRow(icon: "list.bullet.rectangle", title: "Listes illimitées", description: "Pro : Illimité")
+                proFeatureRow(icon: "paintpalette", title: "Thèmes Premium", description: "Sepia, Nord, Ocean")
             }
             .padding(.horizontal, 24)
             
@@ -297,7 +404,7 @@ struct OnboardingSheet: View {
                 } label: {
                     HStack {
                         Image(systemName: "star.fill")
-                        Text("Unlock Pro – \(storeService.formattedPrice)")
+                        Text("Débloquer Pro – \(storeService.formattedPrice)")
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)

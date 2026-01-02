@@ -32,14 +32,14 @@ struct SettingsSheet: View {
     @State private var showingShareSheet = false
 
     enum SettingsTab: String, CaseIterable, Identifiable {
-        case general = "General"
-        case backup = "Backup"
-        case about = "About"
+        case general = "Général"
+        case backup = "Sauvegarde"
+        case about = "À propos"
 
         var id: String { rawValue }
         
         var localizedName: String {
-            NSLocalizedString(rawValue, comment: "")
+            rawValue
         }
     }
 
@@ -61,7 +61,7 @@ struct SettingsSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Settings")
+                Text("Paramètres")
                     .font(.title2)
                     .fontWeight(.semibold)
 
@@ -98,17 +98,17 @@ struct SettingsSheet: View {
         .frame(width: 650, height: 550)
         #endif
         .background(Color.platformBackground)
-        .alert("Success", isPresented: $showingSuccessAlert) {
+        .alert("Succès", isPresented: $showingSuccessAlert) {
             Button("OK") { showingSuccessAlert = false }
         } message: {
             Text(successMessage)
         }
-        .alert("Error", isPresented: $showingErrorAlert) {
+        .alert("Erreur", isPresented: $showingErrorAlert) {
             Button("OK") { showingErrorAlert = false }
         } message: {
             Text(errorMessage)
         }
-        .alert("Cleanup Complete", isPresented: $showingCleanupAlert) { // Added for GeneralSettingsView
+        .alert("Nettoyage terminé", isPresented: $showingCleanupAlert) { // Added for GeneralSettingsView
             Button("OK") { showingCleanupAlert = false }
         } message: {
             Text(cleanupMessage)
@@ -124,7 +124,7 @@ struct SettingsSheet: View {
         }
         #endif
     }
-
+    
     // MARK: - Backup Settings View
 
     private var backupSettings: some View {
@@ -137,10 +137,10 @@ struct SettingsSheet: View {
                         .foregroundStyle(.blue)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Export Library")
+                        Text("Exporter la bibliothèque")
                             .font(.headline)
 
-                        Text("Back up your feeds, folders, and reading lists to a file")
+                        Text("Sauvegardez vos flux, dossiers et listes de lecture dans un fichier")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -150,25 +150,25 @@ struct SettingsSheet: View {
                     Button {
                         Task { await exportJSON() }
                     } label: {
-                        Label("Export to JSON", systemImage: "doc.text")
+                        Label("Exporter en JSON", systemImage: "doc.text")
                     }
                     .disabled(isExporting || feeds.isEmpty)
-                    .help("Export a complete library backup (recommended)")
+                    .help("Exporter une sauvegarde complète (recommandé)")
 
                     Button {
                         Task { await exportOPML() }
                     } label: {
-                        Label("Export to OPML", systemImage: "doc.text")
+                        Label("Exporter en OPML", systemImage: "doc.text")
                     }
                     .disabled(isExporting || feeds.isEmpty)
-                    .help("Export feeds only (compatible with other RSS readers)")
+                    .help("Exporter les flux uniquement (compatible avec d'autres lecteurs RSS)")
                 }
 
                 if isExporting {
                     HStack(spacing: 8) {
                         ProgressView()
                             .controlSize(.small)
-                        Text("Exporting...")
+                        Text("Exportation en cours...")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -178,17 +178,17 @@ struct SettingsSheet: View {
                     Label("\(feeds.count)", systemImage: "newspaper")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
-                        .help("Feeds")
+                        .help("Flux")
 
                     Label("\(folders.count)", systemImage: "folder")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
-                        .help("Folders")
+                        .help("Dossiers")
 
                     Label("\(readingLists.count)", systemImage: "list.bullet")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
-                        .help("Reading Lists")
+                        .help("Listes de lecture")
                 }
             }
             .padding()
@@ -203,10 +203,10 @@ struct SettingsSheet: View {
                         .foregroundStyle(.green)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Import Library")
+                        Text("Importer la bibliothèque")
                             .font(.headline)
 
-                        Text("Restore feeds from a JSON or OPML file. Duplicates will be ignored.")
+                        Text("Restaurez des flux depuis un fichier JSON ou OPML. Les doublons seront ignorés.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -216,31 +216,31 @@ struct SettingsSheet: View {
                     Button {
                         Task { await importJSON() }
                     } label: {
-                        Label("Import from JSON", systemImage: "doc.text")
+                        Label("Importer depuis JSON", systemImage: "doc.text")
                     }
                     .disabled(isImporting)
-                    .help("Import a LireFlow backup file")
+                    .help("Importer un fichier de sauvegarde LireFlow")
 
                     Button {
                         Task { await importOPML() }
                     } label: {
-                        Label("Import from OPML", systemImage: "doc.text")
+                        Label("Importer depuis OPML", systemImage: "doc.text")
                     }
                     .disabled(isImporting)
-                    .help("Import feeds from an OPML file")
+                    .help("Importer des flux depuis un fichier OPML")
                 }
 
                 if isImporting {
                     HStack(spacing: 8) {
                         ProgressView()
                             .controlSize(.small)
-                        Text("Importing...")
+                        Text("Importation en cours...")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Text("Note: Existing feeds with the same URL will not be duplicated.")
+                Text("Note : Les flux existants avec la même URL ne seront pas dupliqués.")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
                     .padding(.top, 4)
@@ -253,8 +253,8 @@ struct SettingsSheet: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "info.circle")
-                        .foregroundStyle(.blue)
-                    Text("About Export Formats")
+                    .foregroundStyle(.blue)
+                    Text("À propos des formats d'exportation")
                         .font(.subheadline)
                         .fontWeight(.medium)
                 }
@@ -265,7 +265,7 @@ struct SettingsSheet: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("JSON")
                                 .fontWeight(.medium)
-                            Text("Complete backup including feeds, folders, and reading lists. Use this for full backups.")
+                            Text("Sauvegarde complète incluant flux, dossiers et listes de lecture. Utilisez ceci pour des sauvegardes complètes.")
                         }
                         .font(.caption)
                     }
@@ -275,7 +275,7 @@ struct SettingsSheet: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("OPML")
                                 .fontWeight(.medium)
-                            Text("Standard RSS format. Exports feeds and folders only. Use this to migrate to other RSS readers.")
+                            Text("Format RSS standard. Exporte uniquement les flux et dossiers. Utilisez ceci pour migrer vers d'autres lecteurs RSS.")
                         }
                         .font(.caption)
                     }
@@ -288,7 +288,7 @@ struct SettingsSheet: View {
         }
         .padding()
     }
-
+    
     // MARK: - Export Actions
 
     private func exportJSON() async {
@@ -305,7 +305,7 @@ struct SettingsSheet: View {
             shareURL = url
             showingShareSheet = true
             #else
-            successMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            successMessage = "Exporté avec succès vers :\n\(url.lastPathComponent)"
             showingSuccessAlert = true
             #endif
         } catch ExportService.ExportError.userCancelled {
@@ -329,7 +329,7 @@ struct SettingsSheet: View {
             shareURL = url
             showingShareSheet = true
             #else
-            successMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            successMessage = "Exporté avec succès vers :\n\(url.lastPathComponent)"
             showingSuccessAlert = true
             #endif
         } catch ExportService.ExportError.userCancelled {
@@ -350,14 +350,14 @@ struct SettingsSheet: View {
         do {
             let result = try await importService.importFromJSON(in: modelContext)
             successMessage = """
-            Import complete!
+            Importation terminée !
 
-            Imported:
-            • \(result.foldersImported) folders
-            • \(result.feedsImported) feeds
-            • \(result.readingListsImported) reading lists
+            Importés :
+            • \(result.foldersImported) dossiers
+            • \(result.feedsImported) flux
+            • \(result.readingListsImported) listes de lecture
 
-            Duplicates skipped: \(result.duplicatesSkipped)
+            Doublons ignorés : \(result.duplicatesSkipped)
             """
             showingSuccessAlert = true
         } catch ImportService.ImportError.userCancelled {
@@ -367,7 +367,7 @@ struct SettingsSheet: View {
             showingErrorAlert = true
         }
         #else
-        errorMessage = "Import is not yet available on iOS. Please use the macOS app to import feeds."
+        errorMessage = "L'importation n'est pas encore disponible sur iOS. Veuillez utiliser l'application macOS pour importer des flux."
         showingErrorAlert = true
         #endif
     }
@@ -380,13 +380,13 @@ struct SettingsSheet: View {
         do {
             let result = try await importService.importFromOPML(in: modelContext)
             successMessage = """
-            Import complete!
+            Importation terminée !
 
-            Imported:
-            • \(result.foldersImported) folders
-            • \(result.feedsImported) feeds
+            Importés :
+            • \(result.foldersImported) dossiers
+            • \(result.feedsImported) flux
 
-            Duplicates skipped: \(result.duplicatesSkipped)
+            Doublons ignorés : \(result.duplicatesSkipped)
             """
             showingSuccessAlert = true
         } catch ImportService.ImportError.userCancelled {
@@ -396,7 +396,7 @@ struct SettingsSheet: View {
             showingErrorAlert = true
         }
         #else
-        errorMessage = "Import is not yet available on iOS. Please use the macOS app to import feeds."
+        errorMessage = "L'importation n'est pas encore disponible sur iOS. Veuillez utiliser l'application macOS pour importer des flux."
         showingErrorAlert = true
         #endif
     }
@@ -406,87 +406,101 @@ struct SettingsSheet: View {
     private var generalSettings: some View {
         VStack(alignment: .leading, spacing: 24) {
             // MARK: - LireFlow Pro Section
-            VStack(alignment: .leading, spacing: 12) {
+            if !storeService.isPro {
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("LireFlow Pro")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Text("libérez tout le potentiel")
+                                .font(.subheadline)
+                                .opacity(0.9)
+                        }
+                        Spacer()
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.white)
+                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "infinity")
+                            Text("Flux illimités")
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "list.bullet.rectangle")
+                            Text("Listes de lecture illimitées")
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "paintpalette")
+                            Text("Thèmes Premium")
+                        }
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    
+                    Button {
+                        showingUpgrade = true
+                    } label: {
+                        Text("Passer à Pro – \(storeService.formattedPrice)")
+                            .fontWeight(.bold)
+                            .foregroundStyle(.orange)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Button {
+                        Task {
+                            await storeService.restorePurchases()
+                        }
+                    } label: {
+                        Text("Restaurer les achats")
+                            .font(.caption)
+                            .underline()
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(20)
+                .foregroundStyle(.white)
+                .background(
+                    LinearGradient(
+                        colors: [.orange, .pink],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: .orange.opacity(0.3), radius: 8, x: 0, y: 4)
+            } else {
+                // Pro Active State
                 HStack {
-                    Image(systemName: "star.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.linearGradient(
-                            colors: [.yellow, .orange],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
-
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("LireFlow Pro")
+                        Text("LireFlow Pro Actif")
                             .font(.headline)
-
-                        Text(storeService.isPro ? "All features unlocked" : "Unlock premium features")
+                        Text("Merci pour votre soutien !")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-
                     Spacer()
-
-                    if storeService.isPro {
-                        HStack(spacing: 4) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                            Text("Unlocked")
-                                .fontWeight(.medium)
-                        }
-                        .font(.subheadline)
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.title)
                         .foregroundStyle(.green)
-                    }
                 }
-
-                if !storeService.isPro {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(spacing: 16) {
-                            proFeatureItem(icon: "infinity", text: "Unlimited Feeds")
-                            proFeatureItem(icon: "list.bullet.rectangle", text: "Unlimited Reading Lists")
-                        }
-                        HStack(spacing: 16) {
-                            proFeatureItem(icon: "paintpalette", text: "Premium Themes")
-                        }
-                    }
-                    .padding(.vertical, 8)
-
-                    HStack {
-                        Button {
-                            showingUpgrade = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "star.fill")
-                                Text("Upgrade to Pro – \(storeService.formattedPrice)")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.orange)
-                    }
-                }
-
-                // Restore purchases
-                Button {
-                    Task {
-                        await storeService.restorePurchases()
-                    }
-                } label: {
-                    Text("Restore Purchases")
-                        .font(.caption)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .padding()
+                .background(Color.green.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(Color.green.opacity(0.2), lineWidth: 1)
+                )
             }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(storeService.isPro ? Color.green.opacity(0.05) : Color.orange.opacity(0.05))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(storeService.isPro ? Color.green.opacity(0.2) : Color.orange.opacity(0.2), lineWidth: 1)
-            )
 
             // MARK: - Appearance Section
             VStack(alignment: .leading, spacing: 12) {
@@ -496,10 +510,10 @@ struct SettingsSheet: View {
                         .foregroundStyle(.blue)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Appearance")
+                        Text("Apparence")
                             .font(.headline)
 
-                        Text("Customize LireFlow's appearance")
+                        Text("Personnalisez l'apparence de LireFlow")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -507,12 +521,12 @@ struct SettingsSheet: View {
 
                 // Theme picker
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Theme")
+                    Text("Thème")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 90))], spacing: 10) {
-                        ForEach(AppTheme.allCases) { theme in
+                        ForEach(AppTheme.allCases.filter { $0 != .system }) { theme in
                             themeButton(theme)
                         }
                     }
@@ -520,11 +534,11 @@ struct SettingsSheet: View {
 
                 // Hover Color
                 HStack {
-                    ColorPicker("Hover Color", selection: hoverColor, supportsOpacity: true)
-                        .help("Custom color for hover effects (article list, sidebar)")
+                    ColorPicker("Couleur de survol", selection: hoverColor, supportsOpacity: true)
+                        .help("Couleur personnalisée pour les effets de survol")
                     
                     if !configService.config.hoverColorHex.isEmpty {
-                        Button("Reset") {
+                        Button("Réinitialiser") {
                             configService.config.hoverColorHex = ""
                         }
                         .font(.caption)
@@ -532,8 +546,8 @@ struct SettingsSheet: View {
                     }
                 }
 
-                Toggle("Show Unread Count", isOn: $configService.config.showUnreadCount)
-                    .help("Show the number of unread articles in the sidebar")
+                Toggle("Afficher le nombre de non-lus", isOn: $configService.config.showUnreadCount)
+                    .help("Afficher le nombre d'articles non lus dans la barre latérale")
             }
             .padding()
             .background(Color.platformSecondaryBackground)
@@ -547,10 +561,10 @@ struct SettingsSheet: View {
                         .foregroundStyle(.green)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Reading")
+                        Text("Lecture")
                             .font(.headline)
 
-                        Text("Configure article reading preferences")
+                        Text("Configurer les préférences de lecture")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -558,7 +572,7 @@ struct SettingsSheet: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Article Font Size:")
+                        Text("Taille de police :")
                         Spacer()
                         Text("\(configService.config.articleFontSize)pt")
                             .foregroundStyle(.secondary)
@@ -570,13 +584,13 @@ struct SettingsSheet: View {
                     ), in: 12...24, step: 1)
                 }
 
-                Toggle("Mark as Read on Scroll", isOn: $configService.config.markAsReadOnScroll)
-                    .help("Automatically mark articles as read when scrolling past them")
+                Toggle("Marquer comme lu au défilement", isOn: $configService.config.markAsReadOnScroll)
+                    .help("Marquer automatiquement les articles comme lus lors du défilement")
             }
             .padding()
             .background(Color.platformSecondaryBackground)
             .clipShape(RoundedRectangle(cornerRadius: 10))
-
+            
             // Feeds Section
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
@@ -585,10 +599,10 @@ struct SettingsSheet: View {
                         .foregroundStyle(.orange)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Feeds")
+                        Text("Flux")
                             .font(.headline)
 
-                        Text("Feed refresh and organization settings")
+                        Text("Paramètres de rafraîchissement")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -596,7 +610,7 @@ struct SettingsSheet: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Refresh Interval:")
+                        Text("Intervalle :")
                         Spacer()
                         Text("\(configService.config.refreshIntervalMinutes) minutes")
                             .foregroundStyle(.secondary)
@@ -609,9 +623,9 @@ struct SettingsSheet: View {
                 }
 
                 HStack {
-                    Text("Default Feed Category:")
+                    Text("Catégorie par défaut :")
                     Spacer()
-                    TextField("Category", text: $configService.config.defaultFeedCategory)
+                    TextField("Catégorie", text: $configService.config.defaultFeedCategory)
                         .textFieldStyle(.roundedBorder)
                         .frame(maxWidth: 200)
                 }
@@ -628,22 +642,22 @@ struct SettingsSheet: View {
                         .foregroundStyle(.cyan)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Weather Widget")
+                        Text("Météo")
                             .font(.headline)
 
-                        Text("Configure weather display in the sidebar")
+                        Text("Configurer l'affichage météo")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Toggle("Show Weather Widget", isOn: $configService.config.showWeather)
-                    .help("Show weather information in the sidebar")
+                Toggle("Afficher le widget météo", isOn: $configService.config.showWeather)
+                    .help("Afficher la météo dans la barre latérale")
 
                 HStack {
-                    Text("Location:")
+                    Text("Lieu :")
                     Spacer()
-                    TextField("Auto-detect", text: Binding(
+                    TextField("Détection auto", text: Binding(
                         get: { configService.config.weatherLocation ?? "" },
                         set: { configService.config.weatherLocation = $0.isEmpty ? nil : $0 }
                     ))
@@ -652,7 +666,7 @@ struct SettingsSheet: View {
                 }
                 .disabled(!configService.config.showWeather)
 
-                Text("Leave empty to auto-detect your location")
+                Text("Laissez vide pour la détection automatique")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
@@ -668,24 +682,24 @@ struct SettingsSheet: View {
                         .foregroundStyle(.orange)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Europresse Integration")
+                        Text("Intégration Europresse")
                             .font(.headline)
 
-                        Text("Access news articles via your university or library")
+                        Text("Accès via votre université ou bibliothèque")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Select your institution:")
+                    Text("Sélectionnez votre institution :")
                         .font(.subheadline)
 
                     Picker("Institution", selection: Binding(
                         get: { configService.config.europressePortal },
                         set: { configService.config.europressePortal = $0 }
                     )) {
-                        Text("None (Disabled)").tag(nil as EuropressePortal?)
+                        Text("Aucune (Désactivé)").tag(nil as EuropressePortal?)
 
                         Divider()
 
@@ -702,12 +716,12 @@ struct SettingsSheet: View {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
-                            Text("Connected to \(portal.name)")
+                            Text("Connecté à \(portal.name)")
                                 .font(.caption)
                                 .fontWeight(.medium)
                         }
 
-                        Text("A \"Read on Europresse\" button will appear on articles.")
+                        Text("Un bouton \"Lire sur Europresse\" apparaîtra sur les articles.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -720,16 +734,16 @@ struct SettingsSheet: View {
                     HStack {
                         Image(systemName: "info.circle")
                             .foregroundStyle(.blue)
-                        Text("About Europresse")
+                        Text("À propos d'Europresse")
                             .font(.caption)
                             .fontWeight(.medium)
                     }
 
-                    Text("Europresse is a news archive service available through many European universities and libraries. If your institution has a subscription, you can read full articles from major newspapers.")
+                    Text("Europresse est un service d'archives de presse disponible via de nombreuses universités et bibliothèques européennes.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
-                    Text("Your institution not listed? Check with your library if they offer Europresse access.")
+                    Text("Votre institution non répertoriée ? Vérifiez auprès de votre bibliothèque si elle propose un accès Europresse.")
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                 }
@@ -749,21 +763,21 @@ struct SettingsSheet: View {
                         Text("Performance")
                             .font(.headline)
 
-                        Text("Optimize app performance and storage")
+                        Text("Optimiser les performances et le stockage")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Toggle("Load Images in Articles", isOn: $configService.config.loadImages)
-                    .help("Disable to save bandwidth and improve performance")
+                Toggle("Charger les images", isOn: $configService.config.loadImages)
+                    .help("Désactiver pour économiser la bande passante")
 
-                Toggle("Background Refresh", isOn: $configService.config.backgroundRefreshEnabled)
-                    .help("Allow feeds to refresh in the background")
+                Toggle("Rafraîchissement en arrière-plan", isOn: $configService.config.backgroundRefreshEnabled)
+                    .help("Autoriser les flux à se rafraîchir en arrière-plan")
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Max Articles per Feed:")
+                        Text("Max articles par flux :")
                         Spacer()
                         Text("\(configService.config.maxArticlesPerFeed)")
                             .foregroundStyle(.secondary)
@@ -777,9 +791,9 @@ struct SettingsSheet: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Clean up articles older than:")
+                        Text("Supprimer les articles plus vieux que :")
                         Spacer()
-                        Text("\(configService.config.cleanupOldArticlesDays) days")
+                        Text("\(configService.config.cleanupOldArticlesDays) jours")
                             .foregroundStyle(.secondary)
                     }
 
@@ -794,7 +808,7 @@ struct SettingsSheet: View {
                 } label: {
                     HStack {
                         Image(systemName: "trash")
-                        Text("Clean up old articles now")
+                        Text("Nettoyer les vieux articles maintenant")
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -812,10 +826,10 @@ struct SettingsSheet: View {
                         .foregroundStyle(.orange)
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Advanced")
+                        Text("Avancé")
                             .font(.headline)
 
-                        Text("Configuration file and advanced options")
+                        Text("Fichier de configuration et options avancées")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -823,7 +837,7 @@ struct SettingsSheet: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Configuration File:")
+                        Text("Fichier de configuration :")
                             .font(.subheadline)
                         Text(configService.configFilePath)
                             .font(.caption)
@@ -834,7 +848,7 @@ struct SettingsSheet: View {
                     Spacer()
 
                     #if os(macOS)
-                    Button("Reveal in Finder") {
+                    Button("Afficher dans le Finder") {
                         if let url = URL(string: "file://" + configService.configFilePath) {
                             NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
                         }
@@ -878,10 +892,10 @@ struct SettingsSheet: View {
         // Save context
         do {
             try modelContext.save()
-            cleanupMessage = "Successfully deleted \(deleteCount) old articles."
+            cleanupMessage = "Succès : \(deleteCount) anciens articles supprimés."
             showingCleanupAlert = true
         } catch {
-            cleanupMessage = "Error cleaning up articles: \(error.localizedDescription)"
+            cleanupMessage = "Erreur lors du nettoyage : \(error.localizedDescription)"
             showingCleanupAlert = true
         }
     }
@@ -933,11 +947,11 @@ struct SettingsSheet: View {
     private func proFeatureItem(icon: String, text: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .foregroundStyle(.orange)
+                .foregroundStyle(.white.opacity(0.9))
                 .font(.caption)
             Text(text)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.9))
         }
     }
 
@@ -945,9 +959,11 @@ struct SettingsSheet: View {
 
     private var aboutSettings: some View {
         VStack(spacing: 20) {
-            Image(systemName: "newspaper.fill") // Assuming asset exists
-                .font(.system(size: 72))
-                .foregroundStyle(.blue)
+            Image("LireFlowLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
 
             VStack(spacing: 8) {
                 Text("LireFlow")
@@ -956,10 +972,10 @@ struct SettingsSheet: View {
                     .foregroundStyle(.primary)
 
                 #if os(macOS)
-                Text("Modern RSS Reader for macOS")
+                Text("Lecteur RSS moderne pour macOS")
                     .foregroundStyle(.primary.opacity(0.7))
                 #else
-                Text("Modern RSS Reader for iOS")
+                Text("Lecteur RSS moderne pour iOS")
                     .foregroundStyle(.primary.opacity(0.7))
                 #endif
 
@@ -974,9 +990,9 @@ struct SettingsSheet: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 Label("Native SwiftUI & SwiftData", systemImage: "swift")
-                Label("Dark & Light Mode Support", systemImage: "moon.stars")
-                Label("Weather Widget Integration", systemImage: "cloud.sun")
-                Label("Reading Lists & Starred Articles", systemImage: "star")
+                Label("Support Mode Sombre & Clair", systemImage: "moon.stars")
+                Label("Intégration d'un Widget Météo", systemImage: "cloud.sun")
+                Label("Listes de lecture & Favoris", systemImage: "star")
             }
             .font(.callout)
             .foregroundStyle(.primary.opacity(0.8))
@@ -991,7 +1007,7 @@ struct SettingsSheet: View {
                         PlatformApplication.openURL(url)
                     }
                 } label: {
-                    Label("View on GitHub", systemImage: "globe")
+                    Label("Voir sur GitHub", systemImage: "globe")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -1001,7 +1017,7 @@ struct SettingsSheet: View {
                         PlatformApplication.openURL(url)
                     }
                 } label: {
-                    Label("Follow on Twitter", systemImage: "at")
+                    Label("Suivre sur Twitter", systemImage: "at")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -1013,7 +1029,7 @@ struct SettingsSheet: View {
 
             // Built with Claude
             HStack(spacing: 4) {
-                Text("Built with")
+                Text("Construit avec")
                     .font(.caption)
                     .foregroundStyle(.primary.opacity(0.5))
                 Link("Claude", destination: URL(string: "https://claude.ai")!)

@@ -75,3 +75,4 @@ Temporary Items
 *.tmp
 *_temp.*
 *_source.*
+build_log.txt

@@ -254,6 +254,7 @@ struct ArticleDetailView: View {
                 ShareSheet(activityItems: [url])
             }
         }
+        .toolbar(.hidden, for: .tabBar)
         #endif
     }
     

@@ -11,19 +11,66 @@ struct ArticleListView: View {
     @Query(sort: \ReadingList.createdAt) private var readingLists: [ReadingList]
     @ObservedObject private var configService = ConfigService.shared
     
+    @State private var isSearchVisible = false
+    
     private var currentTheme: AppTheme {
         configService.config.selectedTheme
     }
     
     var body: some View {
         VStack(spacing: 0) {
+            // Search bar (hidden by default, toggles visible)
+            if isSearchVisible {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    TextField("Search articles...", text: $searchText)
+                        .textFieldStyle(.plain)
+                    if !searchText.isEmpty {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isSearchVisible = false
+                            searchText = ""
+                        }
+                    } label: {
+                        Text("Cancel")
+                            .font(.subheadline)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(.ultraThinMaterial)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+            
             // Layout picker header
             HStack {
-                Text("\(articles.count) articles") // This will be handled by localization automatically if key exists or just keep simple for now
+                Text("\(articles.count) articles")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 
                 Spacer()
+                
+                // Search toggle button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isSearchVisible.toggle()
+                    }
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 14))
+                        .foregroundStyle(isSearchVisible ? currentTheme.accentColor : .secondary)
+                }
+                .buttonStyle(.plain)
                 
                 // Layout picker
                 Picker("", selection: $configService.config.articleLayout) {
@@ -45,15 +92,6 @@ struct ArticleListView: View {
             Group {
                 if articles.isEmpty {
                     EmptyArticleListView(isSearching: !searchText.isEmpty)
-                    ContentUnavailableView {
-                        Label("No Articles", systemImage: "newspaper")
-                    } description: {
-                        if !searchText.isEmpty {
-                            Text("No articles match your search")
-                        } else {
-                            Text("No articles found")
-                        }
-                    }
                 } else {
                     ScrollView {
                         LazyVStack(spacing: layoutSpacing) {

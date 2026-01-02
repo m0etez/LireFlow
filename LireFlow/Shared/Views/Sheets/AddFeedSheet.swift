@@ -23,7 +23,7 @@ struct AddFeedSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Add Feed")
+                Text("Ajouter un flux")
                     .font(.title2)
                     .fontWeight(.semibold)
                 
@@ -48,45 +48,50 @@ struct AddFeedSheet: View {
                 VStack(spacing: 24) {
                     // Feed URL input
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Feed URL")
+                        Text("URL du flux")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundStyle(.secondary)
                         
-                        HStack(spacing: 12) {
-                            TextField("https://example.com/feed.xml", text: $urlString)
-                                .textFieldStyle(.plain)
-                                .padding(12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(.ultraThinMaterial)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .strokeBorder(.quaternary, lineWidth: 1)
-                                )
-                                .onSubmit {
-                                    Task { await fetchPreview() }
-                                }
-                            
-                            Button {
+                        TextField("https://example.com/feed.xml", text: $urlString)
+                            .textFieldStyle(.plain)
+                            .padding(12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.ultraThinMaterial)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .strokeBorder(.quaternary, lineWidth: 1)
+                            )
+                            .onSubmit {
                                 Task { await fetchPreview() }
-                            } label: {
-                                Group {
-                                    if isLoading {
-                                        ProgressView()
-                                            .controlSize(.small)
-                                    } else {
-                                        Text("Fetch")
-                                            .fontWeight(.medium)
-                                    }
-                                }
-                                .frame(width: 60)
                             }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.blue)
-                            .disabled(urlString.isEmpty || isLoading)
+                        
+                        Button {
+                            Task { await fetchPreview() }
+                        } label: {
+                            HStack {
+                                if isLoading {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Image(systemName: "arrow.down.circle")
+                                    Text("Récupérer le flux")
+                                }
+                            }
+                            .fontWeight(.medium)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                            )
                         }
+                        .buttonStyle(.plain)
+                        .disabled(urlString.isEmpty || isLoading)
                     }
                     
                     // Error display - Subtle styling
@@ -110,11 +115,11 @@ struct AddFeedSheet: View {
                     if let feed = previewFeed {
                         FeedPreviewCard(feed: feed)
                     }
-                    
+
                     // Add to folder section
                     if !folders.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Add to Folder")
+                            Text("Ajouter au dossier")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                                 .foregroundStyle(.secondary)
@@ -143,7 +148,7 @@ struct AddFeedSheet: View {
                 HStack(spacing: 6) {
                     Image(systemName: "list.bullet.rectangle")
                         .font(.caption)
-                    Text("Browse Default Feeds")
+                    Text("Parcourir les flux par défaut")
                         .font(.subheadline)
                 }
                 .foregroundStyle(.secondary)
@@ -153,7 +158,7 @@ struct AddFeedSheet: View {
             
             // Footer buttons
             HStack {
-                Button("Cancel") {
+                Button("Annuler") {
                     dismiss()
                 }
                 .keyboardShortcut(.escape)
@@ -165,7 +170,7 @@ struct AddFeedSheet: View {
                 Button {
                     Task { await addFeed() }
                 } label: {
-                    Text("Add Feed")
+                    Text("Ajouter le flux")
                         .fontWeight(.medium)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
@@ -215,7 +220,7 @@ struct AddFeedSheet: View {
             self.error = NSError(
                 domain: "AddFeedSheet",
                 code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "Invalid URL. Please enter a valid http:// or https:// URL."]
+                userInfo: [NSLocalizedDescriptionKey: "URL invalide. Veuillez saisir une URL http:// ou https:// valide."]
             )
             return
         }

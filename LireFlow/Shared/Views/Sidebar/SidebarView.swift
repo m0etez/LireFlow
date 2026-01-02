@@ -11,6 +11,7 @@ struct SidebarView: View {
     @Binding var showingAddReadingList: Bool
     var onRefresh: (() async -> Void)? = nil
     var isReading: Bool = false
+    var isRefreshing: Bool = false
     
     @Environment(\.modelContext) private var modelContext
     @Query private var allArticles: [Article]
@@ -30,6 +31,9 @@ struct SidebarView: View {
 
     // Feed search
     @State private var feedSearchText = ""
+    
+    // Settings state
+    @State private var showingSettings = false
 
     private var appearanceIcon: String {
         configService.config.isDarkMode ? "moon.fill" : "sun.max.fill"
@@ -37,6 +41,20 @@ struct SidebarView: View {
     
     private func toggleAppearance() {
         configService.config.isDarkMode.toggle()
+        
+        // Update selected theme to match
+        if configService.config.isDarkMode {
+             // If current theme is light-only, switch to dark
+             if configService.config.selectedTheme == .light || configService.config.selectedTheme == .system {
+                 configService.config.selectedTheme = .dark
+             }
+        } else {
+             // If current theme is dark-only, switch to light
+             if configService.config.selectedTheme == .dark || configService.config.selectedTheme == .system {
+                 configService.config.selectedTheme = .light
+             }
+        }
+        
         applyAppearance()
     }
     
@@ -48,7 +66,7 @@ struct SidebarView: View {
             window.appearance = appearance
         }
         #endif
-        // On iOS, appearance is handled via SwiftUI's preferredColorScheme
+        // On iOS, appearance is handled via SwiftUI's preferredColorScheme observing configService
     }
 
     private var filteredFolders: [Folder] {
@@ -67,13 +85,22 @@ struct SidebarView: View {
     private var sidebarBottomBar: some View {
         HStack {
             Button {
+                showingSettings = true
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 20))
+            }
+            .buttonStyle(.plain)
+            .help("Paramètres")
+
+            Button {
                 showingAddFolder = true
             } label: {
                 Image(systemName: "folder.badge.plus")
-                    .font(.system(size: 14))
+                    .font(.system(size: 20)) // Increased size
             }
             .buttonStyle(.plain)
-            .help("New Folder")
+            .help("Nouveau dossier")
             
             #if os(iOS)
             Button {
@@ -81,8 +108,7 @@ struct SidebarView: View {
                         await onRefresh?()
                 }
             } label: {
-                    Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 14))
+                RefreshButtonView(isRefreshing: isRefreshing)
             }
             .buttonStyle(.plain)
             #endif
@@ -92,11 +118,11 @@ struct SidebarView: View {
                 toggleAppearance()
             } label: {
                 Image(systemName: appearanceIcon)
-                    .font(.system(size: 14))
-                    .symbolRenderingMode(.hierarchical)
+                    .font(.system(size: 20)) // Increased size
+                    .contentTransition(.symbolEffect(.replace))
             }
             .buttonStyle(.plain)
-            .help("Toggle Appearance")
+            .help("Changer l'apparence")
             
             Spacer()
             
@@ -105,25 +131,22 @@ struct SidebarView: View {
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .bold))
-                    Text("Add")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 14, weight: .bold))
+                    Text("Ajouter")
+                        .font(.system(size: 14, weight: .semibold))
                 }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(
-                    LinearGradient(
-                        colors: [.blue, .purple],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                .foregroundStyle(configService.config.selectedTheme.accentColor)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
                 .clipShape(Capsule())
-                .shadow(color: .purple.opacity(0.3), radius: 4, y: 2)
+                .overlay(
+                    Capsule()
+                        .stroke(configService.config.selectedTheme.accentColor.opacity(0.3), lineWidth: 1)
+                )
             }
             .buttonStyle(.plain)
-            .help("Add Feed")
+            .help("Ajouter un flux")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -145,7 +168,7 @@ struct SidebarView: View {
             Section {
                 SidebarRow(
                     icon: "tray.full",
-                    title: "All Articles",
+                    title: "Tous les articles",
                     count: allArticles.count,
                     showCount: configService.config.showUnreadCount,
                     color: .blue
@@ -154,7 +177,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "circle.fill",
-                    title: "Unread",
+                    title: "Non lus",
                     count: allArticles.filter { !$0.isRead }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .orange
@@ -163,7 +186,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "star.fill",
-                    title: "Starred",
+                    title: "Favoris",
                     count: allArticles.filter { $0.isStarred }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .yellow
@@ -172,7 +195,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "archivebox",
-                    title: "Archived",
+                    title: "Archivés",
                     count: allArticles.filter { $0.isArchived }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .gray
@@ -187,7 +210,7 @@ struct SidebarView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
                             .font(.caption)
-                        TextField("Search...", text: $feedSearchText)
+                        TextField("Rechercher...", text: $feedSearchText)
                             .textFieldStyle(.plain)
                         if !feedSearchText.isEmpty {
                             Button {
@@ -204,7 +227,7 @@ struct SidebarView: View {
             }
 
             // User Folders
-            Section("Folders") {
+            Section("Dossiers") {
                 ForEach(filteredFolders) { folder in
                     FolderRow(
                         folder: folder,
@@ -229,7 +252,7 @@ struct SidebarView: View {
                 Button {
                     showingAddFolder = true
                 } label: {
-                    Label("New Folder", systemImage: "plus")
+                    Label("Nouveau dossier", systemImage: "plus")
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -237,7 +260,7 @@ struct SidebarView: View {
             
             // Uncategorized Feeds
             if !filteredFeeds.isEmpty {
-                Section("Feeds") {
+                Section("Flux") {
                     ForEach(filteredFeeds) { feed in
                         FeedRow(feed: feed, showCount: configService.config.showUnreadCount)
                             .tag(SidebarItem.feed(feed))
@@ -247,14 +270,14 @@ struct SidebarView: View {
                                     newFeedName = feed.title
                                     showingRenameFeed = true
                                 } label: {
-                                    Label("Rename", systemImage: "pencil")
+                                    Label("Renommer", systemImage: "pencil")
                                 }
 
                                 Divider()
 
                                 // Move to folder
-                                Menu("Move to...") {
-                                    Button("None (Remove from folder)") {
+                                Menu("Déplacer vers...") {
+                                    Button("Aucun (Retirer du dossier)") {
                                         moveFeed(feed, to: nil)
                                     }
                                     
@@ -269,7 +292,7 @@ struct SidebarView: View {
                                 
                                 Divider()
                                 
-                                Button("Delete", role: .destructive) {
+                                Button("Supprimer", role: .destructive) {
                                     deleteFeed(feed)
                                 }
                             }
@@ -279,12 +302,12 @@ struct SidebarView: View {
             }
             
             // Reading Lists
-            Section("Reading Lists") {
+            Section("Listes de lecture") {
                 ForEach(readingLists) { readingList in
                     ReadingListRow(readingList: readingList, showCount: configService.config.showUnreadCount)
                         .tag(SidebarItem.readingList(readingList))
                         .contextMenu {
-                            Button("Delete", role: .destructive) {
+                            Button("Supprimer", role: .destructive) {
                                 deleteReadingList(readingList)
                             }
                         }
@@ -293,7 +316,7 @@ struct SidebarView: View {
                 Button {
                     showingAddReadingList = true
                 } label: {
-                    Label("New Reading List", systemImage: "plus")
+                    Label("Nouvelle liste", systemImage: "plus")
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -315,23 +338,26 @@ struct SidebarView: View {
         .onAppear {
             applyAppearance()
         }
-        .alert("Rename Folder", isPresented: $showingRenameFolder) {
-            TextField("Folder Name", text: $newFolderName)
-            Button("Cancel", role: .cancel) { }
-            Button("Rename") {
+        .sheet(isPresented: $showingSettings) {
+             SettingsSheet()
+        }
+        .alert("Renommer le dossier", isPresented: $showingRenameFolder) {
+            TextField("Nom du dossier", text: $newFolderName)
+            Button("Annuler", role: .cancel) { }
+            Button("Renommer") {
                 renameFolder()
             }
         } message: {
-            Text("Enter a new name for the folder")
+            Text("Entrez un nouveau nom pour le dossier")
         }
-        .alert("Rename Feed", isPresented: $showingRenameFeed) {
-            TextField("Feed Name", text: $newFeedName)
-            Button("Cancel", role: .cancel) { }
-            Button("Rename") {
+        .alert("Renommer le flux", isPresented: $showingRenameFeed) {
+            TextField("Nom du flux", text: $newFeedName)
+            Button("Annuler", role: .cancel) { }
+            Button("Renommer") {
                 renameFeed()
             }
         } message: {
-            Text("Enter a new name for the feed")
+            Text("Entrez un nouveau nom pour le flux")
         }
     }
     
@@ -460,14 +486,14 @@ struct FolderRow: View {
                             newFeedName = feed.title
                             showingRenameFeed = true
                         } label: {
-                            Label("Rename", systemImage: "pencil")
+                            Label("Renommer", systemImage: "pencil")
                         }
 
                         Divider()
 
                         // Move to folder
-                        Menu("Move to...") {
-                            Button("None (Remove from folder)") {
+                        Menu("Déplacer vers...") {
+                            Button("Aucun (Retirer du dossier)") {
                                 feed.folder = nil
                                 try? modelContext.save()
                             }
@@ -484,7 +510,7 @@ struct FolderRow: View {
 
                         Divider()
 
-                        Button("Delete", role: .destructive) {
+                        Button("Supprimer", role: .destructive) {
                             modelContext.delete(feed)
                             try? modelContext.save()
                         }
@@ -524,12 +550,12 @@ struct FolderRow: View {
                 Button {
                     onRenameFolder()
                 } label: {
-                    Label("Rename", systemImage: "pencil")
+                    Label("Renommer", systemImage: "pencil")
                 }
                 
                 Divider()
                 
-                Button("Delete", role: .destructive) {
+                Button("Supprimer", role: .destructive) {
                     onDeleteFolder()
                 }
             }
@@ -700,6 +726,21 @@ struct DefaultFeedIcon: View {
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(.white)
             }
+    }
+}
+
+struct RefreshButtonView: View {
+    let isRefreshing: Bool
+    
+    var body: some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            Image(systemName: "arrow.clockwise")
+                .font(.system(size: 20))
+                .symbolEffect(.rotate, isActive: isRefreshing)
+        } else {
+            Image(systemName: "arrow.clockwise")
+                .font(.system(size: 20))
+        }
     }
 }
 
