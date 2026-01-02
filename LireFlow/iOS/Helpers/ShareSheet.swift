@@ -2,26 +2,24 @@
 import SwiftUI
 import UIKit
 
-/// UIActivityViewController wrapper for sharing content on iOS
 struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    @Environment(\.dismiss) private var dismiss
-    
+    var activityItems: [Any]
+    var applicationActivities: [UIActivity]? = nil
+    var onCompletion: ((Bool) -> Void)? = nil
+
     func makeUIViewController(context: Context) -> UIActivityViewController {
         let controller = UIActivityViewController(
-            activityItems: items,
-            applicationActivities: nil
+            activityItems: activityItems,
+            applicationActivities: applicationActivities
         )
         
-        controller.completionWithItemsHandler = { _, _, _, _ in
-            dismiss()
+        controller.completionWithItemsHandler = { (activityType, completed, returnedItems, error) in
+            onCompletion?(completed)
         }
         
         return controller
     }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
-        // No updates needed
-    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 #endif

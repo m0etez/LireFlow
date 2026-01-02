@@ -66,17 +66,33 @@ class WeatherService: NSObject, ObservableObject, @preconcurrency CLLocationMana
         
         var conditionColor: Color {
             switch weatherCode {
-            case 0: return isDay ? .orange : .indigo           // Clear - orange sun, indigo moon
-            case 1, 2: return isDay ? .yellow : .purple        // Partly cloudy
-            case 3: return .gray                                // Overcast
-            case 45, 48: return .gray.opacity(0.7)              // Fog
-            case 51, 53, 55, 56, 57: return .cyan               // Drizzle
-            case 61, 63, 65, 66, 67: return .blue               // Rain
-            case 71, 73, 75, 77: return .mint                   // Snow
-            case 80, 81, 82: return .blue                       // Heavy rain
-            case 85, 86: return .mint                           // Snow showers
-            case 95, 96, 99: return .purple                     // Thunderstorm
+            case 0: return isDay ? .orange : .indigo
+            case 1, 2: return isDay ? .blue : .purple
+            case 3: return .gray
+            case 61, 63, 65: return .blue
+            case 95, 96, 99: return .purple
             default: return .gray
+            }
+        }
+        
+        var conditionGradient: [Color] {
+            switch weatherCode {
+            case 0: // Clear
+                return isDay ? [.blue, .cyan.opacity(0.7)] : [Color(red: 0.1, green: 0.1, blue: 0.3), Color(red: 0.2, green: 0.2, blue: 0.5)]
+            case 1, 2: // Partly Cloudy
+                return isDay ? [Color.blue.opacity(0.8), Color.mint.opacity(0.6)] : [Color.indigo, Color.purple.opacity(0.7)]
+            case 3: // Overcast
+                return [Color(white: 0.3), Color(white: 0.5)]
+            case 45, 48: // Fog
+                return [Color.gray, Color.gray.opacity(0.5)]
+            case 51...57, 61...67, 80...82: // Rain/Drizzle
+                return [Color(red: 0.2, green: 0.3, blue: 0.5), Color(red: 0.3, green: 0.4, blue: 0.6)]
+            case 71...77, 85, 86: // Snow
+                return [Color.blue.opacity(0.5), Color.white.opacity(0.8)]
+            case 95...99: // Thunderstorm
+                return [Color(red: 0.2, green: 0.1, blue: 0.4), Color.purple]
+            default: // Unknown
+                return [Color.gray, Color.gray.opacity(0.6)]
             }
         }
     }
@@ -140,7 +156,13 @@ class WeatherService: NSObject, ObservableObject, @preconcurrency CLLocationMana
         isLoading = true
         error = nil
         
-        // Start location request
+        // Check for manual location override
+        if let manualLocation = ConfigService.shared.config.weatherLocation, !manualLocation.isEmpty {
+            geocodeManualLocation(manualLocation)
+            return
+        }
+        
+        // Start location request (GPS)
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
         
@@ -150,6 +172,28 @@ class WeatherService: NSObject, ObservableObject, @preconcurrency CLLocationMana
             if isLoading && currentWeather == nil {
                 locationName = "Paris"
                 await fetchWeather(latitude: 48.8566, longitude: 2.3522)
+            }
+        }
+    }
+    
+    private func geocodeManualLocation(_ city: String) {
+        geocoder.geocodeAddressString(city) { [weak self] placemarks, error in
+            guard let self = self else { return }
+            
+            if let placemark = placemarks?.first, let location = placemark.location {
+                Task { @MainActor in
+                    self.locationName = placemark.locality ?? city
+                    // We don't update lastGeocodedLocation/lastLocation for manual overrides
+                    // as we want this to persist until changed
+                    await self.fetchWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+                }
+            } else {
+                Task { @MainActor in
+                    self.error = "Location not found"
+                    self.isLoading = false
+                    // Fallback to GPS if manual fails? Or just show error?
+                    // Let's show error for manual input feedback
+                }
             }
         }
     }

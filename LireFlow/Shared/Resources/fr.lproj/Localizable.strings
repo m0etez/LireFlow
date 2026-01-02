@@ -6,12 +6,21 @@
 "Reading Lists" = "Listes de lecture";
 "Feeds" = "Flux";
 "Search" = "Rechercher";
+"No Articles" = "Aucun article";
+"No articles match your search" = "Aucun article ne correspond à votre recherche";
+"No articles found" = "Aucun article trouvé";
+"Add" = "Ajouter";
 
 /* Sheets */
 "Add Feed" = "Ajouter un flux";
 "Feed URL" = "URL du flux";
 "Fetch" = "Récupérer";
-"Add to Folder" = "Ajouter au dossier";
+"Loading..." = "Chargement...";
+"Weather" = "Météo";
+"Feels Like" = "Ressenti";
+"Wind" = "Vent";
+"Humidity" = "Humidité";
+"7-Day Forecast" = "Prévisions sur 7 jours";
 "Browse Default Feeds" = "Parcourir les flux par défaut";
 "Cancel" = "Annuler";
 "Create" = "Créer";
@@ -223,3 +232,7 @@
 "reading lists" = "listes de lecture";
 "Duplicates skipped:" = "Doublons ignorés :";
 
+
+/* Weather Widget Refinements */
+"Hi, the temperature is %lld°" = "Salut, il fait %lld°";
+"and we are %@" = "et nous sommes %@";

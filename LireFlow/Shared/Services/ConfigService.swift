@@ -269,5 +269,6 @@ struct AppConfig: Codable {
     
     // Theme
     var selectedTheme: AppTheme = .system
+    var hoverColorHex: String = "" // Empty string = default system/material hover effect
 }
 

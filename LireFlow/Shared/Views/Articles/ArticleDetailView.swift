@@ -17,6 +17,10 @@ struct ArticleDetailView: View {
     @State private var showingExportError = false
     @State private var exportErrorMessage = ""
     
+    // iOS ShareSheet state
+    @State private var shareURL: URL?
+    @State private var showingShareSheet = false
+    
     private var currentTheme: AppTheme {
         configService.config.selectedTheme
     }
@@ -244,6 +248,13 @@ struct ArticleDetailView: View {
         .onAppear {
             article.isRead = true
         }
+        #if os(iOS)
+        .sheet(isPresented: $showingShareSheet, onDismiss: { shareURL = nil }) {
+            if let url = shareURL {
+                ShareSheet(activityItems: [url])
+            }
+        }
+        #endif
     }
     
     // MARK: - Fetch Full Article
@@ -279,8 +290,13 @@ struct ArticleDetailView: View {
 
         do {
             let url = try await exportService.exportArticleToPDF(article: article)
+            #if os(iOS)
+            shareURL = url
+            showingShareSheet = true
+            #else
             exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
             showingExportSuccess = true
+            #endif
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
         } catch {
@@ -295,8 +311,13 @@ struct ArticleDetailView: View {
 
         do {
             let url = try await exportService.exportArticleToMarkdown(article: article)
+            #if os(iOS)
+            shareURL = url
+            showingShareSheet = true
+            #else
             exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
             showingExportSuccess = true
+            #endif
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
         } catch {
@@ -316,6 +337,8 @@ class NonScrollableWebView: WKWebView {
     }
 }
 #endif
+
+
 
 #if os(macOS)
 struct ArticleContentView: NSViewRepresentable {

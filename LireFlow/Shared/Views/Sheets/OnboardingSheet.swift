@@ -20,6 +20,94 @@ struct OnboardingSheet: View {
     }
     
     var body: some View {
+        #if os(iOS)
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Compact header for iOS
+                    VStack(spacing: 12) {
+                        Image(systemName: "newspaper.fill")
+                            .font(.system(size: 44))
+                            .foregroundStyle(.blue)
+                        
+                        Text("Welcome to LireFlow")
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                        Text("A modern RSS reader")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 20)
+                    
+                    // Step indicator
+                    HStack(spacing: 8) {
+                        ForEach(0..<totalSteps, id: \.self) { step in
+                            Circle()
+                                .fill(step == currentStep ? Color.accentColor : Color.secondary.opacity(0.3))
+                                .frame(width: 8, height: 8)
+                        }
+                    }
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
+                    // Content based on step with slide animation
+                    Group {
+                        switch currentStep {
+                        case 0:
+                            welcomeStepContent
+                        case 1:
+                            europresseStepContent
+                        case 2:
+                            proStepContent
+                        default:
+                            welcomeStepContent
+                        }
+                    }
+                    .id(currentStep)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .move(edge: .leading).combined(with: .opacity)
+                    ))
+                    .animation(.easeInOut(duration: 0.3), value: currentStep)
+                }
+                .padding(.bottom, 100) // Space for buttons
+            }
+            .overlay(alignment: .bottom) {
+                // Footer buttons
+                HStack {
+                    if currentStep > 0 {
+                        Button("Back") {
+                            withAnimation {
+                                currentStep -= 1
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    
+                    Spacer()
+                    
+                    if currentStep < totalSteps - 1 {
+                        Button("Next") {
+                            withAnimation {
+                                currentStep += 1
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                    } else {
+                        Button("Get Started") {
+                            completeOnboarding()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                }
+                .padding(20)
+                .background(.regularMaterial)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        #else
         VStack(spacing: 0) {
             // Header
             VStack(spacing: 16) {
@@ -93,9 +181,132 @@ struct OnboardingSheet: View {
             }
             .padding(24)
         }
-        #if os(macOS)
         .frame(width: 600, height: 700)
         #endif
+    }
+    
+    // MARK: - iOS Step Content
+    
+    private var welcomeStepContent: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            featureRow(
+                icon: "list.bullet.rectangle",
+                iconColor: .blue,
+                title: "Subscribe to Your Favorite Sites",
+                description: "Add RSS feeds from news sites, blogs, and more."
+            )
+            
+            featureRow(
+                icon: "newspaper",
+                iconColor: .orange,
+                title: "Read Full Articles",
+                description: "Access paywalled articles through Europresse."
+            )
+            
+            featureRow(
+                icon: "cloud.sun",
+                iconColor: .cyan,
+                title: "Weather Widget",
+                description: "See local weather at a glance."
+            )
+            
+            featureRow(
+                icon: "keyboard",
+                iconColor: .purple,
+                title: "Keyboard Shortcuts",
+                description: "Navigate with J/K, star with S, mark read with M."
+            )
+            
+            featureRow(
+                icon: "lock.shield",
+                iconColor: .green,
+                title: "Privacy First",
+                description: "All data is stored locally. No tracking."
+            )
+        }
+        .padding(.horizontal, 24)
+    }
+    
+    private var europresseStepContent: some View {
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                Image(systemName: "building.columns")
+                    .font(.system(size: 32))
+                    .foregroundStyle(.orange)
+                
+                Text("Connect to Europresse")
+                    .font(.headline)
+                
+                Text("Select your university or library below.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            // Search field
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField("Search...", text: $searchText)
+                    .textFieldStyle(.plain)
+            }
+            .padding(10)
+            .background(Color.platformSecondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .padding(.horizontal, 24)
+            
+            // Portal list
+            LazyVStack(spacing: 4) {
+                portalRow(nil, isSelected: configService.config.europressePortal == nil)
+                
+                ForEach(filteredPortals) { portal in
+                    portalRow(portal, isSelected: configService.config.europressePortal?.name == portal.name)
+                }
+            }
+            .padding(.horizontal, 24)
+        }
+    }
+    
+    private var proStepContent: some View {
+        VStack(spacing: 20) {
+            VStack(spacing: 8) {
+                Image(systemName: "star.circle.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.orange)
+                
+                Text("Unlock Pro")
+                    .font(.headline)
+                
+                Text("Get the most out of LireFlow")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            VStack(alignment: .leading, spacing: 12) {
+                proFeatureRow(icon: "infinity", title: "Unlimited Feeds", description: "Pro: Unlimited")
+                proFeatureRow(icon: "list.bullet.rectangle", title: "Unlimited Lists", description: "Pro: Unlimited")
+                proFeatureRow(icon: "paintpalette", title: "Premium Themes", description: "Sepia, Nord, Ocean")
+            }
+            .padding(.horizontal, 24)
+            
+            if !storeService.isPro {
+                Button {
+                    Task {
+                        await storeService.purchase()
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: "star.fill")
+                        Text("Unlock Pro – \(storeService.formattedPrice)")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+                .padding(.horizontal, 24)
+            }
+        }
     }
     
     // MARK: - Welcome Step

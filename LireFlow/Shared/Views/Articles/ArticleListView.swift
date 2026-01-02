@@ -5,6 +5,7 @@ struct ArticleListView: View {
     let articles: [Article]
     @Binding var selectedArticle: Article?
     @Binding var searchText: String
+    var onRefresh: (() async -> Void)? = nil
     
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \ReadingList.createdAt) private var readingLists: [ReadingList]
@@ -18,7 +19,7 @@ struct ArticleListView: View {
         VStack(spacing: 0) {
             // Layout picker header
             HStack {
-                Text("\(articles.count) articles")
+                Text("\(articles.count) articles") // This will be handled by localization automatically if key exists or just keep simple for now
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 
@@ -57,6 +58,15 @@ struct ArticleListView: View {
                     ScrollView {
                         LazyVStack(spacing: layoutSpacing) {
                             ForEach(articles, id: \.id) { article in
+                                #if os(iOS)
+                                NavigationLink(value: article) {
+                                    articleView(for: article)
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    articleContextMenu(for: article)
+                                }
+                                #else
                                 articleView(for: article)
                                     .onTapGesture {
                                         selectedArticle = article
@@ -64,16 +74,27 @@ struct ArticleListView: View {
                                     .contextMenu {
                                         articleContextMenu(for: article)
                                     }
+                                #endif
                             }
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                     }
+                    #if os(iOS)
+                    .navigationDestination(for: Article.self) { article in
+                        ArticleDetailView(article: article) {
+                            // No-op for close, navigation handles it
+                        }
+                    }
+                    #endif
                 }
             }
         }
         .frame(minWidth: 280)
         .background(currentTheme.secondaryBackground)
+        .refreshable {
+            await onRefresh?()
+        }
     }
     
     private var layoutSpacing: CGFloat {
@@ -230,6 +251,7 @@ struct ArticleRow: View {
     let isSelected: Bool
     @State private var isHovered = false
     @Environment(\.appTheme) private var theme
+    @ObservedObject private var configService = ConfigService.shared
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -302,8 +324,13 @@ struct ArticleRow: View {
             ZStack {
                 // Glass hover effect
                 if isHovered && !isSelected {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(.ultraThinMaterial)
+                    if !configService.config.hoverColorHex.isEmpty {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(hex: configService.config.hoverColorHex))
+                    } else {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(theme.accentColor.opacity(0.15))
+                    }
                 }
                 // Selection highlight - using theme selection color
                 if isSelected {
@@ -338,6 +365,7 @@ struct CardArticleRow: View {
     let isSelected: Bool
     @State private var isHovered = false
     @Environment(\.appTheme) private var theme
+    @ObservedObject private var configService = ConfigService.shared
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -426,6 +454,13 @@ struct CardArticleRow: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(isSelected ? theme.selectionColor : Color.platformSecondaryBackground)
                 .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+            
+            if isHovered && !isSelected {
+                 if !configService.config.hoverColorHex.isEmpty {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(hex: configService.config.hoverColorHex))
+                }
+            }
         }
         .overlay {
             RoundedRectangle(cornerRadius: 12)
@@ -452,6 +487,7 @@ struct CompactArticleRow: View {
     let isSelected: Bool
     @State private var isHovered = false
     @Environment(\.appTheme) private var theme
+    @ObservedObject private var configService = ConfigService.shared
     
     var body: some View {
         HStack(spacing: 10) {
@@ -498,8 +534,13 @@ struct CompactArticleRow: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(theme.selectionColor)
             } else if isHovered {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(.ultraThinMaterial)
+                if !configService.config.hoverColorHex.isEmpty {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color(hex: configService.config.hoverColorHex))
+                } else {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(theme.accentColor.opacity(0.15))
+                }
             }
         }
         .contentShape(Rectangle())

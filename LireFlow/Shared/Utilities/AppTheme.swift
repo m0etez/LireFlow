@@ -185,6 +185,15 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
         accentColor.opacity(0.15)
     }
     
+    /// Returns the SwiftUI ColorScheme for this theme
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light, .sepia: return .light
+        case .dark, .nord, .ocean, .forest: return .dark
+        }
+    }
+    
     #if os(macOS)
     // MARK: - NSAppearance (macOS only)
     
@@ -199,6 +208,10 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
             return NSAppearance(named: .darkAqua)
         }
     }
+    
+
+    
+
     
     // MARK: - Application
     

@@ -16,7 +16,7 @@ struct SettingsSheet: View {
     @StateObject private var exportService = ExportService()
     @StateObject private var importService = ImportService()
 
-    @State private var selectedTab: SettingsTab = .about
+    @State private var selectedTab: SettingsTab = .general
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var showingSuccessAlert = false
@@ -26,6 +26,10 @@ struct SettingsSheet: View {
     @State private var showingCleanupAlert = false
     @State private var cleanupMessage = ""
     @State private var showingUpgrade = false
+    
+    // iOS ShareSheet state
+    @State private var shareURL: URL?
+    @State private var showingShareSheet = false
 
     enum SettingsTab: String, CaseIterable, Identifiable {
         case general = "General"
@@ -39,6 +43,20 @@ struct SettingsSheet: View {
         }
     }
 
+    var hoverColor: Binding<Color> {
+        Binding(
+            get: {
+                if configService.config.hoverColorHex.isEmpty {
+                    return Color.clear // Default
+                }
+                return Color(hex: configService.config.hoverColorHex)
+            },
+            set: {
+                configService.config.hoverColorHex = $0.toHex() ?? ""
+            }
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -49,15 +67,7 @@ struct SettingsSheet: View {
 
                 Spacer()
 
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("Close")
+
             }
             .padding()
 
@@ -106,6 +116,13 @@ struct SettingsSheet: View {
         .sheet(isPresented: $showingUpgrade) { // Added for GeneralSettingsView
             UpgradeSheet()
         }
+        #if os(iOS)
+        .sheet(isPresented: $showingShareSheet, onDismiss: { shareURL = nil }) {
+            if let url = shareURL {
+                ShareSheet(activityItems: [url])
+            }
+        }
+        #endif
     }
 
     // MARK: - Backup Settings View
@@ -284,8 +301,13 @@ struct SettingsSheet: View {
                 feeds: feeds,
                 readingLists: readingLists
             )
+            #if os(iOS)
+            shareURL = url
+            showingShareSheet = true
+            #else
             successMessage = "Successfully exported to:\n\(url.lastPathComponent)"
             showingSuccessAlert = true
+            #endif
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
         } catch {
@@ -303,8 +325,13 @@ struct SettingsSheet: View {
                 folders: folders,
                 feeds: feeds
             )
+            #if os(iOS)
+            shareURL = url
+            showingShareSheet = true
+            #else
             successMessage = "Successfully exported to:\n\(url.lastPathComponent)"
             showingSuccessAlert = true
+            #endif
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
         } catch {
@@ -488,6 +515,20 @@ struct SettingsSheet: View {
                         ForEach(AppTheme.allCases) { theme in
                             themeButton(theme)
                         }
+                    }
+                }
+
+                // Hover Color
+                HStack {
+                    ColorPicker("Hover Color", selection: hoverColor, supportsOpacity: true)
+                        .help("Custom color for hover effects (article list, sidebar)")
+                    
+                    if !configService.config.hoverColorHex.isEmpty {
+                        Button("Reset") {
+                            configService.config.hoverColorHex = ""
+                        }
+                        .font(.caption)
+                        .buttonStyle(.bordered)
                     }
                 }
 

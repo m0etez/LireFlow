@@ -36,14 +36,21 @@ struct ContentView: View {
                 readingLists: readingLists,
                 showingAddFeed: $showingAddFeed,
                 showingAddFolder: $showingAddFolder,
-                showingAddReadingList: $showingAddReadingList
+                showingAddReadingList: $showingAddReadingList,
+                onRefresh: {
+                    await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
+                },
+                isReading: selectedArticle != nil
             )
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 300)
         } content: {
             ArticleListView(
                 articles: filteredArticles,
                 selectedArticle: $selectedArticle,
-                searchText: $searchText
+                searchText: $searchText,
+                onRefresh: {
+                    await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
+                }
             )
             .navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 400)
         } detail: {
@@ -57,27 +64,13 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    Task {
-                        await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
-                    }
-                } label: {
-                    if feedService.isRefreshing {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Image(systemName: "arrow.clockwise")
-                    }
+                #if os(iOS)
+                if selectedArticle == nil {
+                    toolbarButtons
                 }
-                .help("Refresh all feeds")
-                .disabled(feedService.isRefreshing)
-                
-                Button {
-                    showingAddFeed = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .help("Add new feed")
+                #else
+                toolbarButtons
+                #endif
             }
         }
         .searchable(text: $searchText, placement: .sidebar, prompt: "Search articles")
@@ -93,9 +86,15 @@ struct ContentView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsSheet()
         }
+        #if os(macOS)
         .sheet(isPresented: $showingOnboarding) {
             OnboardingSheet()
         }
+        #else
+        .fullScreenCover(isPresented: $showingOnboarding) {
+            OnboardingSheet()
+        }
+        #endif
         .sheet(isPresented: $showingUpgrade) {
             UpgradeSheet()
         }
@@ -139,6 +138,32 @@ struct ContentView: View {
             .onReceive(NotificationCenter.default.publisher(for: .markAllAsRead)) { _ in markAllArticlesAsRead() }
             .onReceive(NotificationCenter.default.publisher(for: .toggleStar)) { _ in toggleCurrentArticleStar() }
             .onReceive(NotificationCenter.default.publisher(for: .openInBrowser)) { _ in openCurrentArticleInBrowser() }
+    }
+
+    private var toolbarButtons: some View {
+        Group {
+            Button {
+                Task {
+                    await feedService.refreshAllFeeds(feeds: feeds, in: modelContext)
+                }
+            } label: {
+                if feedService.isRefreshing {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
+            .help("Refresh all feeds")
+            .disabled(feedService.isRefreshing)
+            
+            Button {
+                showingAddFeed = true
+            } label: {
+                Image(systemName: "plus")
+            }
+            .help("Add new feed")
+        }
     }
 
 

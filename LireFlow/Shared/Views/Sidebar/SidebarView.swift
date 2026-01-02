@@ -9,6 +9,8 @@ struct SidebarView: View {
     @Binding var showingAddFeed: Bool
     @Binding var showingAddFolder: Bool
     @Binding var showingAddReadingList: Bool
+    var onRefresh: (() async -> Void)? = nil
+    var isReading: Bool = false
     
     @Environment(\.modelContext) private var modelContext
     @Query private var allArticles: [Article]
@@ -62,12 +64,80 @@ struct SidebarView: View {
         return feeds.filter { $0.title.localizedCaseInsensitiveContains(feedSearchText) }
     }
 
+    private var sidebarBottomBar: some View {
+        HStack {
+            Button {
+                showingAddFolder = true
+            } label: {
+                Image(systemName: "folder.badge.plus")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.plain)
+            .help("New Folder")
+            
+            #if os(iOS)
+            Button {
+                Task {
+                        await onRefresh?()
+                }
+            } label: {
+                    Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.plain)
+            #endif
+            
+            
+            Button {
+                toggleAppearance()
+            } label: {
+                Image(systemName: appearanceIcon)
+                    .font(.system(size: 14))
+                    .symbolRenderingMode(.hierarchical)
+            }
+            .buttonStyle(.plain)
+            .help("Toggle Appearance")
+            
+            Spacer()
+            
+            Button {
+                showingAddFeed = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .bold))
+                    Text("Add")
+                        .font(.system(size: 12, weight: .semibold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    LinearGradient(
+                        colors: [.blue, .purple],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(Capsule())
+                .shadow(color: .purple.opacity(0.3), radius: 4, y: 2)
+            }
+            .buttonStyle(.plain)
+            .help("Add Feed")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+    }
+
     var body: some View {
         List(selection: $selectedItem) {
             // Weather
             if configService.config.showWeather {
                 Section {
                     WeatherWidget()
+                        .listRowInsets(EdgeInsets(top: 8, leading: 6, bottom: 8, trailing: 6))
+                        .listRowBackground(Color.clear)
                 }
             }
 
@@ -75,7 +145,7 @@ struct SidebarView: View {
             Section {
                 SidebarRow(
                     icon: "tray.full",
-                    title: "Tous les articles",
+                    title: "All Articles",
                     count: allArticles.count,
                     showCount: configService.config.showUnreadCount,
                     color: .blue
@@ -84,7 +154,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "circle.fill",
-                    title: "Non lus",
+                    title: "Unread",
                     count: allArticles.filter { !$0.isRead }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .orange
@@ -93,7 +163,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "star.fill",
-                    title: "Favoris",
+                    title: "Starred",
                     count: allArticles.filter { $0.isStarred }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .yellow
@@ -102,7 +172,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "archivebox",
-                    title: "Archivés",
+                    title: "Archived",
                     count: allArticles.filter { $0.isArchived }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .gray
@@ -223,7 +293,7 @@ struct SidebarView: View {
                 Button {
                     showingAddReadingList = true
                 } label: {
-                    Label("New List", systemImage: "plus")
+                    Label("New Reading List", systemImage: "plus")
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -232,57 +302,16 @@ struct SidebarView: View {
         .listStyle(.sidebar)
         .frame(minWidth: 200)
         .safeAreaInset(edge: .bottom) {
-            HStack {
-                Button {
-                    showingAddFolder = true
-                } label: {
-                    Image(systemName: "folder.badge.plus")
-                        .font(.system(size: 14))
-                }
-                .buttonStyle(.plain)
-                .help("New Folder")
-                
-                Button {
-                    toggleAppearance()
-                } label: {
-                    Image(systemName: appearanceIcon)
-                        .font(.system(size: 14))
-                        .symbolRenderingMode(.hierarchical)
-                }
-                .buttonStyle(.plain)
-                .help("Toggle Appearance")
-                
-                Spacer()
-                
-                Button {
-                    showingAddFeed = true
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .bold))
-                        Text("Add")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(Capsule())
-                    .shadow(color: .purple.opacity(0.3), radius: 4, y: 2)
-                }
-                .buttonStyle(.plain)
-                .help("Add Feed")
+            #if os(iOS)
+            if !isReading {
+                sidebarBottomBar
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(.ultraThinMaterial)
+            #else
+            sidebarBottomBar
+            #endif
         }
+                
+
         .onAppear {
             applyAppearance()
         }
@@ -365,6 +394,8 @@ struct SidebarRow: View {
     let count: Int
     let showCount: Bool
     let color: Color
+    @State private var isHovered = false
+    @ObservedObject private var configService = ConfigService.shared
 
     var body: some View {
         HStack {
@@ -389,6 +420,14 @@ struct SidebarRow: View {
             }
         }
         .padding(.vertical, 2)
+        .contentShape(Rectangle())
+        .background {
+            if isHovered {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(configService.config.hoverColorHex.isEmpty ? Color.accentColor.opacity(0.15) : Color(hex: configService.config.hoverColorHex))
+            }
+        }
+        .onHover { isHovered = $0 }
     }
 }
 
@@ -406,6 +445,8 @@ struct FolderRow: View {
     var onRenameFolder: () -> Void
     var onDeleteFolder: () -> Void
     @State private var isExpanded = true
+    @State private var isHovered = false
+    @ObservedObject private var configService = ConfigService.shared
 
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
@@ -472,6 +513,13 @@ struct FolderRow: View {
                 }
             }
             .contentShape(Rectangle())
+            .background {
+                if isHovered && !configService.config.hoverColorHex.isEmpty {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color(hex: configService.config.hoverColorHex))
+                }
+            }
+            .onHover { isHovered = $0 }
             .contextMenu {
                 Button {
                     onRenameFolder()
@@ -495,6 +543,8 @@ struct FolderRow: View {
 struct ReadingListRow: View {
     let readingList: ReadingList
     let showCount: Bool
+    @State private var isHovered = false
+    @ObservedObject private var configService = ConfigService.shared
 
     var body: some View {
         HStack {
@@ -519,6 +569,14 @@ struct ReadingListRow: View {
             }
         }
         .padding(.vertical, 2)
+        .contentShape(Rectangle())
+        .background {
+            if isHovered && !configService.config.hoverColorHex.isEmpty {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color(hex: configService.config.hoverColorHex))
+            }
+        }
+        .onHover { isHovered = $0 }
     }
 }
 
@@ -527,6 +585,8 @@ struct ReadingListRow: View {
 struct FeedRow: View {
     let feed: Feed
     let showCount: Bool
+    @State private var isHovered = false
+    @ObservedObject private var configService = ConfigService.shared
 
     var body: some View {
         HStack {
@@ -558,6 +618,14 @@ struct FeedRow: View {
             }
         }
         .padding(.vertical, 2)
+        .contentShape(Rectangle())
+        .background {
+            if isHovered && !configService.config.hoverColorHex.isEmpty {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color(hex: configService.config.hoverColorHex))
+            }
+        }
+        .onHover { isHovered = $0 }
     }
 }
 

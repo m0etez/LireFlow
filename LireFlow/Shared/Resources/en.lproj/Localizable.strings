@@ -6,12 +6,21 @@
 "Reading Lists" = "Reading Lists";
 "Feeds" = "Feeds";
 "Search" = "Search";
+"No Articles" = "No Articles";
+"No articles match your search" = "No articles match your search";
+"No articles found" = "No articles found";
+"Add" = "Add";
 
 /* Sheets */
 "Add Feed" = "Add Feed";
 "Feed URL" = "Feed URL";
 "Fetch" = "Fetch";
-"Add to Folder" = "Add to Folder";
+"Loading..." = "Loading...";
+"Weather" = "Weather";
+"Feels Like" = "Feels Like";
+"Wind" = "Wind";
+"Humidity" = "Humidity";
+"7-Day Forecast" = "7-Day Forecast";
 "Browse Default Feeds" = "Browse Default Feeds";
 "Cancel" = "Cancel";
 "Create" = "Create";
@@ -223,3 +232,7 @@
 "reading lists" = "reading lists";
 "Duplicates skipped:" = "Duplicates skipped:";
 
+
+/* Weather Widget Refinements */
+"Hi, the temperature is %lld°" = "Hi, the temperature is %lld°";
+"and we are %@" = "and we are %@";
