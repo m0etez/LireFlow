@@ -135,18 +135,23 @@
 "Search articles" = "Search articles";
 
 /* Default Feeds Categories */
-"News" = "News";
+"News (France)" = "News (France)";
+"News (Belgium)" = "News (Belgium)";
+"News (Switzerland)" = "News (Switzerland)";
+"News (Canada)" = "News (Canada)";
+"News (USA)" = "News (USA)";
+"News (UK)" = "News (UK)";
+"News (Germany)" = "News (Germany)";
+"News (Spain)" = "News (Spain)";
+"News (Italy)" = "News (Italy)";
 "Tech" = "Tech";
-"France" = "France";
-"France Tech" = "France Tech";
-"France Science" = "France Science";
-"France Sports" = "France Sports";
 "Science" = "Science";
+"Sports" = "Sports";
 "AI" = "AI";
+"Apple" = "Apple";
 "Security" = "Security";
 "Space" = "Space";
 "Reddit" = "Reddit";
-"Apple" = "Apple";
 "Development" = "Development";
 
 /* About Settings */

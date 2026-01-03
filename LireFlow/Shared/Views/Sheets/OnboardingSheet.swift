@@ -2,13 +2,16 @@ import SwiftUI
 
 struct OnboardingSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @ObservedObject var configService = ConfigService.shared
     @StateObject private var storeService = StoreService.shared
     
     @State private var currentStep = 0
     @State private var searchText = ""
     
-    private let totalSteps = 4  // Welcome, Theme, Europresse, Pro
+    @State private var selectedFeeds: Set<String> = []
+    
+    private let totalSteps = 5  // Welcome, Theme, Europresse, Feeds, Pro
     
     private var filteredPortals: [EuropressePortal] {
         if searchText.isEmpty {
@@ -64,6 +67,8 @@ struct OnboardingSheet: View {
                         case 2:
                             europresseStepContent
                         case 3:
+                            feedsStepContent
+                        case 4:
                             proStepContent
                         default:
                             welcomeStepContent
@@ -167,6 +172,10 @@ struct OnboardingSheet: View {
             case 1:
                 europresseStep
             case 2:
+                europresseStep
+            case 3:
+                feedsStep
+            case 4:
                 proStep
             default:
                 welcomeStep
@@ -535,6 +544,93 @@ struct OnboardingSheet: View {
         }
     }
     
+    // MARK: - Feeds Step
+    
+    private var feedsStepContent: some View {
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                Image(systemName: "list.bullet.rectangle")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.blue)
+                
+                Text("Vos premiers flux")
+                    .font(.headline)
+                
+                Text("Sélectionnez quelques sources pour commencer.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            // Limit indicator
+            if !storeService.isPro {
+                HStack {
+                    Image(systemName: selectedFeeds.count > StoreService.maxFreeFeeds ? "exclamationmark.triangle.fill" : "info.circle.fill")
+                    Text("\(selectedFeeds.count)/\(StoreService.maxFreeFeeds) flux gratuits sélectionnés")
+                }
+                .font(.caption)
+                .foregroundStyle(selectedFeeds.count > StoreService.maxFreeFeeds ? .red : .secondary)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 12)
+                .background(selectedFeeds.count > StoreService.maxFreeFeeds ? Color.red.opacity(0.1) : Color.platformSecondaryBackground)
+                .clipShape(Capsule())
+            }
+            
+            ScrollView {
+                LazyVStack(spacing: 24) {
+                    ForEach(DefaultFeeds.categories, id: \.self) { category in
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(NSLocalizedString(category, comment: ""))
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 4)
+                            
+                            ForEach(DefaultFeeds.feeds(for: category), id: \.url) { feedInfo in
+                                Button {
+                                    if selectedFeeds.contains(feedInfo.url) {
+                                        selectedFeeds.remove(feedInfo.url)
+                                    } else {
+                                        selectedFeeds.insert(feedInfo.url)
+                                    }
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: selectedFeeds.contains(feedInfo.url) ? "checkmark.circle.fill" : "circle")
+                                            .font(.title3)
+                                            .foregroundStyle(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.secondary)
+                                            .contentTransition(.symbolEffect(.replace))
+                                        
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(feedInfo.title)
+                                                .font(.body)
+                                                .foregroundStyle(.primary)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(12)
+                                    .background(Color.platformSecondaryBackground)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.clear, lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+            }
+        }
+    }
+    
+    // Minimal wrapper for macOS consistency (reusing content as structure is similar)
+    private var feedsStep: some View {
+        feedsStepContent
+    }
+
     // MARK: - Helper Views
     
     private func featureRow(icon: String, iconColor: Color, title: String, description: String) -> some View {
@@ -686,6 +782,21 @@ struct OnboardingSheet: View {
     // MARK: - Actions
     
     private func completeOnboarding() {
+        // Save selected feeds
+        if !selectedFeeds.isEmpty {
+            Task {
+                var addedCount = 0
+                for feedURL in selectedFeeds {
+                     // Simple limit enforcement: Stop if limit reached and not pro
+                    if !storeService.isPro && addedCount >= StoreService.maxFreeFeeds {
+                        break
+                    }
+                    try? await FeedService().addFeed(url: feedURL, to: nil, in: modelContext)
+                    addedCount += 1
+                }
+            }
+        }
+        
         configService.config.hasCompletedOnboarding = true
         dismiss()
     }

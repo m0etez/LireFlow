@@ -14,12 +14,12 @@ struct RootView: View {
             TabView {
                 ContentView()
                     .tabItem {
-                        Label("Feeds", systemImage: "newspaper")
+                        Label("Flux", systemImage: "newspaper")
                     }
                 
                 SettingsSheet()
                     .tabItem {
-                        Label("Settings", systemImage: "gear")
+                        Label("Paramètres", systemImage: "gear")
                     }
             }
         }

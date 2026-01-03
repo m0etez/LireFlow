@@ -10,6 +10,15 @@ final class FeedService: ObservableObject {
     
     private let parser = FeedParser()
     
+    private let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.httpAdditionalHeaders = [
+            "User-Agent": "LireFlow/1.3.0 (com.m0etez.LireFlow; macOS/iOS) AppleWebKit/605.1.15"
+        ]
+        config.timeoutIntervalForRequest = 30
+        return URLSession(configuration: config)
+    }()
+    
     // MARK: - Feed Fetching
     
     /// Fetch a single feed by URL and return parsed data
@@ -18,10 +27,15 @@ final class FeedService: ObservableObject {
             throw FeedServiceError.invalidURL
         }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
+        // Use custom session with User-Agent
+        let (data, response) = try await session.data(from: url)
         
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw FeedServiceError.invalidResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            print("Feed fetch failed with status: \(httpResponse.statusCode) for URL: \(url)")
             throw FeedServiceError.invalidResponse
         }
         
@@ -147,7 +161,7 @@ final class FeedService: ObservableObject {
             throw FeedServiceError.invalidURL
         }
         
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await session.data(from: url)
         
         guard let html = String(data: data, encoding: .utf8) else {
             return nil

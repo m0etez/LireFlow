@@ -18,6 +18,7 @@ struct AddFeedSheet: View {
     @State private var error: Error?
     @State private var showingDefaultFeeds = false
     @State private var showingUpgrade = false
+
     
     var body: some View {
         VStack(spacing: 0) {
@@ -196,6 +197,7 @@ struct AddFeedSheet: View {
         .sheet(isPresented: $showingUpgrade) {
             UpgradeSheet()
         }
+
         .onAppear {
             checkClipboardForURL()
         }
@@ -360,6 +362,12 @@ struct DefaultFeedsSheet: View {
     @State private var selectedFolder: Folder?
     @State private var isAdding = false
     @StateObject private var feedService = FeedService()
+    @StateObject private var storeService = StoreService.shared
+    @Query private var allFeeds: [Feed]
+
+    @State private var showingBatchResult = false
+    @State private var batchResultTitle = ""
+    @State private var batchResultMessage = ""
     
     var body: some View {
         VStack(spacing: 0) {
@@ -392,29 +400,36 @@ struct DefaultFeedsSheet: View {
                 ForEach(DefaultFeeds.categories, id: \.self) { category in
                     Section(category) {
                         ForEach(DefaultFeeds.feeds(for: category), id: \.url) { feedInfo in
-                            HStack {
-                                Toggle("", isOn: Binding(
-                                    get: { selectedFeeds.contains(feedInfo.url) },
-                                    set: { isSelected in
-                                        if isSelected {
-                                            selectedFeeds.insert(feedInfo.url)
-                                        } else {
-                                            selectedFeeds.remove(feedInfo.url)
-                                        }
-                                    }
-                                ))
-                                .labelsHidden()
-                                
-                                VStack(alignment: .leading) {
-                                    Text(feedInfo.title)
-                                        .foregroundStyle(.primary)
-                                    
-                                    Text(feedInfo.url)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
+                            Button {
+                                if selectedFeeds.contains(feedInfo.url) {
+                                    selectedFeeds.remove(feedInfo.url)
+                                } else {
+                                    selectedFeeds.insert(feedInfo.url)
                                 }
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: selectedFeeds.contains(feedInfo.url) ? "checkmark.circle.fill" : "circle")
+                                        .font(.title3)
+                                        .foregroundStyle(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.secondary)
+                                        .contentTransition(.symbolEffect(.replace))
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(feedInfo.title)
+                                            .font(.body)
+                                            .foregroundStyle(.primary)
+                                        
+                                        Text(feedInfo.url)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    
+                                    Spacer()
+                                }
+                                .padding(.vertical, 4)
+                                .contentShape(Rectangle())
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -461,26 +476,60 @@ struct DefaultFeedsSheet: View {
         #if os(macOS)
         .frame(width: 500, height: 600)
         #endif
+        // Add alert to DefaultFeedsSheet
+        .alert(batchResultTitle, isPresented: $showingBatchResult) {
+            Button("OK") {
+                dismiss()
+            }
+        } message: {
+            Text(batchResultMessage)
+        }
     }
     
     private func addSelectedFeeds() async {
         isAdding = true
-        defer { 
-            isAdding = false 
-        }
+        defer { isAdding = false }
+        
+        var addedCount = 0
+        var failedCount = 0
+        var limitReached = false
         
         for feedURL in selectedFeeds {
+            // Check limit before each add
+            if !storeService.canAddFeed(currentCount: allFeeds.count + addedCount) {
+                limitReached = true
+                break
+            }
+            
             do {
                 _ = try await feedService.addFeed(url: feedURL, to: selectedFolder, in: modelContext)
+                addedCount += 1
             } catch {
-                // Continue adding other feeds even if one fails
                 print("Failed to add feed \(feedURL): \(error)")
+                failedCount += 1
             }
         }
         
+        let finalAdded = addedCount
+        let finalFailed = failedCount
+        let finalLimit = limitReached
+        
         await MainActor.run {
-            onComplete()
-            dismiss()
+            if finalLimit {
+                batchResultTitle = "Limite atteinte"
+                batchResultMessage = "Seuls \(finalAdded) flux ont été ajoutés. Passez à la version Pro pour des flux illimités."
+                showingBatchResult = true
+                // Delay showing upgrade sheet slightly so alert can be seen/dismissed or handle differently? 
+                // Actually, let's just show the alert, and maybe offer upgrade button in alert?
+                // For now, simple alert.
+            } else if finalFailed > 0 {
+                batchResultTitle = "Résultat de l'importation"
+                batchResultMessage = "\(finalAdded) flux ajoutés.\n\(finalFailed) échoué(s) (problème réseau ou URL)."
+                showingBatchResult = true
+            } else {
+                onComplete()
+                dismiss()
+            }
         }
     }
 }

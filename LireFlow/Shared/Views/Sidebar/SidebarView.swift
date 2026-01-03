@@ -157,11 +157,9 @@ struct SidebarView: View {
         List(selection: $selectedItem) {
             // Weather
             if configService.config.showWeather {
-                Section {
-                    WeatherWidget()
-                        .listRowInsets(EdgeInsets(top: 8, leading: 6, bottom: 8, trailing: 6))
-                        .listRowBackground(Color.clear)
-                }
+                WeatherWidget()
+                    .listRowInsets(EdgeInsets(top: 0, leading: 6, bottom: 8, trailing: 6))
+                    .listRowBackground(Color.clear)
             }
 
             // Smart Folders
@@ -325,16 +323,22 @@ struct SidebarView: View {
         .listStyle(.sidebar)
         .frame(minWidth: 200)
         .safeAreaInset(edge: .bottom) {
-            #if os(iOS)
-            if !isReading {
-                sidebarBottomBar
-            }
-            #else
+            #if os(macOS)
             sidebarBottomBar
             #endif
         }
-                
-
+        .toolbar {
+            #if os(iOS)
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingAddFeed = true
+                } label: {
+                    Text("Add")
+                        .fontWeight(.medium)
+                }
+            }
+            #endif
+        }
         .onAppear {
             applyAppearance()
         }

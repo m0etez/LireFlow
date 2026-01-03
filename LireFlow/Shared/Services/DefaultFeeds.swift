@@ -18,190 +18,155 @@ struct DefaultFeeds {
         }
     }
     
-    // MARK: - Europresse-Compatible French National Press
-    static let europresseFranceNational: [FeedInfo] = [
-        FeedInfo(title: "Le Monde - La Une", url: "https://www.lemonde.fr/rss/une.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Le Figaro - Actualité", url: "https://www.lefigaro.fr/rss/figaro_actualites.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Libération", url: "https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "L'Express", url: "https://www.lexpress.fr/arc/outboundfeeds/rss/alaune.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Le Point", url: "https://www.lepoint.fr/rss.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "L'Obs", url: "https://www.nouvelobs.com/rss.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Les Échos", url: "https://www.lesechos.fr/rss/rss_une.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "La Croix", url: "https://www.la-croix.com/RSS/UNIVERS", category: "News", europresseSupported: true),
-        FeedInfo(title: "L'Humanité", url: "https://www.humanite.fr/rss.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Le Monde Diplomatique", url: "https://www.monde-diplomatique.fr/recents.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Courrier International", url: "https://www.courrierinternational.com/feed/all/rss.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "La Tribune", url: "https://www.latribune.fr/rss/rubriques/economie.html", category: "News", europresseSupported: true),
-        FeedInfo(title: "L'Opinion", url: "https://www.lopinion.fr/rss.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Challenges", url: "https://www.challenges.fr/rss.xml", category: "News", europresseSupported: true),
-        FeedInfo(title: "Mediapart", url: "https://www.mediapart.fr/articles/feed", category: "News", europresseSupported: true),
-        FeedInfo(title: "Arrêt sur Images", url: "https://www.arretsurimages.net/feed", category: "News", europresseSupported: true),
-        FeedInfo(title: "L'Usine Nouvelle", url: "https://www.usinenouvelle.com/rss/", category: "News", europresseSupported: true),
-        FeedInfo(title: "Télérama", url: "https://www.telerama.fr/rss/actualite.xml", category: "News", europresseSupported: true),
+    // MARK: - France (Combined National & Regional)
+    static let franceNews: [FeedInfo] = [
+        FeedInfo(title: "Le Monde", url: "https://www.lemonde.fr/rss/une.xml", category: "News (France)", europresseSupported: true),
+        FeedInfo(title: "Le Figaro", url: "https://www.lefigaro.fr/rss/figaro_actualites.xml", category: "News (France)", europresseSupported: true),
+        FeedInfo(title: "Libération", url: "https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml", category: "News (France)", europresseSupported: true),
+        FeedInfo(title: "Les Échos", url: "https://www.lesechos.fr/rss/rss_une.xml", category: "News (France)", europresseSupported: true),
+        FeedInfo(title: "Le Parisien", url: "https://www.leparisien.fr/arc/outboundfeeds/rss/", category: "News (France)", europresseSupported: true),
+        FeedInfo(title: "Ouest-France", url: "https://www.ouest-france.fr/rss/une", category: "News (France)", europresseSupported: true),
+        FeedInfo(title: "France Info", url: "https://www.francetvinfo.fr/titres.rss", category: "News (France)"),
+        FeedInfo(title: "20 Minutes", url: "https://www.20minutes.fr/feeds/rss-une.xml", category: "News (France)"),
     ]
-    
-    // MARK: - Europresse-Compatible French Regional Press
-    static let europresseFranceRegional: [FeedInfo] = [
-        FeedInfo(title: "Le Parisien", url: "https://www.leparisien.fr/arc/outboundfeeds/rss/", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Ouest-France", url: "https://www.ouest-france.fr/rss/une", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Sud Ouest", url: "https://www.sudouest.fr/rss.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "La Dépêche du Midi", url: "https://www.ladepeche.fr/rss.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "La Voix du Nord", url: "https://www.lavoixdunord.fr/rss", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "La Provence", url: "https://www.laprovence.com/rss/rss-une.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Nice-Matin", url: "https://www.nicematin.com/rss", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Corse Matin", url: "https://www.corsematin.com/rss", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "L'Est Républicain", url: "https://www.estrepublicain.fr/rss", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Le Télégramme", url: "https://www.letelegramme.fr/rss.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Le Progrès", url: "https://www.leprogres.fr/rss", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "La Montagne", url: "https://www.lamontagne.fr/rss.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Le Berry Républicain", url: "https://www.leberry.fr/rss.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "La Nouvelle République", url: "https://www.lanouvellerepublique.fr/rss", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "La République des Pyrénées", url: "https://www.larepubliquedespyrenees.fr/rss.xml", category: "Regional News", europresseSupported: true),
-        FeedInfo(title: "Courrier des Maires", url: "https://www.courrierdesmaires.fr/feed/", category: "Regional News", europresseSupported: true),
+
+    // MARK: - United States
+    static let usNews: [FeedInfo] = [
+        FeedInfo(title: "The New York Times", url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml", category: "News (USA)", europresseSupported: true),
+        FeedInfo(title: "CNN", url: "http://rss.cnn.com/rss/cnn_topstories.rss", category: "News (USA)"),
+        FeedInfo(title: "The Washington Post", url: "https://feeds.washingtonpost.com/rss/world", category: "News (USA)", europresseSupported: true),
+        FeedInfo(title: "Fox News", url: "http://feeds.foxnews.com/foxnews/latest", category: "News (USA)"),
+        FeedInfo(title: "NPR", url: "https://feeds.npr.org/1001/rss.xml", category: "News (USA)"),
     ]
-    
-    // MARK: - Europresse-Compatible French Science & Tech
-    static let europresseFranceScience: [FeedInfo] = [
-        FeedInfo(title: "Sciences et Avenir", url: "https://www.sciencesetavenir.fr/rss.xml", category: "Science", europresseSupported: true),
-        FeedInfo(title: "La Recherche", url: "https://www.larecherche.fr/rss.xml", category: "Science", europresseSupported: true),
-        FeedInfo(title: "Science et Vie", url: "https://www.science-et-vie.com/feed", category: "Science", europresseSupported: true),
-        FeedInfo(title: "Journal du Net", url: "https://www.journaldunet.com/rss/", category: "Tech", europresseSupported: true),
-        FeedInfo(title: "LSA Conso", url: "https://www.lsa-conso.fr/rss", category: "Business", europresseSupported: true),
+
+    // MARK: - United Kingdom
+    static let ukNews: [FeedInfo] = [
+        FeedInfo(title: "BBC News", url: "http://feeds.bbci.co.uk/news/rss.xml", category: "News (UK)", europresseSupported: true),
+        FeedInfo(title: "The Guardian", url: "https://www.theguardian.com/world/rss", category: "News (UK)", europresseSupported: true),
+        FeedInfo(title: "Sky News", url: "https://feeds.skynews.com/feeds/rss/home.xml", category: "News (UK)"),
+        FeedInfo(title: "The Independent", url: "https://www.independent.co.uk/news/rss", category: "News (UK)", europresseSupported: true),
+        FeedInfo(title: "Financial Times", url: "https://www.ft.com/rss/home", category: "News (UK)", europresseSupported: true),
     ]
-    
-    // MARK: - Europresse-Compatible Belgium
-    static let europresseBelgium: [FeedInfo] = [
-        FeedInfo(title: "Le Soir (Belgium)", url: "https://www.lesoir.be/rss/cible_principale_droite.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "La Libre Belgique", url: "https://www.lalibre.be/rss/section/actu.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "L'Avenir (Belgium)", url: "https://www.lavenir.net/rss", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "La DH (Belgium)", url: "https://www.dhnet.be/rss/section/actu.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "Sudinfo (Belgium)", url: "https://www.sudinfo.be/rss", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "Le Vif (Belgium)", url: "https://www.levif.be/rss.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "Trends-Tendances", url: "https://trends.levif.be/rss.xml", category: "Belgium Business", europresseSupported: true),
-        FeedInfo(title: "Knack (Belgium)", url: "https://www.knack.be/rss.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "De Morgen (Belgium)", url: "https://www.demorgen.be/rss.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "De Standaard (Belgium)", url: "https://www.standaard.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "Het Laatste Nieuws", url: "https://www.hln.be/rss.xml", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "Het Nieuwsblad", url: "https://www.nieuwsblad.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c", category: "Belgium News", europresseSupported: true),
-        FeedInfo(title: "Gazet van Antwerpen", url: "https://www.gva.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c", category: "Belgium News", europresseSupported: true),
+
+    // MARK: - Germany
+    static let germanyNews: [FeedInfo] = [
+        FeedInfo(title: "Tagesschau", url: "https://www.tagesschau.de/xml/rss2/", category: "News (Germany)"),
+        FeedInfo(title: "Der Spiegel", url: "https://www.spiegel.de/schlagzeilen/rss/index.xml", category: "News (Germany)", europresseSupported: true),
+        FeedInfo(title: "Bild", url: "https://www.bild.de/rss/feeds/index.xml", category: "News (Germany)"),
+        FeedInfo(title: "FAZ", url: "https://www.faz.net/rss/aktuell/", category: "News (Germany)", europresseSupported: true),
+        FeedInfo(title: "Süddeutsche Zeitung", url: "https://rss.sueddeutsche.de/rss/Topthemen", category: "News (Germany)", europresseSupported: true),
     ]
-    
-    // MARK: - Europresse-Compatible Switzerland & Luxembourg
-    static let europresseSwissLux: [FeedInfo] = [
-        FeedInfo(title: "Le Temps (Switzerland)", url: "https://www.letemps.ch/rss", category: "Switzerland News", europresseSupported: true),
+
+    // MARK: - Belgium
+    static let belgiumNews: [FeedInfo] = [
+        FeedInfo(title: "Le Soir", url: "https://www.lesoir.be/rss/cible_principale_droite.xml", category: "News (Belgium)", europresseSupported: true),
+        FeedInfo(title: "La Libre", url: "https://www.lalibre.be/rss.xml", category: "News (Belgium)", europresseSupported: true),
+        FeedInfo(title: "HLN", url: "https://www.hln.be/rss.xml", category: "News (Belgium)", europresseSupported: true),
+        FeedInfo(title: "VRT NWS", url: "https://www.vrt.be/vrtnws/nl.rss.articles.xml", category: "News (Belgium)"),
+        FeedInfo(title: "De Standaard", url: "https://www.standaard.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c", category: "News (Belgium)", europresseSupported: true),
     ]
-    
-    // MARK: - Europresse-Compatible International
-    static let europresseInternational: [FeedInfo] = [
-        FeedInfo(title: "Financial Times", url: "https://www.ft.com/rss/home", category: "International News", europresseSupported: true),
-        FeedInfo(title: "The Economist", url: "https://www.economist.com/rss", category: "International News", europresseSupported: true),
-        FeedInfo(title: "L'Orient-Le Jour (Lebanon)", url: "https://www.lorientlejour.com/rss", category: "International News", europresseSupported: true),
-        FeedInfo(title: "Jeune Afrique", url: "https://www.jeuneafrique.com/feed/", category: "International News", europresseSupported: true),
-        FeedInfo(title: "El País (Spain)", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", category: "International News", europresseSupported: true),
+
+    // MARK: - Spain
+    static let spainNews: [FeedInfo] = [
+        FeedInfo(title: "El País", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", category: "News (Spain)", europresseSupported: true),
+        FeedInfo(title: "El Mundo", url: "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml", category: "News (Spain)", europresseSupported: true),
+        FeedInfo(title: "ABC", url: "https://www.abc.es/rss/feeder/portada", category: "News (Spain)", europresseSupported: true),
+        FeedInfo(title: "La Vanguardia", url: "https://www.lavanguardia.com/rss/home.xml", category: "News (Spain)", europresseSupported: true),
+        FeedInfo(title: "20minutos", url: "https://www.20minutos.es/rss/", category: "News (Spain)"),
     ]
-    
-    // MARK: - Other French Sources (Not Europresse)
-    static let franceTech: [FeedInfo] = [
-        FeedInfo(title: "Numerama", url: "https://www.numerama.com/feed/", category: "France Tech"),
-        FeedInfo(title: "MacGeneration", url: "https://www.macg.co/rss.xml", category: "France Tech"),
-        FeedInfo(title: "01net", url: "https://www.01net.com/rss/info/", category: "France Tech"),
-        FeedInfo(title: "Clubic", url: "https://www.clubic.com/feed/", category: "France Tech"),
-        FeedInfo(title: "Frandroid", url: "https://www.frandroid.com/feed", category: "France Tech"),
-        FeedInfo(title: "Journal du Geek", url: "https://www.journaldugeek.com/feed/", category: "France Tech"),
-        FeedInfo(title: "Les Numériques", url: "https://www.lesnumeriques.com/rss.xml", category: "France Tech"),
-        FeedInfo(title: "NextINpact", url: "https://www.nextinpact.com/rss/news.xml", category: "France Tech"),
-        FeedInfo(title: "Silicon.fr", url: "https://www.silicon.fr/feed", category: "France Tech"),
-        FeedInfo(title: "BDM", url: "https://www.blogdumoderateur.com/feed/", category: "France Tech"),
-        FeedInfo(title: "Korben", url: "https://korben.info/feed", category: "France Tech"),
+
+    // MARK: - Italy
+    static let italyNews: [FeedInfo] = [
+        FeedInfo(title: "La Repubblica", url: "https://www.repubblica.it/rss/homepage/rss2.0.xml", category: "News (Italy)", europresseSupported: true),
+        FeedInfo(title: "Corriere della Sera", url: "https://www.corriere.it/rss/homepage.xml", category: "News (Italy)", europresseSupported: true),
+        FeedInfo(title: "ANSA", url: "https://www.ansa.it/sito/ansait_rss.xml", category: "News (Italy)"),
+        FeedInfo(title: "La Stampa", url: "https://www.lastampa.it/rss/homepage.xml", category: "News (Italy)", europresseSupported: true),
+        FeedInfo(title: "Il Sole 24 Ore", url: "https://www.ilsole24ore.com/rss/italia.xml", category: "News (Italy)", europresseSupported: true),
     ]
-    
-    static let franceOther: [FeedInfo] = [
-        FeedInfo(title: "France Info", url: "https://www.francetvinfo.fr/titres.rss", category: "France News"),
-        FeedInfo(title: "20 Minutes", url: "https://www.20minutes.fr/feeds/rss-une.xml", category: "France News"),
-        FeedInfo(title: "France 24", url: "https://www.france24.com/fr/rss", category: "France News"),
-        FeedInfo(title: "RFI", url: "https://www.rfi.fr/fr/rss", category: "France News"),
-        FeedInfo(title: "Futura Sciences", url: "https://www.futura-sciences.com/rss/actualites.xml", category: "France Science"),
-        FeedInfo(title: "L'Équipe", url: "https://www.lequipe.fr/rss/actu_rss.xml", category: "France Sports"),
+
+    // MARK: - Switzerland
+    static let switzerlandNews: [FeedInfo] = [
+        FeedInfo(title: "Le Temps", url: "https://www.letemps.ch/rss", category: "News (Switzerland)", europresseSupported: true),
+        FeedInfo(title: "NZZ", url: "https://www.nzz.ch/recent.rss", category: "News (Switzerland)", europresseSupported: true),
+        FeedInfo(title: "Tages-Anzeiger", url: "https://partner-feeds.publishing.tamedia.ch/rss/tagesanzeiger/schweiz", category: "News (Switzerland)", europresseSupported: true),
+        FeedInfo(title: "RTS Info", url: "https://www.rts.ch/info/une.xml", category: "News (Switzerland)", europresseSupported: true), // Best guess for RTS
+        FeedInfo(title: "SRF News", url: "https://www.srf.ch/news/bnf/rss/1", category: "News (Switzerland)", europresseSupported: true),
     ]
-    
-    // MARK: - Tech
-    static let tech: [FeedInfo] = [
-        FeedInfo(title: "Hacker News", url: "https://hnrss.org/frontpage", category: "Tech"),
+
+    // MARK: - Canada
+    static let canadaNews: [FeedInfo] = [
+        FeedInfo(title: "CBC News", url: "https://www.cbc.ca/cmlink/rss-topstories", category: "News (Canada)"),
+        FeedInfo(title: "CTV News", url: "https://www.ctvnews.ca/rss/ctvnews-ca-top-stories-public-rss-1.822009", category: "News (Canada)"),
+        FeedInfo(title: "The Globe and Mail", url: "https://www.theglobeandmail.com/rss/gam/TopStories/", category: "News (Canada)", europresseSupported: true),
+        FeedInfo(title: "National Post", url: "https://nationalpost.com/feed", category: "News (Canada)", europresseSupported: true),
+        FeedInfo(title: "Toronto Star", url: "https://www.thestar.com/search/?f=rss&t=article&c=news&l=50&s=start_time&sd=desc", category: "News (Canada)", europresseSupported: true),
+    ]
+
+    // MARK: - Tech & Science
+    static let techScience: [FeedInfo] = [
         FeedInfo(title: "The Verge", url: "https://www.theverge.com/rss/index.xml", category: "Tech"),
         FeedInfo(title: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index", category: "Tech"),
+        FeedInfo(title: "Hacker News", url: "https://hnrss.org/frontpage", category: "Tech"),
         FeedInfo(title: "TechCrunch", url: "https://techcrunch.com/feed/", category: "Tech"),
-        FeedInfo(title: "Wired", url: "https://www.wired.com/feed/rss", category: "Tech"),
-        FeedInfo(title: "Engadget", url: "https://www.engadget.com/rss.xml", category: "Tech"),
-        FeedInfo(title: "GitHub Blog", url: "https://github.blog/feed/", category: "Tech"),
-        FeedInfo(title: "MIT Technology Review", url: "https://www.technologyreview.com/feed/", category: "Tech"),
-    ]
-    
-    // MARK: - News International
-    static let newsInternational: [FeedInfo] = [
-        FeedInfo(title: "BBC News", url: "https://feeds.bbci.co.uk/news/rss.xml", category: "News"),
-        FeedInfo(title: "Reuters", url: "https://www.reutersagency.com/feed/", category: "News"),
-        FeedInfo(title: "NPR News", url: "https://feeds.npr.org/1001/rss.xml", category: "News"),
-        FeedInfo(title: "The Guardian", url: "https://www.theguardian.com/world/rss", category: "News"),
-        FeedInfo(title: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml", category: "News"),
-    ]
-    
-    // MARK: - Apple & Development
-    static let appleDev: [FeedInfo] = [
-        FeedInfo(title: "Daring Fireball", url: "https://daringfireball.net/feeds/main", category: "Apple"),
-        FeedInfo(title: "Six Colors", url: "https://feedpress.me/sixcolors", category: "Apple"),
-        FeedInfo(title: "MacStories", url: "https://www.macstories.net/feed/", category: "Apple"),
+        FeedInfo(title: "Numerama", url: "https://www.numerama.com/feed/", category: "Tech"),
+        FeedInfo(title: "Frandroid", url: "https://www.frandroid.com/feed", category: "Tech"),
+        FeedInfo(title: "MacGeneration", url: "https://www.macg.co/rss.xml", category: "Apple"),
         FeedInfo(title: "9to5Mac", url: "https://9to5mac.com/feed/", category: "Apple"),
         FeedInfo(title: "MacRumors", url: "https://feeds.macrumors.com/MacRumors-All", category: "Apple"),
-        FeedInfo(title: "Swift by Sundell", url: "https://www.swiftbysundell.com/rss", category: "Development"),
-        FeedInfo(title: "Hacking with Swift", url: "https://www.hackingwithswift.com/articles/rss", category: "Development"),
-    ]
-    
-    // MARK: - Other categories
-    static let other: [FeedInfo] = [
-        // Science
-        FeedInfo(title: "Nature", url: "https://www.nature.com/nature.rss", category: "Science"),
-        FeedInfo(title: "Science Daily", url: "https://www.sciencedaily.com/rss/all.xml", category: "Science"),
-        
-        // AI
+        FeedInfo(title: "Science & Vie", url: "https://www.science-et-vie.com/feed", category: "Science", europresseSupported: true),
         FeedInfo(title: "OpenAI Blog", url: "https://openai.com/blog/rss/", category: "AI"),
-        FeedInfo(title: "Anthropic News", url: "https://www.anthropic.com/news/rss.xml", category: "AI"),
-        
-        // Security
-        FeedInfo(title: "Krebs on Security", url: "https://krebsonsecurity.com/feed/", category: "Security"),
-        FeedInfo(title: "Schneier on Security", url: "https://www.schneier.com/feed/atom/", category: "Security"),
-        
-        // Space
-        FeedInfo(title: "NASA Breaking News", url: "https://www.nasa.gov/rss/dyn/breaking_news.rss", category: "Space"),
-        FeedInfo(title: "ESA", url: "https://www.esa.int/rssfeed/Our_Activities/Space_News", category: "Space"),
-        
-        // Reddit
-        FeedInfo(title: "r/worldnews", url: "https://www.reddit.com/r/worldnews/.rss", category: "Reddit"),
-        FeedInfo(title: "r/technology", url: "https://www.reddit.com/r/technology/.rss", category: "Reddit"),
-        FeedInfo(title: "r/programming", url: "https://www.reddit.com/r/programming/.rss", category: "Reddit"),
     ]
     
+    // MARK: - Sports
+    static let sports: [FeedInfo] = [
+        FeedInfo(title: "L'Équipe", url: "https://www.lequipe.fr/rss/actu_rss.xml", category: "Sports", europresseSupported: true),
+        FeedInfo(title: "Eurosport", url: "https://www.eurosport.fr/rss.xml", category: "Sports"),
+    ]
+
     // MARK: - All feeds combined
     static let feeds: [FeedInfo] = {
         var all: [FeedInfo] = []
-        // Europresse-compatible feeds first (highlighted)
-        all.append(contentsOf: europresseFranceNational)
-        all.append(contentsOf: europresseFranceRegional)
-        all.append(contentsOf: europresseFranceScience)
-        all.append(contentsOf: europresseBelgium)
-        all.append(contentsOf: europresseSwissLux)
-        all.append(contentsOf: europresseInternational)
-        // Other feeds
-        all.append(contentsOf: franceTech)
-        all.append(contentsOf: franceOther)
-        all.append(contentsOf: tech)
-        all.append(contentsOf: newsInternational)
-        all.append(contentsOf: appleDev)
-        all.append(contentsOf: other)
+        all.append(contentsOf: franceNews)
+        all.append(contentsOf: usNews)
+        all.append(contentsOf: ukNews)
+        all.append(contentsOf: germanyNews)
+        all.append(contentsOf: belgiumNews)
+        all.append(contentsOf: spainNews)
+        all.append(contentsOf: italyNews)
+        all.append(contentsOf: switzerlandNews)
+        all.append(contentsOf: canadaNews)
+        all.append(contentsOf: techScience)
+        all.append(contentsOf: sports)
         return all
     }()
     
+    // Custom sort order for categories
     static var categories: [String] {
-        Array(Set(feeds.map { $0.category })).sorted()
+        let order: [String] = [
+            "News (France)",
+            "News (Belgium)",
+            "News (Switzerland)",
+            "News (Canada)",
+            "News (USA)",
+            "News (UK)",
+            "News (Germany)",
+            "News (Spain)",
+            "News (Italy)",
+            "Tech",
+            "Apple",
+            "Science",
+            "AI",
+            "Sports"
+        ]
+        
+        // Get all unique categories present in feeds
+        let available = Set(feeds.map { $0.category })
+        
+        // Return ordered categories that exist, followed by any others sorted alphabetically
+        let knownSorted = order.filter { available.contains($0) }
+        let others = available.filter { !order.contains($0) }.sorted()
+        
+        return knownSorted + others
     }
     
     static func feeds(for category: String) -> [FeedInfo] {
@@ -210,83 +175,32 @@ struct DefaultFeeds {
     
     // MARK: - Europresse Domain Detection
     
-    /// Domains of news sources available on Europresse (from Ophirofox)
+    /// Domains of news sources available on Europresse
     static let europresseDomains: Set<String> = [
-        // France - National
-        "lemonde.fr",
-        "lefigaro.fr",
-        "liberation.fr",
-        "lexpress.fr",
-        "lepoint.fr",
-        "nouvelobs.com",
-        "lesechos.fr",
-        "la-croix.com",
-        "humanite.fr",
-        "monde-diplomatique.fr",
-        "courrierinternational.com",
-        "latribune.fr",
-        "lopinion.fr",
-        "challenges.fr",
-        "mediapart.fr",
-        "arretsurimages.net",
-        "usinenouvelle.com",
-        "telerama.fr",
-        
-        // France - Regional
-        "leparisien.fr",
-        "ouest-france.fr",
-        "sudouest.fr",
-        "ladepeche.fr",
-        "lavoixdunord.fr",
-        "laprovence.com",
-        "nicematin.com",
-        "corsematin.com",
-        "estrepublicain.fr",
-        "letelegramme.fr",
-        "leprogres.fr",
-        "lamontagne.fr",
-        "leberry.fr",
-        "lanouvellerepublique.fr",
-        "larepubliquedespyrenees.fr",
-        "courrierdesmaires.fr",
-        
-        // France - Science
-        "sciencesetavenir.fr",
-        "larecherche.fr",
-        "science-et-vie.com",
-        "journaldunet.com",
-        "lsa-conso.fr",
+        // France
+        "lemonde.fr", "lefigaro.fr", "liberation.fr", "lexpress.fr", "lepoint.fr", "nouvelobs.com",
+        "lesechos.fr", "la-croix.com", "humanite.fr", "monde-diplomatique.fr", "courrierinternational.com",
+        "latribune.fr", "lopinion.fr", "challenges.fr", "mediapart.fr", "arretsurimages.net",
+        "usinenouvelle.com", "telerama.fr", "leparisien.fr", "ouest-france.fr", "sudouest.fr",
+        "ladepeche.fr", "lavoixdunord.fr", "laprovence.com", "nicematin.com", "corsematin.com",
+        "estrepublicain.fr", "letelegramme.fr", "leprogres.fr", "lamontagne.fr", "leberry.fr",
+        "lanouvellerepublique.fr", "larepubliquedespyrenees.fr", "courrierdesmaires.fr",
+        "sciencesetavenir.fr", "larecherche.fr", "science-et-vie.com", "journaldunet.com", "lsa-conso.fr",
         
         // Belgium
-        "lesoir.be",
-        "lalibre.be",
-        "lavenir.net",
-        "dhnet.be",
-        "sudinfo.be",
-        "levif.be",
-        "trends.levif.be",
-        "knack.be",
-        "demorgen.be",
-        "standaard.be",
-        "hln.be",
-        "nieuwsblad.be",
-        "gva.be",
+        "lesoir.be", "lalibre.be", "lavenir.net", "dhnet.be", "sudinfo.be", "levif.be",
+        "trends.levif.be", "knack.be", "demorgen.be", "standaard.be", "hln.be", "nieuwsblad.be", "gva.be",
         
         // Switzerland
-        "letemps.ch",
+        "letemps.ch", "nzz.ch", "tagesanzeiger.ch",
         
-        // International
-        "ft.com",
-        "economist.com",
-        "lorientlejour.com",
-        "jeuneafrique.com",
-        "elpais.com",
+        // UK/US/International
+        "ft.com", "economist.com", "nytimes.com", "washingtonpost.com", "theguardian.com", "independent.co.uk",
         
-        // Other French sources on Europresse
-        "acteurspublics.fr",
-        "investir.lesechos.fr",
-        "pressreader.com",
-        "lettreaudiovisuel.com",
+        // Spain/Italy
+        "elpais.com", "elmundo.es", "abc.es", "lavanguardia.com",
+        "repubblica.it", "corriere.it", "lastampa.it", "ilsole24ore.com",
+        "nationalpost.com", "theglobeandmail.com", "thestar.com"
     ]
     
     /// Check if an article URL is from an Europresse-supported source
