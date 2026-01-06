@@ -164,7 +164,7 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
     var accentColor: Color {
         switch self {
         case .system:
-            return Color.accentColor
+            return Color.blue
         case .light:
             return Color.blue
         case .dark:

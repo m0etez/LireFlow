@@ -117,6 +117,23 @@ struct ContentView: View {
                 userInfo: ["isReading": newValue != nil]
             )
         }
+        .onChange(of: feeds) { _, _ in
+            // Reset selection if selected feed no longer exists
+            if case .feed(let feed) = selectedSidebarItem {
+                if !feeds.contains(where: { $0.id == feed.id }) &&
+                   !folders.flatMap({ $0.feeds }).contains(where: { $0.id == feed.id }) {
+                    selectedSidebarItem = .all
+                }
+            }
+        }
+        .onChange(of: folders) { _, _ in
+            // Reset selection if selected folder no longer exists
+            if case .folder(let folder) = selectedSidebarItem {
+                if !folders.contains(where: { $0.id == folder.id }) {
+                    selectedSidebarItem = .all
+                }
+            }
+        }
         .applyTheme(currentTheme)
         .applyTheme(currentTheme)
         .transform(attachSheetNotifications)
@@ -192,22 +209,35 @@ struct ContentView: View {
         case .archived:
             result = articles.filter { $0.isArchived }
         case .folder(let folder):
+            // Safe access to folder feeds - check if folder still exists
+            guard folders.contains(where: { $0.id == folder.id }) else {
+                return articles.filter { !$0.isArchived }
+            }
             result = folder.feeds.flatMap { $0.articles }.filter { !$0.isArchived }
         case .feed(let feed):
+            // Validate feed still exists
+            guard feeds.contains(where: { $0.id == feed.id }) ||
+                  folders.flatMap({ $0.feeds }).contains(where: { $0.id == feed.id }) else {
+                return articles.filter { !$0.isArchived }
+            }
             result = feed.articles.filter { !$0.isArchived }
         case .readingList(let readingList):
+            // Validate reading list still exists
+            guard readingLists.contains(where: { $0.id == readingList.id }) else {
+                return articles.filter { !$0.isArchived }
+            }
             result = readingList.articles.filter { !$0.isArchived }
         case .none:
             result = articles.filter { !$0.isArchived }
         }
-        
+
         if !searchText.isEmpty {
             result = result.filter {
                 $0.title.localizedCaseInsensitiveContains(searchText) ||
                 $0.plainTextSummary.localizedCaseInsensitiveContains(searchText)
             }
         }
-        
+
         return result.sorted { $0.publishedDate > $1.publishedDate }
     }
     

@@ -286,51 +286,50 @@ struct OnboardingSheet: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 ForEach(AppTheme.allCases.filter { $0 != .system }, id: \.self) { theme in
                     let isPremium = theme.isPremium && !storeService.isPro
-                    Button {
-                        if !isPremium {
-                            configService.config.selectedTheme = theme
-                        }
-                    } label: {
-                        VStack(spacing: 8) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(theme.backgroundColor)
-                                    .frame(height: 60)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(configService.config.selectedTheme == theme ? theme.accentColor : Color.clear, lineWidth: 3)
-                                    )
-                                    .overlay(
-                                        Image(systemName: theme.icon)
-                                            .font(.title2)
-                                            .foregroundStyle(theme.accentColor)
-                                    )
-                                
-                                if isPremium {
+                    VStack(spacing: 8) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(theme.backgroundColor)
+                                .frame(height: 60)
+                                .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(.black.opacity(0.4))
-                                        .frame(height: 60)
-                                    Image(systemName: "lock.fill")
-                                        .font(.title3)
-                                        .foregroundStyle(.white)
-                                }
+                                        .stroke(configService.config.selectedTheme == theme ? theme.accentColor : Color.clear, lineWidth: 3)
+                                )
+                                .overlay(
+                                    Image(systemName: theme.icon)
+                                        .font(.title2)
+                                        .foregroundStyle(theme.accentColor)
+                                )
+
+                            if isPremium {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(.black.opacity(0.4))
+                                    .frame(height: 60)
+                                Image(systemName: "lock.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
                             }
-                            
-                            HStack(spacing: 4) {
-                                Text(theme.displayName)
-                                    .font(.caption)
-                                    .fontWeight(configService.config.selectedTheme == theme ? .semibold : .regular)
-                                    .foregroundStyle(isPremium ? .secondary : (configService.config.selectedTheme == theme ? theme.accentColor : .secondary))
-                                if isPremium {
-                                    Image(systemName: "star.fill")
-                                        .font(.system(size: 8))
-                                        .foregroundStyle(.orange)
-                                }
+                        }
+
+                        HStack(spacing: 4) {
+                            Text(theme.displayName)
+                                .font(.caption)
+                                .fontWeight(configService.config.selectedTheme == theme ? .semibold : .regular)
+                                .foregroundStyle(isPremium ? .secondary : (configService.config.selectedTheme == theme ? theme.accentColor : .secondary))
+                            if isPremium {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 8))
+                                    .foregroundStyle(.orange)
                             }
                         }
                     }
-                    .buttonStyle(.plain)
-                    .disabled(isPremium)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if !isPremium {
+                            configService.config.selectedTheme = theme
+                        }
+                    }
+                    .opacity(isPremium ? 0.7 : 1.0)
                 }
             }
             .padding(.horizontal, 24)
@@ -585,37 +584,36 @@ struct OnboardingSheet: View {
                                 .padding(.horizontal, 4)
                             
                             ForEach(DefaultFeeds.feeds(for: category), id: \.url) { feedInfo in
-                                Button {
+                                HStack(spacing: 12) {
+                                    Image(systemName: selectedFeeds.contains(feedInfo.url) ? "checkmark.circle.fill" : "circle")
+                                        .font(.title3)
+                                        .foregroundStyle(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.secondary)
+                                        .contentTransition(.symbolEffect(.replace))
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(feedInfo.title)
+                                            .font(.body)
+                                            .foregroundStyle(.primary)
+                                            .multilineTextAlignment(.leading)
+                                    }
+
+                                    Spacer()
+                                }
+                                .padding(12)
+                                .background(Color.platformSecondaryBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.clear, lineWidth: 1)
+                                )
+                                .contentShape(Rectangle())
+                                .onTapGesture {
                                     if selectedFeeds.contains(feedInfo.url) {
                                         selectedFeeds.remove(feedInfo.url)
                                     } else {
                                         selectedFeeds.insert(feedInfo.url)
                                     }
-                                } label: {
-                                    HStack(spacing: 12) {
-                                        Image(systemName: selectedFeeds.contains(feedInfo.url) ? "checkmark.circle.fill" : "circle")
-                                            .font(.title3)
-                                            .foregroundStyle(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.secondary)
-                                            .contentTransition(.symbolEffect(.replace))
-                                        
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(feedInfo.title)
-                                                .font(.body)
-                                                .foregroundStyle(.primary)
-                                                .multilineTextAlignment(.leading)
-                                        }
-                                        
-                                        Spacer()
-                                    }
-                                    .padding(12)
-                                    .background(Color.platformSecondaryBackground)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(selectedFeeds.contains(feedInfo.url) ? Color.accentColor : Color.clear, lineWidth: 1)
-                                    )
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
@@ -652,35 +650,34 @@ struct OnboardingSheet: View {
     }
     
     private func portalRow(_ portal: EuropressePortal?, isSelected: Bool) -> some View {
-        Button {
-            configService.config.europressePortal = portal
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(portal?.name ?? "None (Skip Europresse)")
-                        .font(.subheadline)
-                        .foregroundStyle(portal == nil ? .secondary : .primary)
-                    
-                    if portal == nil {
-                        Text("You can configure this later in Settings")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.blue)
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(portal?.name ?? NSLocalizedString("None (Skip Europresse)", comment: ""))
+                    .font(.subheadline)
+                    .foregroundStyle(portal == nil ? .secondary : .primary)
+
+                if portal == nil {
+                    Text(NSLocalizedString("You can configure this later in Settings", comment: ""))
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                 }
             }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .background(isSelected ? Color.blue.opacity(0.1) : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Spacer()
+
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.blue)
+            }
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(isSelected ? Color.blue.opacity(0.1) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            configService.config.europressePortal = portal
+        }
     }
     
     // MARK: - Pro Step

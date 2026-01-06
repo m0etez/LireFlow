@@ -133,6 +133,20 @@
 "Add new feed" = "Ajouter un nouveau flux";
 "Search articles" = "Rechercher des articles";
 
+/* Sidebar Actions */
+"Rename" = "Renommer";
+"Delete" = "Supprimer";
+"Move to..." = "Déplacer vers...";
+"None (Remove from folder)" = "Aucun (Retirer du dossier)";
+"Rename Folder" = "Renommer le dossier";
+"Enter a new name for the folder" = "Entrez un nouveau nom pour le dossier";
+"Rename Feed" = "Renommer le flux";
+"Feed Name" = "Nom du flux";
+"Enter a new name for the feed" = "Entrez un nouveau nom pour le flux";
+"Toggle Appearance" = "Changer l'apparence";
+"Folders" = "Dossiers";
+"Close" = "Fermer";
+
 /* Default Feeds Categories */
 "News (France)" = "Actualités (France)";
 "News (Belgium)" = "Actualités (Belgique)";
@@ -241,3 +255,4 @@
 /* Weather Widget Refinements */
 "Hi, the temperature is %lld°" = "Salut, il fait %lld°";
 "and we are %@" = "et nous sommes %@";
+"Open in Weather" = "Ouvrir dans Météo";

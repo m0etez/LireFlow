@@ -23,8 +23,6 @@ struct DefaultFeeds {
         FeedInfo(title: "Le Monde", url: "https://www.lemonde.fr/rss/une.xml", category: "News (France)", europresseSupported: true),
         FeedInfo(title: "Le Figaro", url: "https://www.lefigaro.fr/rss/figaro_actualites.xml", category: "News (France)", europresseSupported: true),
         FeedInfo(title: "Libération", url: "https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml", category: "News (France)", europresseSupported: true),
-        FeedInfo(title: "Les Échos", url: "https://www.lesechos.fr/rss/rss_une.xml", category: "News (France)", europresseSupported: true),
-        FeedInfo(title: "Le Parisien", url: "https://www.leparisien.fr/arc/outboundfeeds/rss/", category: "News (France)", europresseSupported: true),
         FeedInfo(title: "Ouest-France", url: "https://www.ouest-france.fr/rss/une", category: "News (France)", europresseSupported: true),
         FeedInfo(title: "France Info", url: "https://www.francetvinfo.fr/titres.rss", category: "News (France)"),
         FeedInfo(title: "20 Minutes", url: "https://www.20minutes.fr/feeds/rss-une.xml", category: "News (France)"),
@@ -52,25 +50,21 @@ struct DefaultFeeds {
     static let germanyNews: [FeedInfo] = [
         FeedInfo(title: "Tagesschau", url: "https://www.tagesschau.de/xml/rss2/", category: "News (Germany)"),
         FeedInfo(title: "Der Spiegel", url: "https://www.spiegel.de/schlagzeilen/rss/index.xml", category: "News (Germany)", europresseSupported: true),
-        FeedInfo(title: "Bild", url: "https://www.bild.de/rss/feeds/index.xml", category: "News (Germany)"),
         FeedInfo(title: "FAZ", url: "https://www.faz.net/rss/aktuell/", category: "News (Germany)", europresseSupported: true),
         FeedInfo(title: "Süddeutsche Zeitung", url: "https://rss.sueddeutsche.de/rss/Topthemen", category: "News (Germany)", europresseSupported: true),
     ]
 
     // MARK: - Belgium
     static let belgiumNews: [FeedInfo] = [
-        FeedInfo(title: "Le Soir", url: "https://www.lesoir.be/rss/cible_principale_droite.xml", category: "News (Belgium)", europresseSupported: true),
         FeedInfo(title: "La Libre", url: "https://www.lalibre.be/rss.xml", category: "News (Belgium)", europresseSupported: true),
         FeedInfo(title: "HLN", url: "https://www.hln.be/rss.xml", category: "News (Belgium)", europresseSupported: true),
         FeedInfo(title: "VRT NWS", url: "https://www.vrt.be/vrtnws/nl.rss.articles.xml", category: "News (Belgium)"),
-        FeedInfo(title: "De Standaard", url: "https://www.standaard.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c", category: "News (Belgium)", europresseSupported: true),
     ]
 
     // MARK: - Spain
     static let spainNews: [FeedInfo] = [
         FeedInfo(title: "El País", url: "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada", category: "News (Spain)", europresseSupported: true),
         FeedInfo(title: "El Mundo", url: "https://e00-elmundo.uecdn.es/elmundo/rss/portada.xml", category: "News (Spain)", europresseSupported: true),
-        FeedInfo(title: "ABC", url: "https://www.abc.es/rss/feeder/portada", category: "News (Spain)", europresseSupported: true),
         FeedInfo(title: "La Vanguardia", url: "https://www.lavanguardia.com/rss/home.xml", category: "News (Spain)", europresseSupported: true),
         FeedInfo(title: "20minutos", url: "https://www.20minutos.es/rss/", category: "News (Spain)"),
     ]
@@ -80,7 +74,6 @@ struct DefaultFeeds {
         FeedInfo(title: "La Repubblica", url: "https://www.repubblica.it/rss/homepage/rss2.0.xml", category: "News (Italy)", europresseSupported: true),
         FeedInfo(title: "Corriere della Sera", url: "https://www.corriere.it/rss/homepage.xml", category: "News (Italy)", europresseSupported: true),
         FeedInfo(title: "ANSA", url: "https://www.ansa.it/sito/ansait_rss.xml", category: "News (Italy)"),
-        FeedInfo(title: "La Stampa", url: "https://www.lastampa.it/rss/homepage.xml", category: "News (Italy)", europresseSupported: true),
         FeedInfo(title: "Il Sole 24 Ore", url: "https://www.ilsole24ore.com/rss/italia.xml", category: "News (Italy)", europresseSupported: true),
     ]
 
@@ -89,17 +82,11 @@ struct DefaultFeeds {
         FeedInfo(title: "Le Temps", url: "https://www.letemps.ch/rss", category: "News (Switzerland)", europresseSupported: true),
         FeedInfo(title: "NZZ", url: "https://www.nzz.ch/recent.rss", category: "News (Switzerland)", europresseSupported: true),
         FeedInfo(title: "Tages-Anzeiger", url: "https://partner-feeds.publishing.tamedia.ch/rss/tagesanzeiger/schweiz", category: "News (Switzerland)", europresseSupported: true),
-        FeedInfo(title: "RTS Info", url: "https://www.rts.ch/info/une.xml", category: "News (Switzerland)", europresseSupported: true), // Best guess for RTS
-        FeedInfo(title: "SRF News", url: "https://www.srf.ch/news/bnf/rss/1", category: "News (Switzerland)", europresseSupported: true),
     ]
 
     // MARK: - Canada
     static let canadaNews: [FeedInfo] = [
-        FeedInfo(title: "CBC News", url: "https://www.cbc.ca/cmlink/rss-topstories", category: "News (Canada)"),
-        FeedInfo(title: "CTV News", url: "https://www.ctvnews.ca/rss/ctvnews-ca-top-stories-public-rss-1.822009", category: "News (Canada)"),
-        FeedInfo(title: "The Globe and Mail", url: "https://www.theglobeandmail.com/rss/gam/TopStories/", category: "News (Canada)", europresseSupported: true),
-        FeedInfo(title: "National Post", url: "https://nationalpost.com/feed", category: "News (Canada)", europresseSupported: true),
-        FeedInfo(title: "Toronto Star", url: "https://www.thestar.com/search/?f=rss&t=article&c=news&l=50&s=start_time&sd=desc", category: "News (Canada)", europresseSupported: true),
+        FeedInfo(title: "CBC News", url: "https://www.cbc.ca/webfeed/rss/rss-topstories", category: "News (Canada)"),
     ]
 
     // MARK: - Tech & Science
@@ -110,17 +97,40 @@ struct DefaultFeeds {
         FeedInfo(title: "TechCrunch", url: "https://techcrunch.com/feed/", category: "Tech"),
         FeedInfo(title: "Numerama", url: "https://www.numerama.com/feed/", category: "Tech"),
         FeedInfo(title: "Frandroid", url: "https://www.frandroid.com/feed", category: "Tech"),
-        FeedInfo(title: "MacGeneration", url: "https://www.macg.co/rss.xml", category: "Apple"),
+        FeedInfo(title: "MacGeneration", url: "http://rss.macg.co", category: "Apple"),
         FeedInfo(title: "9to5Mac", url: "https://9to5mac.com/feed/", category: "Apple"),
         FeedInfo(title: "MacRumors", url: "https://feeds.macrumors.com/MacRumors-All", category: "Apple"),
         FeedInfo(title: "Science & Vie", url: "https://www.science-et-vie.com/feed", category: "Science", europresseSupported: true),
-        FeedInfo(title: "OpenAI Blog", url: "https://openai.com/blog/rss/", category: "AI"),
+    ]
+    
+    // MARK: - Arts & Design
+    static let artsDesign: [FeedInfo] = [
+        FeedInfo(title: "Colossal", url: "https://www.thisiscolossal.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Hyperallergic", url: "https://hyperallergic.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Dezeen", url: "https://www.dezeen.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Designboom", url: "https://www.designboom.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Booooooom", url: "https://www.booooooom.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Juxtapoz", url: "https://www.juxtapoz.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Artsy", url: "https://www.artsy.net/rss/news", category: "Arts & Design"),
+        FeedInfo(title: "My Modern Met", url: "https://mymodernmet.com/feed/", category: "Arts & Design"),
+        FeedInfo(title: "Creative Bloq", url: "https://www.creativebloq.com/feeds.xml", category: "Arts & Design"),
+    ]
+    
+    // MARK: - Fashion
+    static let fashion: [FeedInfo] = [
+        FeedInfo(title: "Vogue", url: "https://www.vogue.com/feed/rss", category: "Fashion"),
+        FeedInfo(title: "W Magazine", url: "https://www.wmagazine.com/rss", category: "Fashion"),
+        FeedInfo(title: "Elle Fashion", url: "https://www.elle.com/rss/fashion.xml", category: "Fashion"),
+    ]
+    
+    // MARK: - Crafts & DIY
+    static let crafts: [FeedInfo] = [
+        FeedInfo(title: "CraftGossip", url: "https://craftgossip.com/feed", category: "Crafts & DIY"),
     ]
     
     // MARK: - Sports
     static let sports: [FeedInfo] = [
-        FeedInfo(title: "L'Équipe", url: "https://www.lequipe.fr/rss/actu_rss.xml", category: "Sports", europresseSupported: true),
-        FeedInfo(title: "Eurosport", url: "https://www.eurosport.fr/rss.xml", category: "Sports"),
+        FeedInfo(title: "Sport.fr", url: "https://www.sport.fr/rss", category: "Sports"),
     ]
 
     // MARK: - All feeds combined
@@ -136,6 +146,9 @@ struct DefaultFeeds {
         all.append(contentsOf: switzerlandNews)
         all.append(contentsOf: canadaNews)
         all.append(contentsOf: techScience)
+        all.append(contentsOf: artsDesign)
+        all.append(contentsOf: fashion)
+        all.append(contentsOf: crafts)
         all.append(contentsOf: sports)
         return all
     }()
@@ -155,7 +168,9 @@ struct DefaultFeeds {
             "Tech",
             "Apple",
             "Science",
-            "AI",
+            "Arts & Design",
+            "Fashion",
+            "Crafts & DIY",
             "Sports"
         ]
         

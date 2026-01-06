@@ -13,6 +13,7 @@ struct LireFlowApp: App {
             ContentView()
                 .frame(minWidth: 900, minHeight: 600)
                 .environmentObject(storeService)
+                .tint(.blue)
         }
         .modelContainer(LireFlowAppCore.sharedModelContainer)
         .windowStyle(.hiddenTitleBar)

@@ -134,6 +134,20 @@
 "Add new feed" = "Add new feed";
 "Search articles" = "Search articles";
 
+/* Sidebar Actions */
+"Rename" = "Rename";
+"Delete" = "Delete";
+"Move to..." = "Move to...";
+"None (Remove from folder)" = "None (Remove from folder)";
+"Rename Folder" = "Rename Folder";
+"Enter a new name for the folder" = "Enter a new name for the folder";
+"Rename Feed" = "Rename Feed";
+"Feed Name" = "Feed Name";
+"Enter a new name for the feed" = "Enter a new name for the feed";
+"Toggle Appearance" = "Toggle Appearance";
+"Folders" = "Folders";
+"Close" = "Close";
+
 /* Default Feeds Categories */
 "News (France)" = "News (France)";
 "News (Belgium)" = "News (Belgium)";

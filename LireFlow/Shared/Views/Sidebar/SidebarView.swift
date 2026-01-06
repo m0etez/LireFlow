@@ -91,17 +91,17 @@ struct SidebarView: View {
                     .font(.system(size: 20))
             }
             .buttonStyle(.plain)
-            .help("Paramètres")
+            .help(NSLocalizedString("Settings", comment: ""))
 
             Button {
                 showingAddFolder = true
             } label: {
                 Image(systemName: "folder.badge.plus")
-                    .font(.system(size: 20)) // Increased size
+                    .font(.system(size: 20))
             }
             .buttonStyle(.plain)
-            .help("Nouveau dossier")
-            
+            .help(NSLocalizedString("New Folder", comment: ""))
+
             #if os(iOS)
             Button {
                 Task {
@@ -112,27 +112,27 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             #endif
-            
-            
+
+
             Button {
                 toggleAppearance()
             } label: {
                 Image(systemName: appearanceIcon)
-                    .font(.system(size: 20)) // Increased size
+                    .font(.system(size: 20))
                     .contentTransition(.symbolEffect(.replace))
             }
             .buttonStyle(.plain)
-            .help("Changer l'apparence")
-            
+            .help(NSLocalizedString("Toggle Appearance", comment: ""))
+
             Spacer()
-            
+
             Button {
                 showingAddFeed = true
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "plus")
                         .font(.system(size: 14, weight: .bold))
-                    Text("Ajouter")
+                    Text(NSLocalizedString("Add", comment: ""))
                         .font(.system(size: 14, weight: .semibold))
                 }
                 .foregroundStyle(configService.config.selectedTheme.accentColor)
@@ -146,7 +146,7 @@ struct SidebarView: View {
                 )
             }
             .buttonStyle(.plain)
-            .help("Ajouter un flux")
+            .help(NSLocalizedString("Add new feed", comment: ""))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -158,7 +158,7 @@ struct SidebarView: View {
             // Weather
             if configService.config.showWeather {
                 WeatherWidget()
-                    .listRowInsets(EdgeInsets(top: 0, leading: 6, bottom: 8, trailing: 6))
+                    .listRowInsets(EdgeInsets(top: 4, leading: 2, bottom: 10, trailing: 2))
                     .listRowBackground(Color.clear)
             }
 
@@ -166,7 +166,7 @@ struct SidebarView: View {
             Section {
                 SidebarRow(
                     icon: "tray.full",
-                    title: "Tous les articles",
+                    title: NSLocalizedString("All Articles", comment: ""),
                     count: allArticles.count,
                     showCount: configService.config.showUnreadCount,
                     color: .blue
@@ -175,7 +175,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "circle.fill",
-                    title: "Non lus",
+                    title: NSLocalizedString("Unread", comment: ""),
                     count: allArticles.filter { !$0.isRead }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .orange
@@ -184,7 +184,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "star.fill",
-                    title: "Favoris",
+                    title: NSLocalizedString("Starred", comment: ""),
                     count: allArticles.filter { $0.isStarred }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .yellow
@@ -193,7 +193,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "archivebox",
-                    title: "Archivés",
+                    title: NSLocalizedString("Archived", comment: ""),
                     count: allArticles.filter { $0.isArchived }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .gray
@@ -208,7 +208,7 @@ struct SidebarView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
                             .font(.caption)
-                        TextField("Rechercher...", text: $feedSearchText)
+                        TextField(NSLocalizedString("Search", comment: ""), text: $feedSearchText)
                             .textFieldStyle(.plain)
                         if !feedSearchText.isEmpty {
                             Button {
@@ -225,7 +225,7 @@ struct SidebarView: View {
             }
 
             // User Folders
-            Section("Dossiers") {
+            Section(NSLocalizedString("Folders", comment: "")) {
                 ForEach(filteredFolders) { folder in
                     FolderRow(
                         folder: folder,
@@ -250,15 +250,15 @@ struct SidebarView: View {
                 Button {
                     showingAddFolder = true
                 } label: {
-                    Label("Nouveau dossier", systemImage: "plus")
+                    Label(NSLocalizedString("New Folder", comment: ""), systemImage: "plus")
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             }
-            
+
             // Uncategorized Feeds
             if !filteredFeeds.isEmpty {
-                Section("Flux") {
+                Section(NSLocalizedString("Feeds", comment: "")) {
                     ForEach(filteredFeeds) { feed in
                         FeedRow(feed: feed, showCount: configService.config.showUnreadCount)
                             .tag(SidebarItem.feed(feed))
@@ -268,29 +268,29 @@ struct SidebarView: View {
                                     newFeedName = feed.title
                                     showingRenameFeed = true
                                 } label: {
-                                    Label("Renommer", systemImage: "pencil")
+                                    Label(NSLocalizedString("Rename", comment: ""), systemImage: "pencil")
                                 }
 
                                 Divider()
 
                                 // Move to folder
-                                Menu("Déplacer vers...") {
-                                    Button("Aucun (Retirer du dossier)") {
+                                Menu(NSLocalizedString("Move to...", comment: "")) {
+                                    Button(NSLocalizedString("None (Remove from folder)", comment: "")) {
                                         moveFeed(feed, to: nil)
                                     }
-                                    
+
                                     Divider()
-                                    
+
                                     ForEach(folders) { folder in
                                         Button(folder.name) {
                                             moveFeed(feed, to: folder)
                                         }
                                     }
                                 }
-                                
+
                                 Divider()
-                                
-                                Button("Supprimer", role: .destructive) {
+
+                                Button(NSLocalizedString("Delete", comment: ""), role: .destructive) {
                                     deleteFeed(feed)
                                 }
                             }
@@ -300,21 +300,21 @@ struct SidebarView: View {
             }
             
             // Reading Lists
-            Section("Listes de lecture") {
+            Section(NSLocalizedString("Reading Lists", comment: "")) {
                 ForEach(readingLists) { readingList in
                     ReadingListRow(readingList: readingList, showCount: configService.config.showUnreadCount)
                         .tag(SidebarItem.readingList(readingList))
                         .contextMenu {
-                            Button("Supprimer", role: .destructive) {
+                            Button(NSLocalizedString("Delete", comment: ""), role: .destructive) {
                                 deleteReadingList(readingList)
                             }
                         }
                 }
-                
+
                 Button {
                     showingAddReadingList = true
                 } label: {
-                    Label("Nouvelle liste", systemImage: "plus")
+                    Label(NSLocalizedString("New Reading List", comment: ""), systemImage: "plus")
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -345,23 +345,23 @@ struct SidebarView: View {
         .sheet(isPresented: $showingSettings) {
              SettingsSheet()
         }
-        .alert("Renommer le dossier", isPresented: $showingRenameFolder) {
-            TextField("Nom du dossier", text: $newFolderName)
-            Button("Annuler", role: .cancel) { }
-            Button("Renommer") {
+        .alert(NSLocalizedString("Rename Folder", comment: ""), isPresented: $showingRenameFolder) {
+            TextField(NSLocalizedString("Folder Name", comment: ""), text: $newFolderName)
+            Button(NSLocalizedString("Cancel", comment: ""), role: .cancel) { }
+            Button(NSLocalizedString("Rename", comment: "")) {
                 renameFolder()
             }
         } message: {
-            Text("Entrez un nouveau nom pour le dossier")
+            Text(NSLocalizedString("Enter a new name for the folder", comment: ""))
         }
-        .alert("Renommer le flux", isPresented: $showingRenameFeed) {
-            TextField("Nom du flux", text: $newFeedName)
-            Button("Annuler", role: .cancel) { }
-            Button("Renommer") {
+        .alert(NSLocalizedString("Rename Feed", comment: ""), isPresented: $showingRenameFeed) {
+            TextField(NSLocalizedString("Feed Name", comment: ""), text: $newFeedName)
+            Button(NSLocalizedString("Cancel", comment: ""), role: .cancel) { }
+            Button(NSLocalizedString("Rename", comment: "")) {
                 renameFeed()
             }
         } message: {
-            Text("Entrez un nouveau nom pour le flux")
+            Text(NSLocalizedString("Enter a new name for the feed", comment: ""))
         }
     }
     
@@ -454,7 +454,7 @@ struct SidebarRow: View {
         .background {
             if isHovered {
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(configService.config.hoverColorHex.isEmpty ? Color.accentColor.opacity(0.15) : Color(hex: configService.config.hoverColorHex))
+                    .fill(configService.config.hoverColorHex.isEmpty ? Color.gray.opacity(0.12) : Color(hex: configService.config.hoverColorHex))
             }
         }
         .onHover { isHovered = $0 }

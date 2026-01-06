@@ -11,7 +11,7 @@ struct LireFlowApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(storeService)
-                .tint(configService.config.selectedTheme.accentColor)
+                .tint(.blue)
                 .environment(\.colorScheme, configService.config.selectedTheme.colorScheme ?? .light)
         }
         .modelContainer(LireFlowAppCore.sharedModelContainer)

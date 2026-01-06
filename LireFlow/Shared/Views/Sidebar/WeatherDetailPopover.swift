@@ -6,6 +6,7 @@ struct WeatherDetailPopover: View {
     let locationName: String
     
     @Environment(\.openURL) private var openURL
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -14,6 +15,20 @@ struct WeatherDetailPopover: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 24) {
+                // Close button
+                HStack {
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal)
+                
                 // Header
                 VStack(spacing: 8) {
                     Text(locationName)
@@ -36,7 +51,6 @@ struct WeatherDetailPopover: View {
                         .font(.title3)
                         .foregroundStyle(.white.opacity(0.9))
                 }
-                .padding(.top, 20)
                 
                 // Details Grid
                 LazyVGrid(columns: [
@@ -44,16 +58,16 @@ struct WeatherDetailPopover: View {
                     GridItem(.flexible()),
                     GridItem(.flexible())
                 ], spacing: 16) {
-                    DetailItem(icon: "thermometer.medium", label: "Feels Like", value: "\(Int(weather.apparentTemperature))°")
-                    DetailItem(icon: "wind", label: "Wind", value: "\(Int(weather.windSpeed)) km/h")
-                    DetailItem(icon: "humidity", label: "Humidity", value: "\(weather.humidity)%")
+                    DetailItem(icon: "thermometer.medium", label: NSLocalizedString("Feels Like", comment: ""), value: "\(Int(weather.apparentTemperature))°")
+                    DetailItem(icon: "wind", label: NSLocalizedString("Wind", comment: ""), value: "\(Int(weather.windSpeed)) km/h")
+                    DetailItem(icon: "humidity", label: NSLocalizedString("Humidity", comment: ""), value: "\(weather.humidity)%")
                 }
                 .padding()
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                 
                 // Forecast
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("7-Day Forecast", systemImage: "calendar")
+                    Label(NSLocalizedString("7-Day Forecast", comment: ""), systemImage: "calendar")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(.white.opacity(0.8))
@@ -69,6 +83,7 @@ struct WeatherDetailPopover: View {
                                 
                                 Image(systemName: day.icon)
                                     .symbolRenderingMode(.multicolor)
+                                    .font(.title3)
                                 
                                 Spacer()
                                 
@@ -83,7 +98,7 @@ struct WeatherDetailPopover: View {
                                     .overlay(alignment: .leading) {
                                         Capsule()
                                             .fill(.white)
-                                            .frame(width: 40, height: 4) // Simplified bar for now
+                                            .frame(width: 40, height: 4)
                                     }
                                 
                                 Text("\(Int(day.temperatureMax))°")
@@ -102,14 +117,11 @@ struct WeatherDetailPopover: View {
                 
                 Button {
                     #if targetEnvironment(simulator)
-                    // Simulator doesn't support weather:// scheme/web link 403s
-                    // Use Google Weather search which is reliable
                     let query = "weather \(locationName)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "weather"
                     if let url = URL(string: "https://www.google.com/search?q=\(query)") {
                         openURL(url)
                     }
                     #else
-                    // Real device supports native Weather app deep link
                     if let url = URL(string: "weather://") {
                         openURL(url)
                     }
@@ -117,7 +129,7 @@ struct WeatherDetailPopover: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.up.right")
-                        Text("Open in Weather")
+                        Text(NSLocalizedString("Open in Weather", comment: ""))
                     }
                     .font(.headline)
                     .foregroundStyle(.white)
@@ -126,6 +138,8 @@ struct WeatherDetailPopover: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                 }
                 .buttonStyle(.plain)
+                
+                Spacer()
             }
             .padding()
         }
@@ -171,5 +185,6 @@ struct DetailItem: View {
         ],
         locationName: "Paris"
     )
-    .padding()
 }
+
+

@@ -7,93 +7,156 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		001000001 /* macOS/LireFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000000 /* macOS/LireFlowApp.swift */; };
-		001000003 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000002 /* Feed.swift */; };
-		001000005 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000004 /* Article.swift */; };
-		001000007 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000006 /* Folder.swift */; };
-		001000009 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000008 /* FeedParser.swift */; };
-		00100000B /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100000A /* FeedService.swift */; };
-		00100000D /* DefaultFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100000C /* DefaultFeeds.swift */; };
-		00100000F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100000E /* ContentView.swift */; };
-		001000011 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000010 /* SidebarView.swift */; };
-		001000013 /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000012 /* ArticleListView.swift */; };
-		001000015 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000014 /* ArticleDetailView.swift */; };
-		001000017 /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000016 /* AddFeedSheet.swift */; };
-		001000019 /* AddFolderSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000018 /* AddFolderSheet.swift */; };
-		00100001B /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00100001A /* Extensions.swift */; };
-		00100001D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00100001C /* Assets.xcassets */; };
-		001000040 /* ArticleExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000041 /* ArticleExtractor.swift */; };
-		001000050 /* ReadingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000051 /* ReadingList.swift */; };
-		001000052 /* AddReadingListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000053 /* AddReadingListSheet.swift */; };
-		001000060 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000061 /* WeatherService.swift */; };
-		001000062 /* WeatherWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000063 /* WeatherWidget.swift */; };
-		001000064 /* WeatherDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000065 /* WeatherDetailPopover.swift */; };
-		001000066 /* ConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001000067 /* ConfigService.swift */; };
-		3D11A136BE55456791E330A1 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B889BB4450574D0D918E952A /* SettingsSheet.swift */; };
-		4C2C219E9E3DC2F076E18448 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B62D061BBF6926B02715222C /* Localizable.strings */; };
-		7D6F2AE22F0707F40091A6AD /* LireFlowAppCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6F2AE12F0707F40091A6AD /* LireFlowAppCore.swift */; };
-		7D6F2AE42F0708140091A6AD /* PlatformHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D6F2AE32F0708140091A6AD /* PlatformHelpers.swift */; };
-		7DE601A92F01BB1A00963222 /* LireFlow.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 7DE601A82F01BB1A00963222 /* LireFlow.storekit */; };
-		AABB0001MENUBAR1 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABB0000MENUBAR0 /* MenuBarView.swift */; };
-		C3AB982C471B4F3A82F1C824 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7306E7DF2AD643FDB91F737A /* ImportService.swift */; };
-		CC08FCFB992E423A8F1A8905 /* ExportableModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3590CE10DA974319B72AC998 /* ExportableModels.swift */; };
-		E8DA0A28D52E45DD8580CB1C /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57305741A5EC40B2A7711AD2 /* ExportService.swift */; };
-		ONBOARD0001BUILD /* OnboardingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ONBOARD0000FILE /* OnboardingSheet.swift */; };
-		PRO00001BUILD /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRO00000FILE /* StoreService.swift */; };
-		PRO00003BUILD /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRO00002FILE /* AppTheme.swift */; };
-		PRO00005BUILD /* UpgradeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRO00004FILE /* UpgradeSheet.swift */; };
-		IOS00001BUILD /* LireFlowApp+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS00000FILE /* LireFlowApp+iOS.swift */; };
-		IOS00003BUILD /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS00002FILE /* RootView.swift */; };
-		IOS00005BUILD /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS00004FILE /* ShareSheet.swift */; };
+		/* === SHARED FILES - macOS Target === */
+		MAC_SHARED_001 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FEED /* Feed.swift */; };
+		MAC_SHARED_002 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLE /* Article.swift */; };
+		MAC_SHARED_003 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FOLDER /* Folder.swift */; };
+		MAC_SHARED_004 /* ReadingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_READINGLIST /* ReadingList.swift */; };
+		MAC_SHARED_005 /* ExportableModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_EXPORTMODELS /* ExportableModels.swift */; };
+		MAC_SHARED_006 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FEEDPARSER /* FeedParser.swift */; };
+		MAC_SHARED_007 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FEEDSERVICE /* FeedService.swift */; };
+		MAC_SHARED_008 /* DefaultFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_DEFAULTFEEDS /* DefaultFeeds.swift */; };
+		MAC_SHARED_009 /* ArticleExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLEEXTRACTOR /* ArticleExtractor.swift */; };
+		MAC_SHARED_010 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERSERVICE /* WeatherService.swift */; };
+		MAC_SHARED_011 /* ConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_CONFIGSERVICE /* ConfigService.swift */; };
+		MAC_SHARED_012 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_EXPORTSERVICE /* ExportService.swift */; };
+		MAC_SHARED_013 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_IMPORTSERVICE /* ImportService.swift */; };
+		MAC_SHARED_014 /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_STORESERVICE /* StoreService.swift */; };
+		MAC_SHARED_015 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_CONTENTVIEW /* ContentView.swift */; };
+		MAC_SHARED_016 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_SIDEBARVIEW /* SidebarView.swift */; };
+		MAC_SHARED_017 /* WeatherWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERWIDGET /* WeatherWidget.swift */; };
+		MAC_SHARED_018 /* WeatherDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERDETAIL /* WeatherDetailPopover.swift */; };
+		MAC_SHARED_019 /* WeatherAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERANIM /* WeatherAnimationView.swift */; };
+		MAC_SHARED_020 /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLELIST /* ArticleListView.swift */; };
+		MAC_SHARED_021 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLEDETAIL /* ArticleDetailView.swift */; };
+		MAC_SHARED_022 /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ADDFEEDSHEET /* AddFeedSheet.swift */; };
+		MAC_SHARED_023 /* AddFolderSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ADDFOLDERSHEET /* AddFolderSheet.swift */; };
+		MAC_SHARED_024 /* AddReadingListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ADDREADINGLIST /* AddReadingListSheet.swift */; };
+		MAC_SHARED_025 /* OnboardingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ONBOARDING /* OnboardingSheet.swift */; };
+		MAC_SHARED_026 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_SETTINGS /* SettingsSheet.swift */; };
+		MAC_SHARED_027 /* UpgradeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_UPGRADE /* UpgradeSheet.swift */; };
+		MAC_SHARED_028 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_EXTENSIONS /* Extensions.swift */; };
+		MAC_SHARED_029 /* PlatformHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_PLATFORMHELPERS /* PlatformHelpers.swift */; };
+		MAC_SHARED_030 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_APPTHEME /* AppTheme.swift */; };
+		MAC_SHARED_031 /* LireFlowAppCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_APPCORE /* LireFlowAppCore.swift */; };
+		/* === macOS-SPECIFIC FILES === */
+		MAC_SPECIFIC_001 /* LireFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = MACOS_APP /* LireFlowApp.swift */; };
+		MAC_SPECIFIC_002 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MACOS_MENUBAR /* MenuBarView.swift */; };
+		/* === macOS Resources === */
+		MAC_RES_001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES_ASSETS /* Assets.xcassets */; };
+		MAC_RES_002 /* LireFlow.storekit in Resources */ = {isa = PBXBuildFile; fileRef = RES_STOREKIT /* LireFlow.storekit */; };
+		MAC_RES_003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RES_LOCALIZABLE /* Localizable.strings */; };
+
+		/* === SHARED FILES - iOS Target === */
+		IOS_SHARED_001 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FEED /* Feed.swift */; };
+		IOS_SHARED_002 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLE /* Article.swift */; };
+		IOS_SHARED_003 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FOLDER /* Folder.swift */; };
+		IOS_SHARED_004 /* ReadingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_READINGLIST /* ReadingList.swift */; };
+		IOS_SHARED_005 /* ExportableModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_EXPORTMODELS /* ExportableModels.swift */; };
+		IOS_SHARED_006 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FEEDPARSER /* FeedParser.swift */; };
+		IOS_SHARED_007 /* FeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_FEEDSERVICE /* FeedService.swift */; };
+		IOS_SHARED_008 /* DefaultFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_DEFAULTFEEDS /* DefaultFeeds.swift */; };
+		IOS_SHARED_009 /* ArticleExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLEEXTRACTOR /* ArticleExtractor.swift */; };
+		IOS_SHARED_010 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERSERVICE /* WeatherService.swift */; };
+		IOS_SHARED_011 /* ConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_CONFIGSERVICE /* ConfigService.swift */; };
+		IOS_SHARED_012 /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_EXPORTSERVICE /* ExportService.swift */; };
+		IOS_SHARED_013 /* ImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_IMPORTSERVICE /* ImportService.swift */; };
+		IOS_SHARED_014 /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_STORESERVICE /* StoreService.swift */; };
+		IOS_SHARED_015 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_CONTENTVIEW /* ContentView.swift */; };
+		IOS_SHARED_016 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_SIDEBARVIEW /* SidebarView.swift */; };
+		IOS_SHARED_017 /* WeatherWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERWIDGET /* WeatherWidget.swift */; };
+		IOS_SHARED_018 /* WeatherDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERDETAIL /* WeatherDetailPopover.swift */; };
+		IOS_SHARED_019 /* WeatherAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_WEATHERANIM /* WeatherAnimationView.swift */; };
+		IOS_SHARED_020 /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLELIST /* ArticleListView.swift */; };
+		IOS_SHARED_021 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ARTICLEDETAIL /* ArticleDetailView.swift */; };
+		IOS_SHARED_022 /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ADDFEEDSHEET /* AddFeedSheet.swift */; };
+		IOS_SHARED_023 /* AddFolderSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ADDFOLDERSHEET /* AddFolderSheet.swift */; };
+		IOS_SHARED_024 /* AddReadingListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ADDREADINGLIST /* AddReadingListSheet.swift */; };
+		IOS_SHARED_025 /* OnboardingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_ONBOARDING /* OnboardingSheet.swift */; };
+		IOS_SHARED_026 /* SettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_SETTINGS /* SettingsSheet.swift */; };
+		IOS_SHARED_027 /* UpgradeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_UPGRADE /* UpgradeSheet.swift */; };
+		IOS_SHARED_028 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_EXTENSIONS /* Extensions.swift */; };
+		IOS_SHARED_029 /* PlatformHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_PLATFORMHELPERS /* PlatformHelpers.swift */; };
+		IOS_SHARED_030 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_APPTHEME /* AppTheme.swift */; };
+		IOS_SHARED_031 /* LireFlowAppCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARED_APPCORE /* LireFlowAppCore.swift */; };
+		/* === iOS-SPECIFIC FILES === */
+		IOS_SPECIFIC_001 /* LireFlowApp+iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS_APP /* LireFlowApp+iOS.swift */; };
+		IOS_SPECIFIC_002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS_ROOTVIEW /* RootView.swift */; };
+		IOS_SPECIFIC_003 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOS_SHARESHEET /* ShareSheet.swift */; };
+		/* === iOS Resources === */
+		IOS_RES_001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = RES_ASSETS /* Assets.xcassets */; };
+		IOS_RES_002 /* LireFlow.storekit in Resources */ = {isa = PBXBuildFile; fileRef = RES_STOREKIT /* LireFlow.storekit */; };
+		IOS_RES_003 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = RES_LOCALIZABLE /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		001000000 /* macOS/LireFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = macOS/LireFlowApp.swift; sourceTree = "<group>"; };
-		001000002 /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
-		001000004 /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
-		001000006 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
-		001000008 /* FeedParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedParser.swift; sourceTree = "<group>"; };
-		00100000A /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
-		00100000C /* DefaultFeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFeeds.swift; sourceTree = "<group>"; };
-		00100000E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		001000010 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
-		001000012 /* ArticleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListView.swift; sourceTree = "<group>"; };
-		001000014 /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
-		001000016 /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
-		001000018 /* AddFolderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFolderSheet.swift; sourceTree = "<group>"; };
-		00100001A /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		00100001C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		00100001E /* LireFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LireFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		00100001F /* LireFlow.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LireFlow.entitlements; sourceTree = "<group>"; };
-		001000041 /* ArticleExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleExtractor.swift; sourceTree = "<group>"; };
-		001000051 /* ReadingList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingList.swift; sourceTree = "<group>"; };
-		001000053 /* AddReadingListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReadingListSheet.swift; sourceTree = "<group>"; };
-		001000061 /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
-		001000063 /* WeatherWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWidget.swift; sourceTree = "<group>"; };
-		001000065 /* WeatherDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailPopover.swift; sourceTree = "<group>"; };
-		001000067 /* ConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigService.swift; sourceTree = "<group>"; };
-		3590CE10DA974319B72AC998 /* ExportableModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportableModels.swift; sourceTree = "<group>"; };
-		57305741A5EC40B2A7711AD2 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
-		5F9587CED07422CDAB3CAFA2 /* fr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		7306E7DF2AD643FDB91F737A /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
-		7D6F2AE12F0707F40091A6AD /* LireFlowAppCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LireFlowAppCore.swift; path = Shared/LireFlowAppCore.swift; sourceTree = "<group>"; };
-		7D6F2AE32F0708140091A6AD /* PlatformHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PlatformHelpers.swift; path = Shared/Utilities/PlatformHelpers.swift; sourceTree = "<group>"; };
-		7DE601A82F01BB1A00963222 /* LireFlow.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = LireFlow.storekit; sourceTree = "<group>"; };
-		AABB0000MENUBAR0 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuBarView.swift; path = macOS/MenuBarView.swift; sourceTree = "<group>"; };
-		B889BB4450574D0D918E952A /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
-		EF331E3FE6A1B2787E93C5C7 /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
-		F8B470ADC615AA481849417B /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		ONBOARD0000FILE /* OnboardingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSheet.swift; sourceTree = "<group>"; };
-		PRO00000FILE /* StoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
-		PRO00002FILE /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		PRO00004FILE /* UpgradeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeSheet.swift; sourceTree = "<group>"; };
-		IOS00000FILE /* LireFlowApp+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "LireFlowApp+iOS.swift"; path = "iOS/LireFlowApp+iOS.swift"; sourceTree = "<group>"; };
-		IOS00002FILE /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RootView.swift; path = iOS/RootView.swift; sourceTree = "<group>"; };
-		IOS00004FILE /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareSheet.swift; path = iOS/Helpers/ShareSheet.swift; sourceTree = "<group>"; };
+		/* === Shared Models === */
+		SHARED_FEED /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		SHARED_ARTICLE /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
+		SHARED_FOLDER /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
+		SHARED_READINGLIST /* ReadingList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingList.swift; sourceTree = "<group>"; };
+		SHARED_EXPORTMODELS /* ExportableModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportableModels.swift; sourceTree = "<group>"; };
+		/* === Shared Services === */
+		SHARED_FEEDPARSER /* FeedParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedParser.swift; sourceTree = "<group>"; };
+		SHARED_FEEDSERVICE /* FeedService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedService.swift; sourceTree = "<group>"; };
+		SHARED_DEFAULTFEEDS /* DefaultFeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFeeds.swift; sourceTree = "<group>"; };
+		SHARED_ARTICLEEXTRACTOR /* ArticleExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleExtractor.swift; sourceTree = "<group>"; };
+		SHARED_WEATHERSERVICE /* WeatherService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherService.swift; sourceTree = "<group>"; };
+		SHARED_CONFIGSERVICE /* ConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigService.swift; sourceTree = "<group>"; };
+		SHARED_EXPORTSERVICE /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		SHARED_IMPORTSERVICE /* ImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportService.swift; sourceTree = "<group>"; };
+		SHARED_STORESERVICE /* StoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
+		/* === Shared Views === */
+		SHARED_CONTENTVIEW /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		SHARED_SIDEBARVIEW /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		SHARED_WEATHERWIDGET /* WeatherWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWidget.swift; sourceTree = "<group>"; };
+		SHARED_WEATHERDETAIL /* WeatherDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDetailPopover.swift; sourceTree = "<group>"; };
+		SHARED_WEATHERANIM /* WeatherAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAnimationView.swift; sourceTree = "<group>"; };
+		SHARED_ARTICLELIST /* ArticleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListView.swift; sourceTree = "<group>"; };
+		SHARED_ARTICLEDETAIL /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
+		SHARED_ADDFEEDSHEET /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
+		SHARED_ADDFOLDERSHEET /* AddFolderSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFolderSheet.swift; sourceTree = "<group>"; };
+		SHARED_ADDREADINGLIST /* AddReadingListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReadingListSheet.swift; sourceTree = "<group>"; };
+		SHARED_ONBOARDING /* OnboardingSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSheet.swift; sourceTree = "<group>"; };
+		SHARED_SETTINGS /* SettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSheet.swift; sourceTree = "<group>"; };
+		SHARED_UPGRADE /* UpgradeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeSheet.swift; sourceTree = "<group>"; };
+		/* === Shared Utilities === */
+		SHARED_EXTENSIONS /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		SHARED_PLATFORMHELPERS /* PlatformHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformHelpers.swift; sourceTree = "<group>"; };
+		SHARED_APPTHEME /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		/* === Shared Core === */
+		SHARED_APPCORE /* LireFlowAppCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LireFlowAppCore.swift; sourceTree = "<group>"; };
+		/* === macOS Specific === */
+		MACOS_APP /* LireFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LireFlowApp.swift; sourceTree = "<group>"; };
+		MACOS_MENUBAR /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		MACOS_ENTITLEMENTS /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		MACOS_INFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		/* === iOS Specific === */
+		IOS_APP /* LireFlowApp+iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LireFlowApp+iOS.swift"; sourceTree = "<group>"; };
+		IOS_ROOTVIEW /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		IOS_SHARESHEET /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		IOS_ENTITLEMENTS /* iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iOS.entitlements; sourceTree = "<group>"; };
+		IOS_INFO /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		/* === Resources === */
+		RES_ASSETS /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		RES_STOREKIT /* LireFlow.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = LireFlow.storekit; sourceTree = "<group>"; };
+		RES_LOC_EN /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		RES_LOC_FR /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		RES_LOC_DE /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		/* === Products === */
+		PRODUCT_MACOS /* LireFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LireFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		PRODUCT_IOS /* LireFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LireFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		001000020 /* Frameworks */ = {
+		FRAMEWORKS_MACOS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FRAMEWORKS_IOS /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -103,142 +166,179 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		001000021 = {
+		ROOT_GROUP = {
 			isa = PBXGroup;
 			children = (
-				001000022 /* LireFlow */,
-				001000023 /* Products */,
+				GROUP_LIREFLOW /* LireFlow */,
+				GROUP_PRODUCTS /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		001000022 /* LireFlow */ = {
+		GROUP_LIREFLOW /* LireFlow */ = {
 			isa = PBXGroup;
 			children = (
-				7D6F2AE32F0708140091A6AD /* PlatformHelpers.swift */,
-				7D6F2AE12F0707F40091A6AD /* LireFlowAppCore.swift */,
-				001000000 /* macOS/LireFlowApp.swift */,
-				AABB0000MENUBAR0 /* MenuBarView.swift */,
-				001000024 /* Shared/Models */,
-				001000025 /* Shared/Services */,
-				001000026 /* Shared/Views */,
-				001000027 /* Shared/Utilities */,
-				00100001C /* Assets.xcassets */,
-				00100001F /* LireFlow.entitlements */,
-				7DE601A82F01BB1A00963222 /* LireFlow.storekit */,
-				93C43A59AC31C094AA669DEA /* Shared/Resources */,
-				IOS00000FILE /* LireFlowApp+iOS.swift */,
-				IOS00002FILE /* RootView.swift */,
-				IOS00004FILE /* ShareSheet.swift */,
+				GROUP_SHARED /* Shared */,
+				GROUP_MACOS /* macOS */,
+				GROUP_IOS /* iOS */,
+				RES_ASSETS /* Assets.xcassets */,
+				RES_STOREKIT /* LireFlow.storekit */,
 			);
 			path = LireFlow;
 			sourceTree = "<group>";
 		};
-		001000023 /* Products */ = {
+		GROUP_PRODUCTS /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				00100001E /* LireFlow.app */,
+				PRODUCT_MACOS /* LireFlow.app */,
+				PRODUCT_IOS /* LireFlow.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		001000024 /* Shared/Models */ = {
+		GROUP_SHARED /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				001000002 /* Feed.swift */,
-				001000004 /* Article.swift */,
-				001000006 /* Folder.swift */,
-				001000051 /* ReadingList.swift */,
-				3590CE10DA974319B72AC998 /* ExportableModels.swift */,
+				SHARED_APPCORE /* LireFlowAppCore.swift */,
+				GROUP_MODELS /* Models */,
+				GROUP_SERVICES /* Services */,
+				GROUP_VIEWS /* Views */,
+				GROUP_UTILITIES /* Utilities */,
+				GROUP_RESOURCES /* Resources */,
 			);
-			path = Shared/Models;
+			path = Shared;
 			sourceTree = "<group>";
 		};
-		001000025 /* Shared/Services */ = {
+		GROUP_MODELS /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				001000008 /* FeedParser.swift */,
-				00100000A /* FeedService.swift */,
-				00100000C /* DefaultFeeds.swift */,
-				001000041 /* ArticleExtractor.swift */,
-				001000061 /* WeatherService.swift */,
-				001000067 /* ConfigService.swift */,
-				57305741A5EC40B2A7711AD2 /* ExportService.swift */,
-				7306E7DF2AD643FDB91F737A /* ImportService.swift */,
-				PRO00000FILE /* StoreService.swift */,
+				SHARED_FEED /* Feed.swift */,
+				SHARED_ARTICLE /* Article.swift */,
+				SHARED_FOLDER /* Folder.swift */,
+				SHARED_READINGLIST /* ReadingList.swift */,
+				SHARED_EXPORTMODELS /* ExportableModels.swift */,
 			);
-			path = Shared/Services;
+			path = Models;
 			sourceTree = "<group>";
 		};
-		001000026 /* Shared/Views */ = {
+		GROUP_SERVICES /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				00100000E /* ContentView.swift */,
-				001000028 /* Sidebar */,
-				001000029 /* Articles */,
-				00100002A /* Sheets */,
+				SHARED_FEEDPARSER /* FeedParser.swift */,
+				SHARED_FEEDSERVICE /* FeedService.swift */,
+				SHARED_DEFAULTFEEDS /* DefaultFeeds.swift */,
+				SHARED_ARTICLEEXTRACTOR /* ArticleExtractor.swift */,
+				SHARED_WEATHERSERVICE /* WeatherService.swift */,
+				SHARED_CONFIGSERVICE /* ConfigService.swift */,
+				SHARED_EXPORTSERVICE /* ExportService.swift */,
+				SHARED_IMPORTSERVICE /* ImportService.swift */,
+				SHARED_STORESERVICE /* StoreService.swift */,
 			);
-			path = Shared/Views;
+			path = Services;
 			sourceTree = "<group>";
 		};
-		001000027 /* Shared/Utilities */ = {
+		GROUP_VIEWS /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				00100001A /* Extensions.swift */,
-				PRO00002FILE /* AppTheme.swift */,
+				SHARED_CONTENTVIEW /* ContentView.swift */,
+				GROUP_SIDEBAR /* Sidebar */,
+				GROUP_ARTICLES /* Articles */,
+				GROUP_SHEETS /* Sheets */,
 			);
-			path = Shared/Utilities;
+			path = Views;
 			sourceTree = "<group>";
 		};
-		001000028 /* Sidebar */ = {
+		GROUP_SIDEBAR /* Sidebar */ = {
 			isa = PBXGroup;
 			children = (
-				001000010 /* SidebarView.swift */,
-				001000063 /* WeatherWidget.swift */,
-				001000065 /* WeatherDetailPopover.swift */,
+				SHARED_SIDEBARVIEW /* SidebarView.swift */,
+				SHARED_WEATHERWIDGET /* WeatherWidget.swift */,
+				SHARED_WEATHERDETAIL /* WeatherDetailPopover.swift */,
+				SHARED_WEATHERANIM /* WeatherAnimationView.swift */,
 			);
 			path = Sidebar;
 			sourceTree = "<group>";
 		};
-		001000029 /* Articles */ = {
+		GROUP_ARTICLES /* Articles */ = {
 			isa = PBXGroup;
 			children = (
-				001000012 /* ArticleListView.swift */,
-				001000014 /* ArticleDetailView.swift */,
+				SHARED_ARTICLELIST /* ArticleListView.swift */,
+				SHARED_ARTICLEDETAIL /* ArticleDetailView.swift */,
 			);
 			path = Articles;
 			sourceTree = "<group>";
 		};
-		00100002A /* Sheets */ = {
+		GROUP_SHEETS /* Sheets */ = {
 			isa = PBXGroup;
 			children = (
-				001000016 /* AddFeedSheet.swift */,
-				001000018 /* AddFolderSheet.swift */,
-				001000053 /* AddReadingListSheet.swift */,
-				ONBOARD0000FILE /* OnboardingSheet.swift */,
-				B889BB4450574D0D918E952A /* SettingsSheet.swift */,
-				PRO00004FILE /* UpgradeSheet.swift */,
+				SHARED_ADDFEEDSHEET /* AddFeedSheet.swift */,
+				SHARED_ADDFOLDERSHEET /* AddFolderSheet.swift */,
+				SHARED_ADDREADINGLIST /* AddReadingListSheet.swift */,
+				SHARED_ONBOARDING /* OnboardingSheet.swift */,
+				SHARED_SETTINGS /* SettingsSheet.swift */,
+				SHARED_UPGRADE /* UpgradeSheet.swift */,
 			);
 			path = Sheets;
 			sourceTree = "<group>";
 		};
-		93C43A59AC31C094AA669DEA /* Shared/Resources */ = {
+		GROUP_UTILITIES /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				B62D061BBF6926B02715222C /* Localizable.strings */,
+				SHARED_EXTENSIONS /* Extensions.swift */,
+				SHARED_PLATFORMHELPERS /* PlatformHelpers.swift */,
+				SHARED_APPTHEME /* AppTheme.swift */,
 			);
-			path = Shared/Resources;
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		GROUP_RESOURCES /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				RES_LOCALIZABLE /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		GROUP_MACOS /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				MACOS_APP /* LireFlowApp.swift */,
+				MACOS_MENUBAR /* MenuBarView.swift */,
+				MACOS_ENTITLEMENTS /* macOS.entitlements */,
+				MACOS_INFO /* Info.plist */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		GROUP_IOS /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				IOS_APP /* LireFlowApp+iOS.swift */,
+				IOS_ROOTVIEW /* RootView.swift */,
+				GROUP_IOS_HELPERS /* Helpers */,
+				IOS_ENTITLEMENTS /* iOS.entitlements */,
+				IOS_INFO /* Info.plist */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		GROUP_IOS_HELPERS /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				IOS_SHARESHEET /* ShareSheet.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00100002B /* LireFlow */ = {
+		TARGET_MACOS /* LireFlow */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00100002C /* Build configuration list for PBXNativeTarget "LireFlow" */;
+			buildConfigurationList = BUILDCONFIG_LIST_TARGET_MACOS /* Build configuration list for PBXNativeTarget "LireFlow" */;
 			buildPhases = (
-				00100002D /* Sources */,
-				00100002E /* Resources */,
-				001000020 /* Frameworks */,
+				SOURCES_MACOS /* Sources */,
+				RESOURCES_MACOS /* Resources */,
+				FRAMEWORKS_MACOS /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -246,25 +346,45 @@
 			);
 			name = LireFlow;
 			productName = LireFlow;
-			productReference = 00100001E /* LireFlow.app */;
+			productReference = PRODUCT_MACOS /* LireFlow.app */;
+			productType = "com.apple.product-type.application";
+		};
+		TARGET_IOS /* LireFlow iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BUILDCONFIG_LIST_TARGET_IOS /* Build configuration list for PBXNativeTarget "LireFlow iOS" */;
+			buildPhases = (
+				SOURCES_IOS /* Sources */,
+				RESOURCES_IOS /* Resources */,
+				FRAMEWORKS_IOS /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "LireFlow iOS";
+			productName = "LireFlow iOS";
+			productReference = PRODUCT_IOS /* LireFlow.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		00100002F /* Project object */ = {
+		PROJECT_ROOT /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					00100002B = {
+					TARGET_MACOS = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					TARGET_IOS = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = 001000030 /* Build configuration list for PBXProject "LireFlow" */;
+			buildConfigurationList = BUILDCONFIG_LIST_PROJECT /* Build configuration list for PBXProject "LireFlow" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -274,81 +394,131 @@
 				fr,
 				de,
 			);
-			mainGroup = 001000021;
-			productRefGroup = 001000023 /* Products */;
+			mainGroup = ROOT_GROUP;
+			productRefGroup = GROUP_PRODUCTS /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				00100002B /* LireFlow */,
+				TARGET_MACOS /* LireFlow */,
+				TARGET_IOS /* LireFlow iOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		00100002E /* Resources */ = {
+		RESOURCES_MACOS /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7DE601A92F01BB1A00963222 /* LireFlow.storekit in Resources */,
-				00100001D /* Assets.xcassets in Resources */,
-				4C2C219E9E3DC2F076E18448 /* Localizable.strings in Resources */,
+				MAC_RES_001 /* Assets.xcassets in Resources */,
+				MAC_RES_002 /* LireFlow.storekit in Resources */,
+				MAC_RES_003 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		RESOURCES_IOS /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				IOS_RES_001 /* Assets.xcassets in Resources */,
+				IOS_RES_002 /* LireFlow.storekit in Resources */,
+				IOS_RES_003 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		00100002D /* Sources */ = {
+		SOURCES_MACOS /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				001000001 /* macOS/LireFlowApp.swift in Sources */,
-				001000003 /* Feed.swift in Sources */,
-				001000005 /* Article.swift in Sources */,
-				001000007 /* Folder.swift in Sources */,
-				001000009 /* FeedParser.swift in Sources */,
-				00100000B /* FeedService.swift in Sources */,
-				7D6F2AE22F0707F40091A6AD /* LireFlowAppCore.swift in Sources */,
-				00100000D /* DefaultFeeds.swift in Sources */,
-				00100000F /* ContentView.swift in Sources */,
-				7D6F2AE42F0708140091A6AD /* PlatformHelpers.swift in Sources */,
-				001000011 /* SidebarView.swift in Sources */,
-				001000013 /* ArticleListView.swift in Sources */,
-				001000015 /* ArticleDetailView.swift in Sources */,
-				001000017 /* AddFeedSheet.swift in Sources */,
-				001000019 /* AddFolderSheet.swift in Sources */,
-				00100001B /* Extensions.swift in Sources */,
-				001000040 /* ArticleExtractor.swift in Sources */,
-				001000050 /* ReadingList.swift in Sources */,
-				001000052 /* AddReadingListSheet.swift in Sources */,
-				001000060 /* WeatherService.swift in Sources */,
-				001000062 /* WeatherWidget.swift in Sources */,
-				001000064 /* WeatherDetailPopover.swift in Sources */,
-				001000066 /* ConfigService.swift in Sources */,
-				CC08FCFB992E423A8F1A8905 /* ExportableModels.swift in Sources */,
-				E8DA0A28D52E45DD8580CB1C /* ExportService.swift in Sources */,
-				C3AB982C471B4F3A82F1C824 /* ImportService.swift in Sources */,
-				3D11A136BE55456791E330A1 /* SettingsSheet.swift in Sources */,
-				AABB0001MENUBAR1 /* MenuBarView.swift in Sources */,
-				ONBOARD0001BUILD /* OnboardingSheet.swift in Sources */,
-				PRO00001BUILD /* StoreService.swift in Sources */,
-				PRO00003BUILD /* AppTheme.swift in Sources */,
-				PRO00005BUILD /* UpgradeSheet.swift in Sources */,
-				IOS00001BUILD /* LireFlowApp+iOS.swift in Sources */,
-				IOS00003BUILD /* RootView.swift in Sources */,
-				IOS00005BUILD /* ShareSheet.swift in Sources */,
+				MAC_SHARED_031 /* LireFlowAppCore.swift in Sources */,
+				MAC_SHARED_001 /* Feed.swift in Sources */,
+				MAC_SHARED_002 /* Article.swift in Sources */,
+				MAC_SHARED_003 /* Folder.swift in Sources */,
+				MAC_SHARED_004 /* ReadingList.swift in Sources */,
+				MAC_SHARED_005 /* ExportableModels.swift in Sources */,
+				MAC_SHARED_006 /* FeedParser.swift in Sources */,
+				MAC_SHARED_007 /* FeedService.swift in Sources */,
+				MAC_SHARED_008 /* DefaultFeeds.swift in Sources */,
+				MAC_SHARED_009 /* ArticleExtractor.swift in Sources */,
+				MAC_SHARED_010 /* WeatherService.swift in Sources */,
+				MAC_SHARED_011 /* ConfigService.swift in Sources */,
+				MAC_SHARED_012 /* ExportService.swift in Sources */,
+				MAC_SHARED_013 /* ImportService.swift in Sources */,
+				MAC_SHARED_014 /* StoreService.swift in Sources */,
+				MAC_SHARED_015 /* ContentView.swift in Sources */,
+				MAC_SHARED_016 /* SidebarView.swift in Sources */,
+				MAC_SHARED_017 /* WeatherWidget.swift in Sources */,
+				MAC_SHARED_018 /* WeatherDetailPopover.swift in Sources */,
+				MAC_SHARED_019 /* WeatherAnimationView.swift in Sources */,
+				MAC_SHARED_020 /* ArticleListView.swift in Sources */,
+				MAC_SHARED_021 /* ArticleDetailView.swift in Sources */,
+				MAC_SHARED_022 /* AddFeedSheet.swift in Sources */,
+				MAC_SHARED_023 /* AddFolderSheet.swift in Sources */,
+				MAC_SHARED_024 /* AddReadingListSheet.swift in Sources */,
+				MAC_SHARED_025 /* OnboardingSheet.swift in Sources */,
+				MAC_SHARED_026 /* SettingsSheet.swift in Sources */,
+				MAC_SHARED_027 /* UpgradeSheet.swift in Sources */,
+				MAC_SHARED_028 /* Extensions.swift in Sources */,
+				MAC_SHARED_029 /* PlatformHelpers.swift in Sources */,
+				MAC_SHARED_030 /* AppTheme.swift in Sources */,
+				MAC_SPECIFIC_001 /* LireFlowApp.swift in Sources */,
+				MAC_SPECIFIC_002 /* MenuBarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		SOURCES_IOS /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				IOS_SHARED_031 /* LireFlowAppCore.swift in Sources */,
+				IOS_SHARED_001 /* Feed.swift in Sources */,
+				IOS_SHARED_002 /* Article.swift in Sources */,
+				IOS_SHARED_003 /* Folder.swift in Sources */,
+				IOS_SHARED_004 /* ReadingList.swift in Sources */,
+				IOS_SHARED_005 /* ExportableModels.swift in Sources */,
+				IOS_SHARED_006 /* FeedParser.swift in Sources */,
+				IOS_SHARED_007 /* FeedService.swift in Sources */,
+				IOS_SHARED_008 /* DefaultFeeds.swift in Sources */,
+				IOS_SHARED_009 /* ArticleExtractor.swift in Sources */,
+				IOS_SHARED_010 /* WeatherService.swift in Sources */,
+				IOS_SHARED_011 /* ConfigService.swift in Sources */,
+				IOS_SHARED_012 /* ExportService.swift in Sources */,
+				IOS_SHARED_013 /* ImportService.swift in Sources */,
+				IOS_SHARED_014 /* StoreService.swift in Sources */,
+				IOS_SHARED_015 /* ContentView.swift in Sources */,
+				IOS_SHARED_016 /* SidebarView.swift in Sources */,
+				IOS_SHARED_017 /* WeatherWidget.swift in Sources */,
+				IOS_SHARED_018 /* WeatherDetailPopover.swift in Sources */,
+				IOS_SHARED_019 /* WeatherAnimationView.swift in Sources */,
+				IOS_SHARED_020 /* ArticleListView.swift in Sources */,
+				IOS_SHARED_021 /* ArticleDetailView.swift in Sources */,
+				IOS_SHARED_022 /* AddFeedSheet.swift in Sources */,
+				IOS_SHARED_023 /* AddFolderSheet.swift in Sources */,
+				IOS_SHARED_024 /* AddReadingListSheet.swift in Sources */,
+				IOS_SHARED_025 /* OnboardingSheet.swift in Sources */,
+				IOS_SHARED_026 /* SettingsSheet.swift in Sources */,
+				IOS_SHARED_027 /* UpgradeSheet.swift in Sources */,
+				IOS_SHARED_028 /* Extensions.swift in Sources */,
+				IOS_SHARED_029 /* PlatformHelpers.swift in Sources */,
+				IOS_SHARED_030 /* AppTheme.swift in Sources */,
+				IOS_SPECIFIC_001 /* LireFlowApp+iOS.swift in Sources */,
+				IOS_SPECIFIC_002 /* RootView.swift in Sources */,
+				IOS_SPECIFIC_003 /* ShareSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		B62D061BBF6926B02715222C /* Localizable.strings */ = {
+		RES_LOCALIZABLE /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F8B470ADC615AA481849417B /* en */,
-				5F9587CED07422CDAB3CAFA2 /* fr */,
-				EF331E3FE6A1B2787E93C5C7 /* de */,
+				RES_LOC_EN /* en */,
+				RES_LOC_FR /* fr */,
+				RES_LOC_DE /* de */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -356,7 +526,8 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		001000031 /* Debug */ = {
+		/* === Project-level Debug === */
+		PROJECT_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -410,21 +581,16 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = auto;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Debug;
 		};
-		001000032 /* Release */ = {
+		/* === Project-level Release === */
+		PROJECT_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -472,27 +638,20 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				SDKROOT = auto;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SUPPORTS_MACCATALYST = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Release;
 		};
-		001000033 /* Debug */ = {
+		/* === macOS Target Debug === */
+		MACOS_DEBUG /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LireFlow/macOS/macOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 2;
@@ -501,14 +660,9 @@
 				DEVELOPMENT_TEAM = 3RKLE28Y6U;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
-				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LireFlow/macOS/Info.plist;
-				"INFOPLIST_FILE[sdk=iphoneos*]" = LireFlow/iOS/Info.plist;
-				"INFOPLIST_FILE[sdk=iphonesimulator*]" = LireFlow/iOS/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2024-2025 LireFlow. All rights reserved.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
@@ -516,23 +670,24 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lireflow.app;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PRODUCT_NAME = LireFlow;
+				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		001000034 /* Release */ = {
+		/* === macOS Target Release === */
+		MACOS_RELEASE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LireFlow/macOS/macOS.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 2;
@@ -541,14 +696,9 @@
 				DEVELOPMENT_TEAM = 3RKLE28Y6U;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_RESOURCE_ACCESS_LOCATION = YES;
-				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LireFlow/macOS/Info.plist;
-				"INFOPLIST_FILE[sdk=iphoneos*]" = LireFlow/iOS/Info.plist;
-				"INFOPLIST_FILE[sdk=iphonesimulator*]" = LireFlow/iOS/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright 2024-2025 LireFlow. All rights reserved.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
@@ -556,36 +706,128 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lireflow.app;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = LireFlow;
+				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		/* === iOS Target Debug === */
+		IOS_DEBUG /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LireFlow/iOS/iOS.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 3RKLE28Y6U;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LireFlow/iOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LireFlow;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lireflow.app;
+				PRODUCT_NAME = LireFlow;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		/* === iOS Target Release === */
+		IOS_RELEASE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LireFlow/iOS/iOS.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 3RKLE28Y6U;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LireFlow/iOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LireFlow;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your location is used to show local weather.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lireflow.app;
+				PRODUCT_NAME = LireFlow;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00100002C /* Build configuration list for PBXNativeTarget "LireFlow" */ = {
+		BUILDCONFIG_LIST_PROJECT /* Build configuration list for PBXProject "LireFlow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				001000033 /* Debug */,
-				001000034 /* Release */,
+				PROJECT_DEBUG /* Debug */,
+				PROJECT_RELEASE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		001000030 /* Build configuration list for PBXProject "LireFlow" */ = {
+		BUILDCONFIG_LIST_TARGET_MACOS /* Build configuration list for PBXNativeTarget "LireFlow" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				001000031 /* Debug */,
-				001000032 /* Release */,
+				MACOS_DEBUG /* Debug */,
+				MACOS_RELEASE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BUILDCONFIG_LIST_TARGET_IOS /* Build configuration list for PBXNativeTarget "LireFlow iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				IOS_DEBUG /* Debug */,
+				IOS_RELEASE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 00100002F /* Project object */;
+	rootObject = PROJECT_ROOT /* Project object */;
 }
