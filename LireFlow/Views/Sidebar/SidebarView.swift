@@ -29,21 +29,20 @@ struct SidebarView: View {
     // Feed search
     @State private var feedSearchText = ""
 
+    /// Whether the app renders dark right now (explicit theme, or the system setting for .system)
+    private var isDark: Bool {
+        let appearance = configService.config.selectedTheme.nsAppearance ?? NSApp.effectiveAppearance
+        return appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+    }
+
     private var appearanceIcon: String {
-        configService.config.isDarkMode ? "moon.fill" : "sun.max.fill"
+        isDark ? "moon.fill" : "sun.max.fill"
     }
-    
+
+    /// Quick light/dark switch. Goes through the theme setting (applied by ContentView),
+    /// so there's a single source of truth for appearance.
     private func toggleAppearance() {
-        configService.config.isDarkMode.toggle()
-        applyAppearance()
-    }
-    
-    private func applyAppearance() {
-        let appearance = configService.config.isDarkMode ? NSAppearance(named: .darkAqua) : NSAppearance(named: .aqua)
-        NSApp.appearance = appearance
-        for window in NSApplication.shared.windows {
-            window.appearance = appearance
-        }
+        configService.config.selectedTheme = isDark ? .light : .dark
     }
 
     private var filteredFolders: [Folder] {
@@ -72,7 +71,7 @@ struct SidebarView: View {
             Section {
                 SidebarRow(
                     icon: "tray.full",
-                    title: "Tous les articles",
+                    title: String(localized: "All Articles"),
                     count: allArticles.count,
                     showCount: configService.config.showUnreadCount,
                     color: .blue
@@ -81,7 +80,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "circle.fill",
-                    title: "Non lus",
+                    title: String(localized: "Unread"),
                     count: allArticles.filter { !$0.isRead }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .orange
@@ -90,7 +89,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "star.fill",
-                    title: "Favoris",
+                    title: String(localized: "Starred"),
                     count: allArticles.filter { $0.isStarred }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .yellow
@@ -99,7 +98,7 @@ struct SidebarView: View {
 
                 SidebarRow(
                     icon: "archivebox",
-                    title: "Archivés",
+                    title: String(localized: "Archived"),
                     count: allArticles.filter { $0.isArchived }.count,
                     showCount: configService.config.showUnreadCount,
                     color: .gray
@@ -279,9 +278,6 @@ struct SidebarView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(.ultraThinMaterial)
-        }
-        .onAppear {
-            applyAppearance()
         }
         .alert("Rename Folder", isPresented: $showingRenameFolder) {
             TextField("Folder Name", text: $newFolderName)

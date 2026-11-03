@@ -82,39 +82,34 @@ struct LireFlowApp: App {
             }
 
             CommandMenu("Article") {
-                Button("Next Article") {
+                Button("Next Article (J)") {
                     NotificationCenter.default.post(name: .nextArticle, object: nil)
                 }
-                .keyboardShortcut("j", modifiers: [])
 
-                Button("Previous Article") {
+                Button("Previous Article (K)") {
                     NotificationCenter.default.post(name: .previousArticle, object: nil)
                 }
-                .keyboardShortcut("k", modifiers: [])
 
                 Divider()
 
-                Button("Mark as Read/Unread") {
+                Button("Mark as Read/Unread (M)") {
                     NotificationCenter.default.post(name: .toggleRead, object: nil)
                 }
-                .keyboardShortcut("m", modifiers: [])
 
                 Button("Mark All as Read") {
                     NotificationCenter.default.post(name: .markAllAsRead, object: nil)
                 }
                 .keyboardShortcut("a", modifiers: [.command, .shift])
 
-                Button("Toggle Star") {
+                Button("Toggle Star (S)") {
                     NotificationCenter.default.post(name: .toggleStar, object: nil)
                 }
-                .keyboardShortcut("s", modifiers: [])
 
                 Divider()
 
-                Button("Open in Browser") {
+                Button("Open in Browser (V)") {
                     NotificationCenter.default.post(name: .openInBrowser, object: nil)
                 }
-                .keyboardShortcut("v", modifiers: [])
             }
         }
         
@@ -151,6 +146,36 @@ extension Notification.Name {
 // MARK: - App Delegate
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    private var keyMonitor: Any?
+
+    /// Single-key article shortcuts. These can't be menu key equivalents: the menu would
+    /// swallow those letters while the user types in the search field or a sheet's text field.
+    private static let bareKeyActions: [String: Notification.Name] = [
+        "j": .nextArticle,
+        "k": .previousArticle,
+        "m": .toggleRead,
+        "s": .toggleStar,
+        "v": .openInBrowser
+    ]
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+                .subtracting([.capsLock, .numericPad, .function])
+            guard modifiers.isEmpty,
+                  let window = NSApp.keyWindow,
+                  !(window is NSPanel),                                     // menu bar popover
+                  window.sheetParent == nil, window.attachedSheet == nil,  // a sheet is in front
+                  !(window.firstResponder is NSText),                      // typing in a text field
+                  let key = event.charactersIgnoringModifiers?.lowercased(),
+                  let action = Self.bareKeyActions[key] else {
+                return event
+            }
+            NotificationCenter.default.post(name: action, object: nil)
+            return nil
+        }
+    }
+
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         let dockMenu = NSMenu()
 

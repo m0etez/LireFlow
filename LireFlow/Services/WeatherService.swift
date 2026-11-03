@@ -139,7 +139,14 @@ class WeatherService: NSObject, ObservableObject, @preconcurrency CLLocationMana
         
         isLoading = true
         error = nil
-        
+
+        // A city set in Settings wins over auto-detection
+        if let place = ConfigService.shared.config.weatherLocation?.trimmingCharacters(in: .whitespaces),
+           !place.isEmpty {
+            Task { await loadWeather(forPlace: place) }
+            return
+        }
+
         // Start location request
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
@@ -154,6 +161,22 @@ class WeatherService: NSObject, ObservableObject, @preconcurrency CLLocationMana
         }
     }
     
+    /// Fetch again from scratch, e.g. after the location setting changed
+    func reload() {
+        currentWeather = nil
+        requestLocation()
+    }
+
+    private func loadWeather(forPlace place: String) async {
+        guard let location = try? await geocoder.geocodeAddressString(place).first?.location else {
+            error = "Location not found"
+            isLoading = false
+            return
+        }
+        locationName = place
+        await fetchWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    }
+
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
         

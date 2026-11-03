@@ -223,3 +223,25 @@
 "reading lists" = "Leselisten";
 "Duplicates skipped:" = "Übersprungene Duplikate:";
 
+/* Added with review fixes */
+"None" = "Keiner";
+"Feed found" = "Feed gefunden";
+"Browse Feeds" = "Feeds durchsuchen";
+"Add %lld feeds" = "%lld Feeds hinzufügen";
+"%lld selected" = "%lld ausgewählt";
+"No articles found" = "Keine Artikel gefunden";
+"No articles" = "Keine Artikel";
+"Try a different search" = "Versuchen Sie eine andere Suche";
+"Add feeds to get started" = "Fügen Sie Feeds hinzu, um zu beginnen";
+"Welcome to Pro!" = "Willkommen bei Pro!";
+"Awesome!" = "Super!";
+"Thank you for your purchase! All Pro features are unlocked." = "Vielen Dank für Ihren Kauf! Alle Pro-Funktionen sind freigeschaltet.";
+"Purchase failed" = "Kauf fehlgeschlagen";
+"Something went wrong. Please try again." = "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.";
+"Close article" = "Artikel schließen";
+"No content available. Click “Fetch full article” to load it." = "Kein Inhalt verfügbar. Klicken Sie auf „Vollständigen Artikel laden“, um ihn zu laden.";
+"Not imported (free plan limit): %lld. Upgrade to Pro to import everything." = "Nicht importiert (Limit des Gratis-Tarifs): %lld. Upgraden Sie auf Pro, um alles zu importieren.";
+"Some feeds weren't added" = "Einige Feeds wurden nicht hinzugefügt";
+"Upgrade to Pro" = "Auf Pro upgraden";
+"Could not load: %@" = "Konnte nicht geladen werden: %@";
+"Free plan limit reached: %lld feeds not added." = "Limit des Gratis-Tarifs erreicht: %lld Feeds nicht hinzugefügt.";

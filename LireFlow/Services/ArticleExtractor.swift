@@ -6,9 +6,6 @@ final class ArticleExtractor {
     /// Maximum HTML content size to process (10MB) - prevents regex DoS attacks
     private static let maxHTMLSize = 10 * 1024 * 1024
 
-    /// EZProxy base URL (configure via ConfigService for institutional access)
-    static let ezproxyBaseURL = ""  // Configure this in your config.json if needed
-    
     /// Extract readable content from a web page URL
     static func extractContent(from urlString: String) async throws -> String {
         guard let url = URL(string: urlString) else {
@@ -22,51 +19,6 @@ final class ArticleExtractor {
         
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
-            throw ArticleExtractorError.fetchFailed
-        }
-        
-        guard let html = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) else {
-            throw ArticleExtractorError.invalidContent
-        }
-
-        // Validate content size to prevent regex DoS attacks
-        guard html.utf8.count <= maxHTMLSize else {
-            throw ArticleExtractorError.contentTooLarge
-        }
-
-        return extractMainContent(from: html)
-    }
-    
-    /// Extract content via EZProxy (for paywalled articles)
-    static func extractContentViaProxy(from urlString: String) async throws -> String {
-        // Build EZProxy URL with proper encoding
-        guard let encodedURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              !ezproxyBaseURL.isEmpty,
-              let proxyURL = URL(string: "\(ezproxyBaseURL)\(encodedURL)") else {
-            throw ArticleExtractorError.invalidURL
-        }
-        
-        // Create a URLSession that follows redirects and handles cookies
-        let config = URLSessionConfiguration.default
-        config.httpCookieAcceptPolicy = .always
-        config.httpShouldSetCookies = true
-        let session = URLSession(configuration: config)
-        
-        var request = URLRequest(url: proxyURL)
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 15_2_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ArticleExtractorError.fetchFailed
-        }
-        
-        // Check if we got redirected to login page
-        if httpResponse.url?.absoluteString.contains("login") == true {
-            throw ArticleExtractorError.proxyLoginRequired
-        }
-        
-        guard (200...299).contains(httpResponse.statusCode) else {
             throw ArticleExtractorError.fetchFailed
         }
         
@@ -193,7 +145,6 @@ enum ArticleExtractorError: LocalizedError {
     case fetchFailed
     case invalidContent
     case contentTooLarge
-    case proxyLoginRequired
 
     var errorDescription: String? {
         switch self {
@@ -205,8 +156,6 @@ enum ArticleExtractorError: LocalizedError {
             return "Could not read the article content"
         case .contentTooLarge:
             return "Article content is too large to process (exceeds 10MB)"
-        case .proxyLoginRequired:
-            return "Please log in to the university proxy first (click Paris-Saclay Library button)"
         }
     }
 }

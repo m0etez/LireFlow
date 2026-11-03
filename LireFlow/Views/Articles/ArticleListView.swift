@@ -212,11 +212,11 @@ struct EmptyArticleListView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.tertiary)
             
-            Text(isSearching ? "Aucun article trouvé" : "Aucun article")
+            Text(isSearching ? LocalizedStringKey("No articles found") : "No articles")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
-            Text(isSearching ? "Essayez une autre recherche" : "Ajoutez des flux pour commencer")
+            Text(isSearching ? LocalizedStringKey("Try a different search") : "Add feeds to get started")
                 .font(.subheadline)
                 .foregroundStyle(.tertiary)
         }

@@ -58,6 +58,11 @@ final class Article {
         summary.strippingHTML.decodingHTMLEntities
     }
     
+    /// Starred, archived or saved to a reading list: never removed by cleanup or trimming
+    var isKeptByUser: Bool {
+        isStarred || isArchived || !(readingLists ?? []).isEmpty
+    }
+
     /// Best URL for fetching full article (prefers external URL for Reddit)
     var articleURL: String {
         externalURL ?? url

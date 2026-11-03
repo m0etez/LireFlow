@@ -120,7 +120,7 @@ struct AddFeedSheet: View {
                                 .foregroundStyle(.secondary)
                             
                             Picker("", selection: $selectedFolder) {
-                                Text("Aucun").tag(nil as Folder?)
+                                Text("None").tag(nil as Folder?)
                                 ForEach(folders) { folder in
                                     Text(folder.name).tag(folder as Folder?)
                                 }
@@ -301,7 +301,7 @@ struct FeedPreviewCard: View {
                     .foregroundStyle(.green)
                     .font(.body)
                 
-                Text("Flux trouvé")
+                Text("Feed found")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(.green)
@@ -353,17 +353,24 @@ struct DefaultFeedsSheet: View {
     @State private var selectedFolder: Folder?
     @State private var isAdding = false
     @StateObject private var feedService = FeedService()
-    
+    @ObservedObject private var storeService = StoreService.shared
+    @Query private var allFeeds: [Feed]
+
+    // Outcome of a bulk add that didn't fully succeed
+    @State private var addReport: String?
+    @State private var hitFreeLimit = false
+    @State private var showingUpgrade = false
+
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Parcourir les flux")
+                Text("Browse Feeds")
                     .font(.headline)
                 
                 Spacer()
                 
                 if !selectedFeeds.isEmpty {
-                    Text("\(selectedFeeds.count) sélectionné(s)")
+                    Text("\(selectedFeeds.count) selected")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -418,8 +425,8 @@ struct DefaultFeedsSheet: View {
             // Footer
             VStack(spacing: 12) {
                 if !folders.isEmpty {
-                    Picker("Ajouter au dossier", selection: $selectedFolder) {
-                        Text("Aucun").tag(nil as Folder?)
+                    Picker("Add to Folder", selection: $selectedFolder) {
+                        Text("None").tag(nil as Folder?)
                         ForEach(folders) { folder in
                             Text(folder.name).tag(folder as Folder?)
                         }
@@ -428,7 +435,7 @@ struct DefaultFeedsSheet: View {
                 }
                 
                 HStack {
-                    Button("Annuler") {
+                    Button("Cancel") {
                         dismiss()
                     }
                     .keyboardShortcut(.escape)
@@ -442,7 +449,7 @@ struct DefaultFeedsSheet: View {
                             ProgressView()
                                 .controlSize(.small)
                         } else {
-                            Text("Ajouter \(selectedFeeds.count) flux")
+                            Text("Add \(selectedFeeds.count) feeds")
                         }
                     }
                     .buttonStyle(.borderedProminent)
@@ -452,27 +459,67 @@ struct DefaultFeedsSheet: View {
             .padding()
         }
         .frame(width: 500, height: 600)
+        .alert("Some feeds weren't added", isPresented: Binding(
+            get: { addReport != nil },
+            set: { if !$0 { addReport = nil } }
+        )) {
+            if hitFreeLimit {
+                Button("Upgrade to Pro") { showingUpgrade = true }
+            }
+            Button("OK") { finish() }
+        } message: {
+            Text(addReport ?? "")
+        }
+        .sheet(isPresented: $showingUpgrade, onDismiss: finish) {
+            UpgradeSheet()
+        }
     }
-    
+
+    private func finish() {
+        onComplete()
+        dismiss()
+    }
+
     private func addSelectedFeeds() async {
         isAdding = true
-        defer { 
-            isAdding = false 
-        }
-        
-        for feedURL in selectedFeeds {
+        defer { isAdding = false }
+
+        let titles = Dictionary(
+            DefaultFeeds.categories.flatMap { DefaultFeeds.feeds(for: $0) }.map { ($0.url, $0.title) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        var knownURLs = Set(allFeeds.map(\.url))
+        var failed: [String] = []
+        var limitSkipped = 0
+
+        // Skip feeds already subscribed; stop at the free tier limit like single adds do
+        for feedURL in selectedFeeds.sorted() where !knownURLs.contains(feedURL) {
+            guard storeService.canAddFeed(currentCount: knownURLs.count) else {
+                limitSkipped += 1
+                continue
+            }
             do {
                 _ = try await feedService.addFeed(url: feedURL, to: selectedFolder, in: modelContext)
+                knownURLs.insert(feedURL)
             } catch {
-                // Continue adding other feeds even if one fails
-                print("Failed to add feed \(feedURL): \(error)")
+                failed.append(titles[feedURL] ?? feedURL)
             }
         }
-        
-        await MainActor.run {
-            onComplete()
-            dismiss()
+
+        guard !failed.isEmpty || limitSkipped > 0 else {
+            finish()
+            return
         }
+
+        var lines: [String] = []
+        if !failed.isEmpty {
+            lines.append(String(localized: "Could not load: \(failed.joined(separator: ", "))"))
+        }
+        if limitSkipped > 0 {
+            lines.append(String(localized: "Free plan limit reached: \(limitSkipped) feeds not added."))
+        }
+        hitFreeLimit = limitSkipped > 0
+        addReport = lines.joined(separator: "\n\n")
     }
 }
 

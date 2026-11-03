@@ -16,6 +16,13 @@ struct SettingsSheet: View {
     @StateObject private var exportService = ExportService()
     @StateObject private var importService = ImportService()
 
+    /// Set when opened from the File menu's Import/Export items: runs that action on appear
+    var initialAction: BackupAction? = nil
+
+    enum BackupAction {
+        case exportJSON, exportOPML, importJSON, importOPML
+    }
+
     @State private var selectedTab: SettingsTab = .about
     @State private var isExporting = false
     @State private var isImporting = false
@@ -103,6 +110,29 @@ struct SettingsSheet: View {
         }
         .sheet(isPresented: $showingUpgrade) { // Added for GeneralSettingsView
             UpgradeSheet()
+        }
+        .task {
+            guard let action = initialAction else { return }
+            selectedTab = .backup
+            switch action {
+            case .exportJSON: await exportJSON()
+            case .exportOPML: await exportOPML()
+            case .importJSON: await importJSON()
+            case .importOPML: await importOPML()
+            }
+        }
+    }
+
+    /// Imported feeds have no articles yet: fetch them, and say what the free tier left out
+    private func finishImport(_ result: ImportService.ImportResult, summary: String) {
+        var message = summary
+        if result.limitSkipped > 0 {
+            message += "\n\n" + String(localized: "Not imported (free plan limit): \(result.limitSkipped). Upgrade to Pro to import everything.")
+        }
+        successMessage = message
+        showingSuccessAlert = true
+        if result.feedsImported > 0 {
+            NotificationCenter.default.post(name: .refreshAllFeeds, object: nil)
         }
     }
 
@@ -319,7 +349,7 @@ struct SettingsSheet: View {
 
         do {
             let result = try await importService.importFromJSON(in: modelContext)
-            successMessage = """
+            finishImport(result, summary: """
             Import complete!
 
             Imported:
@@ -328,8 +358,7 @@ struct SettingsSheet: View {
             • \(result.readingListsImported) reading lists
 
             Duplicates skipped: \(result.duplicatesSkipped)
-            """
-            showingSuccessAlert = true
+            """)
         } catch ImportService.ImportError.userCancelled {
             // Silent - user cancelled
         } catch {
@@ -344,7 +373,7 @@ struct SettingsSheet: View {
 
         do {
             let result = try await importService.importFromOPML(in: modelContext)
-            successMessage = """
+            finishImport(result, summary: """
             Import complete!
 
             Imported:
@@ -352,8 +381,7 @@ struct SettingsSheet: View {
             • \(result.feedsImported) feeds
 
             Duplicates skipped: \(result.duplicatesSkipped)
-            """
-            showingSuccessAlert = true
+            """)
         } catch ImportService.ImportError.userCancelled {
             // Silent - user cancelled
         } catch {
@@ -516,9 +544,6 @@ struct SettingsSheet: View {
                         set: { configService.config.articleFontSize = Int($0) }
                     ), in: 12...24, step: 1)
                 }
-
-                Toggle("Mark as Read on Scroll", isOn: $configService.config.markAsReadOnScroll)
-                    .help("Automatically mark articles as read when scrolling past them")
             }
             .padding()
             .background(Color(nsColor: .controlBackgroundColor))
@@ -553,14 +578,6 @@ struct SettingsSheet: View {
                         get: { Double(configService.config.refreshIntervalMinutes) },
                         set: { configService.config.refreshIntervalMinutes = Int($0) }
                     ), in: 5...120, step: 5)
-                }
-
-                HStack {
-                    Text("Default Feed Category:")
-                    Spacer()
-                    TextField("Category", text: $configService.config.defaultFeedCategory)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(maxWidth: 200)
                 }
             }
             .padding()
@@ -706,7 +723,7 @@ struct SettingsSheet: View {
                     .help("Disable to save bandwidth and improve performance")
 
                 Toggle("Background Refresh", isOn: $configService.config.backgroundRefreshEnabled)
-                    .help("Allow feeds to refresh in the background")
+                    .help("Refresh all feeds automatically at the refresh interval")
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
@@ -806,12 +823,9 @@ struct SettingsSheet: View {
             to: Date()
         ) ?? Date()
 
-        // Filter articles to delete: older than cutoff, not starred, not archived
-        let articlesToDelete = articles.filter { article in
-            article.publishedDate < cutoffDate &&
-            !article.isStarred &&
-            !article.isArchived
-        }
+        // Older than cutoff and not kept by the user (starred, archived, in a reading list).
+        // Refresh skips items older than the same cutoff, so these don't come back as unread.
+        let articlesToDelete = articles.filter { $0.publishedDate < cutoffDate && !$0.isKeptByUser }
 
         let deleteCount = articlesToDelete.count
 

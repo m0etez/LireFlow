@@ -218,16 +218,3 @@ class StoreService: ObservableObject {
         proProduct?.displayPrice ?? "€4.99"
     }
 }
-
-// MARK: - Preview Helper
-
-#if DEBUG
-extension StoreService {
-    /// For SwiftUI previews - creates a mock Pro user
-    static var previewPro: StoreService {
-        let service = StoreService.shared
-        // In debug, you can manually set this for testing
-        return service
-    }
-}
-#endif

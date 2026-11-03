@@ -28,7 +28,7 @@ struct ArticleDetailView: View {
         } else if !article.summary.isEmpty {
             return article.summary
         } else {
-            return "<p><em>Aucun contenu disponible. Cliquez sur 'Récupérer l'article complet' pour charger le contenu.</em></p>"
+            return "<p><em>" + String(localized: "No content available. Click \u{201C}Fetch full article\u{201D} to load it.") + "</em></p>"
         }
     }
     
@@ -59,7 +59,7 @@ struct ArticleDetailView: View {
                                 .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
                         }
                         .buttonStyle(.plain)
-                        .help("Fermer l'article")
+                        .help("Close article")
                     }
                 }
                 
@@ -143,7 +143,12 @@ struct ArticleDetailView: View {
                 Divider()
                 
                 // Content - using WebView with dynamic height
-                ArticleContentView(html: displayContent, height: $webViewHeight)
+                ArticleContentView(
+                    html: displayContent,
+                    fontSize: configService.config.articleFontSize,
+                    loadImages: configService.config.loadImages,
+                    height: $webViewHeight
+                )
                     .frame(height: webViewHeight)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
@@ -241,8 +246,9 @@ struct ArticleDetailView: View {
         } message: {
             Text(exportErrorMessage)
         }
-        .onAppear {
+        .onChange(of: article.id, initial: true) {
             article.isRead = true
+            fetchError = nil
         }
     }
     
@@ -316,11 +322,29 @@ class NonScrollableWebView: WKWebView {
 
 struct ArticleContentView: NSViewRepresentable {
     let html: String
+    var fontSize: Int = 16
+    var loadImages: Bool = true
     @Binding var height: CGFloat
+
+    /// Reports the content height. Runs in an isolated script world, so it works even though
+    /// the article's own scripts are disabled, and keeps reporting as images load.
+    private static let heightScript = """
+    (() => {
+        const send = () => window.webkit.messageHandlers.heightHandler.postMessage(document.body.scrollHeight);
+        new ResizeObserver(send).observe(document.body);
+        send();
+    })();
+    """
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.preferences.isElementFullscreenEnabled = false
+        // Feed HTML is untrusted: its scripts never run (no tracking, no redirects, no fake pages).
+        config.defaultWebpagePreferences.allowsContentJavaScript = false
+        config.userContentController.add(context.coordinator, contentWorld: .defaultClient, name: "heightHandler")
+        config.userContentController.addUserScript(
+            WKUserScript(source: Self.heightScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient)
+        )
 
         let webView = NonScrollableWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -336,17 +360,24 @@ struct ArticleContentView: NSViewRepresentable {
 
         return webView
     }
-    
+
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.parent = self
         let styledHTML = wrapWithStyles(html)
+        // Every SwiftUI update (star, read, height change…) lands here: reload only on real changes.
+        guard styledHTML != context.coordinator.loadedHTML else { return }
+        context.coordinator.loadedHTML = styledHTML
         webView.loadHTMLString(styledHTML, baseURL: nil)
     }
-    
+
+    static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        webView.configuration.userContentController.removeAllScriptMessageHandlers()
+    }
+
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
     }
-    
+
     private func wrapWithStyles(_ content: String) -> String {
         """
         <!DOCTYPE html>
@@ -354,6 +385,7 @@ struct ArticleContentView: NSViewRepresentable {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            \(loadImages ? "" : #"<meta http-equiv="Content-Security-Policy" content="img-src 'none'">"#)
             <style>
                 :root {
                     color-scheme: light dark;
@@ -369,7 +401,7 @@ struct ArticleContentView: NSViewRepresentable {
                 
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-                    font-size: 16px;
+                    font-size: \(fontSize)px;
                     line-height: 1.7;
                     color: #1d1d1f;
                     background: transparent;
@@ -500,59 +532,67 @@ struct ArticleContentView: NSViewRepresentable {
                     margin: 16px 0;
                     border-radius: 8px;
                 }
+                \(loadImages ? "" : "img, picture { display: none !important; }")
             </style>
         </head>
         <body>
             \(content)
-            <script>
-                // Send height to Swift after load
-                function sendHeight() {
-                    const height = document.body.scrollHeight;
-                    window.webkit.messageHandlers.heightHandler.postMessage(height);
-                }
-                window.onload = sendHeight;
-                setTimeout(sendHeight, 100);
-                setTimeout(sendHeight, 500);
-            </script>
         </body>
         </html>
         """
     }
-    
+
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: ArticleContentView
-        
+        var loadedHTML: String?
+
         init(parent: ArticleContentView) {
             self.parent = parent
             super.init()
         }
-        
+
+        private func setHeight(_ contentHeight: CGFloat) {
+            let newHeight = max(contentHeight + 20, 100)
+            DispatchQueue.main.async {
+                if abs(self.parent.height - newHeight) > 1 {
+                    self.parent.height = newHeight
+                }
+            }
+        }
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Get content height after load
-            webView.evaluateJavaScript("document.body.scrollHeight") { [weak self] result, error in
-                if let height = result as? CGFloat, height > 0 {
-                    DispatchQueue.main.async {
-                        self?.parent.height = max(height + 20, 100)
-                    }
+            // Fallback in case the observer script hasn't reported yet
+            webView.evaluateJavaScript("document.body.scrollHeight", in: nil, in: .defaultClient) { [weak self] result in
+                if case .success(let value) = result, let number = value as? NSNumber {
+                    self?.setHeight(CGFloat(number.doubleValue))
                 }
             }
         }
-        
+
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if navigationAction.navigationType == .linkActivated,
-               let url = navigationAction.request.url {
-                NSWorkspace.shared.open(url)
+            guard let url = navigationAction.request.url else {
                 decisionHandler(.cancel)
-            } else {
-                decisionHandler(.allow)
+                return
             }
-        }
-        
-        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            if let height = message.body as? CGFloat {
-                DispatchQueue.main.async {
-                    self.parent.height = max(height + 20, 100)
+
+            // Clicked links open in the default browser (web and mail links only)
+            if navigationAction.navigationType == .linkActivated {
+                if ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") {
+                    NSWorkspace.shared.open(url)
                 }
+                decisionHandler(.cancel)
+                return
+            }
+
+            // Allow our own loadHTMLString (about:blank) and embedded frames (videos);
+            // block anything else replacing the article (redirects, meta refresh).
+            let isMainFrame = navigationAction.targetFrame?.isMainFrame ?? true
+            decisionHandler(!isMainFrame || url.absoluteString == "about:blank" ? .allow : .cancel)
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if let number = message.body as? NSNumber {
+                setHeight(CGFloat(number.doubleValue))
             }
         }
     }

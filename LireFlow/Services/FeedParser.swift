@@ -42,7 +42,10 @@ final class FeedParser: NSObject, XMLParserDelegate {
     private var currentArticle: ParsedArticle?
     private var isInsideItem = false
     private var isInsideEntry = false
-    
+    private var isInsideAuthor = false
+    /// > 0 while inside Atom `<content type="xhtml">`: child elements are markup, not feed fields
+    private var xhtmlDepth = 0
+
     // MARK: - Public API
     
     func parse(data: Data) async throws -> ParsedFeed {
@@ -79,13 +82,27 @@ final class FeedParser: NSObject, XMLParserDelegate {
         currentArticle = nil
         isInsideItem = false
         isInsideEntry = false
+        isInsideAuthor = false
+        xhtmlDepth = 0
     }
-    
+
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String: String] = [:]) {
+        if xhtmlDepth > 0 {
+            // Re-serialize xhtml children instead of treating them as feed elements
+            xhtmlDepth += 1
+            let attrs = attributeDict.map { " \($0.key)=\"\(Self.escapeXML($0.value))\"" }.joined()
+            currentText += "<\(Self.localName(elementName))\(attrs)>"
+            return
+        }
+
         currentElement = elementName.lowercased()
         currentText = ""
-        
+
         switch currentElement {
+        case "author":
+            isInsideAuthor = true
+        case "content" where isInsideEntry && attributeDict["type"] == "xhtml":
+            xhtmlDepth = 1
         case "rss", "rdf:rdf":
             feedType = .rss
         case "feed":
@@ -118,7 +135,8 @@ final class FeedParser: NSObject, XMLParserDelegate {
     }
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
-        currentText += string
+        // Inside xhtml content the text is markup again, so entities must be re-escaped
+        currentText += xhtmlDepth > 0 ? Self.escapeXML(string) : string
     }
     
     func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
@@ -128,9 +146,17 @@ final class FeedParser: NSObject, XMLParserDelegate {
     }
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+        if xhtmlDepth > 1 {
+            xhtmlDepth -= 1
+            currentText += "</\(Self.localName(elementName))>"
+            return
+        }
+        xhtmlDepth = 0  // closing </content> (or not in xhtml): handle normally below
+
         let element = elementName.lowercased()
         let text = currentText.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+        defer { if element == "author" { isInsideAuthor = false } }
+
         if isInsideItem || isInsideEntry {
             // Parsing article
             switch element {
@@ -148,8 +174,14 @@ final class FeedParser: NSObject, XMLParserDelegate {
                 if feedType == .rss {
                     currentArticle?.url = text
                 }
-            case "author", "dc:creator":
+            case "name" where isInsideAuthor:
+                // Atom: <author><name>…</name></author>
                 currentArticle?.author = text
+            case "author", "dc:creator":
+                // RSS puts the name directly in <author>; Atom's is empty here (set via <name>)
+                if !text.isEmpty {
+                    currentArticle?.author = text
+                }
             case "pubdate", "published", "updated", "dc:date":
                 currentArticle?.publishedDate = parseDate(text) ?? Date()
             case "item", "entry":
@@ -194,7 +226,19 @@ final class FeedParser: NSObject, XMLParserDelegate {
     }
     
     // MARK: - Helpers
-    
+
+    private static func localName(_ name: String) -> String {
+        name.split(separator: ":").last.map(String.init) ?? name
+    }
+
+    private static func escapeXML(_ string: String) -> String {
+        string
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
+    }
+
     private func parseDate(_ string: String) -> Date? {
         let formatters: [DateFormatter] = [
             Self.rfc822Formatter,

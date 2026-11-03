@@ -223,3 +223,25 @@
 "reading lists" = "reading lists";
 "Duplicates skipped:" = "Duplicates skipped:";
 
+/* Added with review fixes */
+"None" = "None";
+"Feed found" = "Feed found";
+"Browse Feeds" = "Browse Feeds";
+"Add %lld feeds" = "Add %lld feeds";
+"%lld selected" = "%lld selected";
+"No articles found" = "No articles found";
+"No articles" = "No articles";
+"Try a different search" = "Try a different search";
+"Add feeds to get started" = "Add feeds to get started";
+"Welcome to Pro!" = "Welcome to Pro!";
+"Awesome!" = "Awesome!";
+"Thank you for your purchase! All Pro features are unlocked." = "Thank you for your purchase! All Pro features are unlocked.";
+"Purchase failed" = "Purchase failed";
+"Something went wrong. Please try again." = "Something went wrong. Please try again.";
+"Close article" = "Close article";
+"No content available. Click “Fetch full article” to load it." = "No content available. Click “Fetch full article” to load it.";
+"Not imported (free plan limit): %lld. Upgrade to Pro to import everything." = "Not imported (free plan limit): %lld. Upgrade to Pro to import everything.";
+"Some feeds weren't added" = "Some feeds weren't added";
+"Upgrade to Pro" = "Upgrade to Pro";
+"Could not load: %@" = "Could not load: %@";
+"Free plan limit reached: %lld feeds not added." = "Free plan limit reached: %lld feeds not added.";

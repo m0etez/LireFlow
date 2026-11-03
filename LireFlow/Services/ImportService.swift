@@ -41,6 +41,8 @@ final class ImportService: ObservableObject {
         let feedsImported: Int
         let readingListsImported: Int
         let duplicatesSkipped: Int
+        /// Feeds and reading lists not imported because the free tier is full
+        let limitSkipped: Int
 
         var totalImported: Int {
             foldersImported + feedsImported + readingListsImported
@@ -101,7 +103,7 @@ final class ImportService: ObservableObject {
         // 1. Present open panel
         let openPanel = NSOpenPanel()
         if let opmlType = UTType(filenameExtension: "opml") {
-            openPanel.allowedContentTypes = [opmlType]
+            openPanel.allowedContentTypes = [opmlType, .xml]
         }
         openPanel.canChooseFiles = true
         openPanel.canChooseDirectories = false
@@ -124,7 +126,7 @@ final class ImportService: ObservableObject {
 
         let opmlData: OPMLData
         do {
-            opmlData = try parseOPML(xmlData)
+            opmlData = try Self.parseOPML(xmlData)
         } catch {
             throw ImportError.xmlParsingFailed(error)
         }
@@ -144,26 +146,23 @@ final class ImportService: ObservableObject {
         var feedsImported = 0
         var readingListsImported = 0
         var duplicatesSkipped = 0
+        var limitSkipped = 0
+        let store = StoreService.shared
 
         // 1. Fetch existing data for duplicate detection
-        let existingFeeds = try context.fetch(FetchDescriptor<Feed>())
-        let existingFeedURLs = Set(existingFeeds.map { $0.url })
-        let existingFolderIDs = Set(try context.fetch(FetchDescriptor<Folder>()).map { $0.id })
-        let existingReadingListIDs = Set(try context.fetch(FetchDescriptor<ReadingList>()).map { $0.id })
+        var knownFeedURLs = Set(try context.fetch(FetchDescriptor<Feed>()).map { $0.url })
+        let existingFolders = try context.fetch(FetchDescriptor<Folder>())
+        let existingReadingLists = try context.fetch(FetchDescriptor<ReadingList>())
+        let existingReadingListIDs = Set(existingReadingLists.map { $0.id })
 
         // 2. Import folders first (maintain ID mapping)
-        var folderIDMapping: [UUID: Folder] = [:]
+        var folderIDMapping: [UUID: Folder] = Dictionary(
+            existingFolders.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first }
+        )
 
         for exportFolder in exportData.folders {
-            if existingFolderIDs.contains(exportFolder.id) {
+            if folderIDMapping[exportFolder.id] != nil {
                 duplicatesSkipped += 1
-                // Load existing folder for reference
-                let descriptor = FetchDescriptor<Folder>(
-                    predicate: #Predicate { $0.id == exportFolder.id }
-                )
-                if let existing = try context.fetch(descriptor).first {
-                    folderIDMapping[exportFolder.id] = existing
-                }
                 continue
             }
 
@@ -178,14 +177,16 @@ final class ImportService: ObservableObject {
             foldersImported += 1
         }
 
-        // 3. Import feeds (skip duplicates by URL)
+        // 3. Import feeds (skip duplicates by URL, respect the free tier)
         for exportFeed in exportData.feeds {
-            if existingFeedURLs.contains(exportFeed.url) {
+            guard knownFeedURLs.insert(exportFeed.url).inserted else {
                 duplicatesSkipped += 1
                 continue
             }
-
-            let folder = exportFeed.folderID.flatMap { folderIDMapping[$0] }
+            guard store.canAddFeed(currentCount: knownFeedURLs.count - 1) else {
+                limitSkipped += 1
+                continue
+            }
 
             let feed = Feed(
                 id: exportFeed.id,
@@ -194,16 +195,20 @@ final class ImportService: ObservableObject {
                 url: exportFeed.url,
                 websiteURL: exportFeed.websiteURL,
                 iconURL: exportFeed.iconURL,
-                folder: folder
+                folder: exportFeed.folderID.flatMap { folderIDMapping[$0] }
             )
             context.insert(feed)
             feedsImported += 1
         }
 
-        // 4. Import reading lists (skip duplicates by ID)
+        // 4. Import reading lists (skip duplicates by ID, respect the free tier)
         for exportList in exportData.readingLists {
             if existingReadingListIDs.contains(exportList.id) {
                 duplicatesSkipped += 1
+                continue
+            }
+            guard store.canAddReadingList(currentCount: existingReadingLists.count + readingListsImported) else {
+                limitSkipped += 1
                 continue
             }
 
@@ -224,12 +229,15 @@ final class ImportService: ObservableObject {
             foldersImported: foldersImported,
             feedsImported: feedsImported,
             readingListsImported: readingListsImported,
-            duplicatesSkipped: duplicatesSkipped
+            duplicatesSkipped: duplicatesSkipped,
+            limitSkipped: limitSkipped
         )
     }
 
-    private func parseOPML(_ xmlData: Data) throws -> OPMLData {
-        let xmlDoc = try XMLDocument(data: xmlData, options: [])
+    /// Parse OPML into top-level folders and loose feeds. An outline is a feed when it has an
+    /// `xmlUrl` (many exporters omit `type="rss"`); deeper nesting is flattened into its top folder.
+    static func parseOPML(_ xmlData: Data) throws -> OPMLData {
+        let xmlDoc = try XMLDocument(data: xmlData, options: [.nodeLoadExternalEntitiesNever])
 
         guard let bodyElement = try xmlDoc.nodes(forXPath: "//body").first else {
             throw ImportError.invalidFormat
@@ -238,46 +246,37 @@ final class ImportService: ObservableObject {
         var folders: [OPMLFolder] = []
         var orphanedFeeds: [OPMLFeed] = []
 
-        // Parse all outline elements under body
         let outlines = try bodyElement.nodes(forXPath: "outline") as? [XMLElement] ?? []
 
         for outline in outlines {
-            // Check if this is a feed or a folder
-            let type = outline.attribute(forName: "type")?.stringValue
+            if let feed = parseFeedOutline(outline, folderName: nil) {
+                orphanedFeeds.append(feed)
+                continue
+            }
 
-            if type == "rss" {
-                // This is a feed without a folder
-                if let feed = parseFeedOutline(outline, folderName: nil) {
-                    orphanedFeeds.append(feed)
-                }
-            } else {
-                // This is a folder (has no type attribute or type != "rss")
-                let folderName = outline.attribute(forName: "text")?.stringValue ?? "Unnamed Folder"
-                var folderFeeds: [OPMLFeed] = []
+            let folderName = outline.attribute(forName: "text")?.stringValue
+                ?? outline.attribute(forName: "title")?.stringValue
+                ?? "Unnamed Folder"
+            let nestedFeeds = (try outline.nodes(forXPath: ".//outline") as? [XMLElement] ?? [])
+                .compactMap { parseFeedOutline($0, folderName: folderName) }
 
-                // Parse nested feeds
-                let nestedOutlines = try outline.nodes(forXPath: "outline") as? [XMLElement] ?? []
-                for nestedOutline in nestedOutlines {
-                    if let feed = parseFeedOutline(nestedOutline, folderName: folderName) {
-                        folderFeeds.append(feed)
-                    }
-                }
-
-                if !folderFeeds.isEmpty {
-                    folders.append(OPMLFolder(name: folderName, feeds: folderFeeds))
-                }
+            if !nestedFeeds.isEmpty {
+                folders.append(OPMLFolder(name: folderName, feeds: nestedFeeds))
             }
         }
 
         return OPMLData(folders: folders, feeds: orphanedFeeds)
     }
 
-    private func parseFeedOutline(_ outline: XMLElement, folderName: String?) -> OPMLFeed? {
-        guard let feedURL = outline.attribute(forName: "xmlUrl")?.stringValue else {
+    private static func parseFeedOutline(_ outline: XMLElement, folderName: String?) -> OPMLFeed? {
+        guard let feedURL = outline.attribute(forName: "xmlUrl")?.stringValue,
+              !feedURL.isEmpty else {
             return nil
         }
 
-        let title = outline.attribute(forName: "text")?.stringValue ?? feedURL
+        let title = outline.attribute(forName: "text")?.stringValue
+            ?? outline.attribute(forName: "title")?.stringValue
+            ?? feedURL
         let websiteURL = outline.attribute(forName: "htmlUrl")?.stringValue
         let description = outline.attribute(forName: "description")?.stringValue
 
@@ -298,75 +297,62 @@ final class ImportService: ObservableObject {
         var foldersImported = 0
         var feedsImported = 0
         var duplicatesSkipped = 0
+        var limitSkipped = 0
+        let store = StoreService.shared
 
         // 1. Fetch existing data
-        let existingFeeds = try context.fetch(FetchDescriptor<Feed>())
-        let existingFeedURLs = Set(existingFeeds.map { $0.url })
+        var knownFeedURLs = Set(try context.fetch(FetchDescriptor<Feed>()).map { $0.url })
 
         let existingFolders = try context.fetch(FetchDescriptor<Folder>())
+        // Folder names aren't unique: keep the first match instead of crashing on duplicates
         var foldersByName: [String: Folder] = Dictionary(
-            uniqueKeysWithValues: existingFolders.map { ($0.name, $0) }
+            existingFolders.map { ($0.name, $0) }, uniquingKeysWith: { first, _ in first }
         )
 
-        // 2. Import folders and their feeds
-        for opmlFolder in opmlData.folders {
-            // Get or create folder
-            let folder: Folder
-            if let existingFolder = foldersByName[opmlFolder.name] {
-                folder = existingFolder
-            } else {
-                let newFolder = Folder(
-                    id: UUID(),
-                    name: opmlFolder.name,
-                    order: existingFolders.count + foldersImported,
-                    icon: "folder"
-                )
-                context.insert(newFolder)
-                foldersByName[opmlFolder.name] = newFolder
-                folder = newFolder
-                foldersImported += 1
-            }
-
-            // Import feeds in this folder
-            for opmlFeed in opmlFolder.feeds {
-                if existingFeedURLs.contains(opmlFeed.feedURL) {
-                    duplicatesSkipped += 1
-                    continue
-                }
-
-                let feed = Feed(
-                    id: UUID(),
-                    title: opmlFeed.title,
-                    feedDescription: opmlFeed.description ?? "",
-                    url: opmlFeed.feedURL,
-                    websiteURL: opmlFeed.websiteURL,
-                    iconURL: nil,
-                    folder: folder
-                )
-                context.insert(feed)
-                feedsImported += 1
-            }
-        }
-
-        // 3. Import orphaned feeds (no folder)
-        for opmlFeed in opmlData.feeds {
-            if existingFeedURLs.contains(opmlFeed.feedURL) {
+        /// Insert one feed unless it's a duplicate or over the free limit
+        func importFeed(_ opmlFeed: OPMLFeed, into folder: Folder?) {
+            guard knownFeedURLs.insert(opmlFeed.feedURL).inserted else {
                 duplicatesSkipped += 1
-                continue
+                return
             }
-
-            let feed = Feed(
+            guard store.canAddFeed(currentCount: knownFeedURLs.count - 1) else {
+                limitSkipped += 1
+                return
+            }
+            context.insert(Feed(
                 id: UUID(),
                 title: opmlFeed.title,
                 feedDescription: opmlFeed.description ?? "",
                 url: opmlFeed.feedURL,
                 websiteURL: opmlFeed.websiteURL,
                 iconURL: nil,
-                folder: nil
-            )
-            context.insert(feed)
+                folder: folder
+            ))
             feedsImported += 1
         }
+
+        // 2. Import folders and their feeds
+        for opmlFolder in opmlData.folders {
+            let folder: Folder
+            if let existingFolder = foldersByName[opmlFolder.name] {
+                folder = existingFolder
+            } else {
+                folder = Folder(
+                    id: UUID(),
+                    name: opmlFolder.name,
+                    order: existingFolders.count + foldersImported,
+                    icon: "folder"
+                )
+                context.insert(folder)
+                foldersByName[opmlFolder.name] = folder
+                foldersImported += 1
+            }
+
+            opmlFolder.feeds.forEach { importFeed($0, into: folder) }
+        }
+
+        // 3. Import orphaned feeds (no folder)
+        opmlData.feeds.forEach { importFeed($0, into: nil) }
 
         // 4. Save changes
         try context.save()
@@ -375,7 +361,8 @@ final class ImportService: ObservableObject {
             foldersImported: foldersImported,
             feedsImported: feedsImported,
             readingListsImported: 0,  // OPML doesn't support reading lists
-            duplicatesSkipped: duplicatesSkipped
+            duplicatesSkipped: duplicatesSkipped,
+            limitSkipped: limitSkipped
         )
     }
 }

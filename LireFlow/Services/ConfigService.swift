@@ -239,12 +239,9 @@ struct EuropressePortal: Codable, Identifiable, Hashable {
 
 /// App configuration stored in JSON file
 struct AppConfig: Codable {
-    var isDarkMode: Bool = false
     var refreshIntervalMinutes: Int = 30
     var showUnreadCount: Bool = true
-    var defaultFeedCategory: String = "Tech"
     var articleFontSize: Int = 16
-    var markAsReadOnScroll: Bool = true
 
     // Weather settings
     var showWeather: Bool = true
@@ -271,3 +268,30 @@ struct AppConfig: Codable {
     var selectedTheme: AppTheme = .system
 }
 
+extension AppConfig {
+    /// Lenient decoding: a key missing from an older config.json (or holding a value this
+    /// version no longer understands) keeps its default instead of failing the whole decode,
+    /// which used to reset every setting whenever a release added a field.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = AppConfig()
+        func value<T: Decodable>(_ key: CodingKeys, _ fallback: T) -> T {
+            ((try? c.decodeIfPresent(T.self, forKey: key)) ?? nil) ?? fallback
+        }
+        refreshIntervalMinutes = value(.refreshIntervalMinutes, d.refreshIntervalMinutes)
+        showUnreadCount = value(.showUnreadCount, d.showUnreadCount)
+        articleFontSize = value(.articleFontSize, d.articleFontSize)
+        showWeather = value(.showWeather, d.showWeather)
+        weatherLocation = (try? c.decodeIfPresent(String.self, forKey: .weatherLocation)) ?? nil
+        sidebarWidth = value(.sidebarWidth, d.sidebarWidth)
+        articleListWidth = value(.articleListWidth, d.articleListWidth)
+        articleLayout = value(.articleLayout, d.articleLayout)
+        loadImages = value(.loadImages, d.loadImages)
+        maxArticlesPerFeed = value(.maxArticlesPerFeed, d.maxArticlesPerFeed)
+        cleanupOldArticlesDays = value(.cleanupOldArticlesDays, d.cleanupOldArticlesDays)
+        backgroundRefreshEnabled = value(.backgroundRefreshEnabled, d.backgroundRefreshEnabled)
+        europressePortal = (try? c.decodeIfPresent(EuropressePortal.self, forKey: .europressePortal)) ?? nil
+        hasCompletedOnboarding = value(.hasCompletedOnboarding, d.hasCompletedOnboarding)
+        selectedTheme = value(.selectedTheme, d.selectedTheme)
+    }
+}

@@ -127,14 +127,14 @@ struct UpgradeSheet: View {
                 break
             }
         }
-        .alert("Bienvenue dans Pro !", isPresented: $showingSuccess) {
-            Button("Génial !") {
+        .alert("Welcome to Pro!", isPresented: $showingSuccess) {
+            Button("Awesome!") {
                 dismiss()
             }
         } message: {
-            Text("Merci pour votre achat ! Toutes les fonctionnalités Pro sont débloquées.")
+            Text("Thank you for your purchase! All Pro features are unlocked.")
         }
-        .alert("Échec de l'achat", isPresented: $showingError) {
+        .alert("Purchase failed", isPresented: $showingError) {
             Button("OK") {
                 storeService.resetPurchaseState()
             }
@@ -142,7 +142,7 @@ struct UpgradeSheet: View {
             if case .failed(let message) = storeService.purchaseState {
                 Text(message)
             } else {
-                Text("Une erreur est survenue. Veuillez réessayer.")
+                Text("Something went wrong. Please try again.")
             }
         }
     }

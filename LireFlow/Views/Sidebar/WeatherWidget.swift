@@ -2,7 +2,9 @@ import SwiftUI
 
 struct WeatherWidget: View {
     @StateObject private var weatherService = WeatherService()
+    @ObservedObject private var configService = ConfigService.shared
     @State private var showingDetail = false
+    @State private var hasLoaded = false
     
     var body: some View {
         Group {
@@ -52,8 +54,16 @@ struct WeatherWidget: View {
                 }
             }
         }
-        .onAppear {
-            weatherService.requestLocation()
+        .task(id: configService.config.weatherLocation) {
+            guard hasLoaded else {
+                hasLoaded = true
+                weatherService.requestLocation()
+                return
+            }
+            // Location edited in Settings: wait for typing to settle, then refetch
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            weatherService.reload()
         }
     }
 }
