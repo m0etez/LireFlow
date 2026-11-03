@@ -32,7 +32,7 @@ final class FeedService: ObservableObject {
         let parsedFeed = try await fetchFeed(from: url)
 
         let feed = Feed(
-            title: parsedFeed.title,
+            title: parsedFeed.title.isEmpty ? Self.fallbackTitle(for: parsedFeed.link.isEmpty ? url : parsedFeed.link) : parsedFeed.title,
             feedDescription: parsedFeed.description,
             url: url,
             websiteURL: parsedFeed.link.isEmpty ? nil : parsedFeed.link,
@@ -50,10 +50,45 @@ final class FeedService: ObservableObject {
         return feed
     }
 
+    struct BulkAddResult {
+        var failedURLs: [String] = []
+        var limitSkipped = 0
+    }
+
+    /// Add several feeds (catalog, onboarding): skips ones already subscribed, stops at the
+    /// free tier limit, and keeps going when a single feed fails.
+    func addFeeds(urls: [String], to folder: Folder? = nil, in context: ModelContext) async -> BulkAddResult {
+        var result = BulkAddResult()
+        var knownURLs = Set(((try? context.fetch(FetchDescriptor<Feed>())) ?? []).map(\.url))
+
+        for url in urls where !knownURLs.contains(url) {
+            guard StoreService.shared.canAddFeed(currentCount: knownURLs.count) else {
+                result.limitSkipped += 1
+                continue
+            }
+            do {
+                _ = try await addFeed(url: url, to: folder, in: context)
+                knownURLs.insert(url)
+            } catch {
+                result.failedURLs.append(url)
+            }
+        }
+        return result
+    }
+
     /// Refresh a single feed with new articles
     func refreshFeed(_ feed: Feed, in context: ModelContext) async throws {
+        if let moved = DefaultFeeds.movedURLs[feed.url] {
+            feed.url = moved
+        }
+        // Feeds saved without a name (empty <title>, OPML text="") get one back
+        let isUnnamed = feed.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         do {
             let parsedFeed = try await fetchFeed(from: feed.url)
+
+            if isUnnamed {
+                feed.title = parsedFeed.title.isEmpty ? Self.fallbackTitle(for: feed.websiteURL ?? feed.url) : parsedFeed.title
+            }
 
             // Update websiteURL if not set (for feeds added before this feature)
             if feed.websiteURL == nil && !parsedFeed.link.isEmpty {
@@ -75,6 +110,9 @@ final class FeedService: ObservableObject {
             feed.lastFetched = Date()
             feed.consecutiveFailures += 1
             feed.lastError = error.localizedDescription
+            if isUnnamed {
+                feed.title = Self.fallbackTitle(for: feed.websiteURL ?? feed.url)
+            }
 
             try? context.save()
             throw error
@@ -147,6 +185,12 @@ final class FeedService: ObservableObject {
         try? context.save()
     }
 
+    /// A readable name from a URL's host ("www.lemonde.fr" → "lemonde.fr"), for feeds without a title
+    nonisolated static func fallbackTitle(for urlString: String) -> String {
+        guard let host = URL(string: urlString)?.host() else { return urlString }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+
     // MARK: - Feed Discovery
 
     /// Try to discover feed URL from a website URL
@@ -198,15 +242,18 @@ enum FeedServiceError: LocalizedError {
     case invalidURL
     case invalidResponse
     case feedNotFound
+    case alreadySubscribed
 
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "The URL is invalid."
+            return String(localized: "Enter a web address, like example.com/feed.")
         case .invalidResponse:
-            return "The server returned an invalid response."
+            return String(localized: "The site didn’t return a feed.")
         case .feedNotFound:
-            return "No RSS feed was found at this URL."
+            return String(localized: "No RSS feed was found at this URL.")
+        case .alreadySubscribed:
+            return String(localized: "You’re already subscribed to this feed.")
         }
     }
 }

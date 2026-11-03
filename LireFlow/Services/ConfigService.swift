@@ -243,10 +243,6 @@ struct AppConfig: Codable {
     var showUnreadCount: Bool = true
     var articleFontSize: Int = 16
 
-    // Weather settings
-    var showWeather: Bool = true
-    var weatherLocation: String? = nil  // nil = auto-detect
-
     // UI preferences
     var sidebarWidth: Double = 240
     var articleListWidth: Double = 320
@@ -281,8 +277,6 @@ extension AppConfig {
         refreshIntervalMinutes = value(.refreshIntervalMinutes, d.refreshIntervalMinutes)
         showUnreadCount = value(.showUnreadCount, d.showUnreadCount)
         articleFontSize = value(.articleFontSize, d.articleFontSize)
-        showWeather = value(.showWeather, d.showWeather)
-        weatherLocation = (try? c.decodeIfPresent(String.self, forKey: .weatherLocation)) ?? nil
         sidebarWidth = value(.sidebarWidth, d.sidebarWidth)
         articleListWidth = value(.articleListWidth, d.articleListWidth)
         articleLayout = value(.articleLayout, d.articleLayout)

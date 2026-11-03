@@ -18,9 +18,9 @@ struct ContentView: View {
     @State private var showingAddFeed = false
     @State private var showingAddFolder = false
     @State private var showingAddReadingList = false
-    @State private var showingSettings = false
-    @State private var settingsAction: SettingsSheet.BackupAction?
     @State private var showingOnboarding = false
+    @StateObject private var backup = BackupController()
+    @Environment(\.openSettings) private var openSettings
     @State private var showingUpgrade = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
@@ -55,9 +55,7 @@ struct ContentView: View {
         } detail: {
             // A deleted article (feed removed, cleanup) must never reach the detail view
             if let article = selectedArticle, !article.isDeleted, article.modelContext != nil {
-                ArticleDetailView(article: article) {
-                    selectedArticle = nil
-                }
+                ArticleDetailView(article: article)
             } else {
                 EmptyDetailView()
             }
@@ -78,6 +76,13 @@ struct ContentView: View {
                 .disabled(feedService.isRefreshing)
 
                 Button {
+                    markAllArticlesAsRead()
+                } label: {
+                    Label("Mark All as Read", systemImage: "checkmark.circle")
+                }
+                .help("Mark every article in this list as read (⇧⌘A)")
+
+                Button {
                     showingAddFeed = true
                 } label: {
                     Image(systemName: "plus")
@@ -95,9 +100,7 @@ struct ContentView: View {
         .sheet(isPresented: $showingAddReadingList) {
             AddReadingListSheet()
         }
-        .sheet(isPresented: $showingSettings, onDismiss: { settingsAction = nil }) {
-            SettingsSheet(initialAction: settingsAction)
-        }
+        .backupAlert(backup)
         .sheet(isPresented: $showingOnboarding) {
             OnboardingSheet()
         }
@@ -142,20 +145,20 @@ struct ContentView: View {
         .transform(attachActionNotifications)
     }
 
-    private func openSettings(_ action: SettingsSheet.BackupAction? = nil) {
-        settingsAction = action
-        showingSettings = true
+    private func runBackup(_ action: BackupAction) {
+        Task { await backup.run(action, in: modelContext) }
     }
 
     private func attachSheetNotifications(_ view: some View) -> some View {
         view
             .onReceive(NotificationCenter.default.publisher(for: .addNewFeed)) { _ in showingAddFeed = true }
             .onReceive(NotificationCenter.default.publisher(for: .addNewFolder)) { _ in showingAddFolder = true }
+            .onReceive(NotificationCenter.default.publisher(for: .addNewReadingList)) { _ in showingAddReadingList = true }
             .onReceive(NotificationCenter.default.publisher(for: .showSettings)) { _ in openSettings() }
-            .onReceive(NotificationCenter.default.publisher(for: .exportToJSON)) { _ in openSettings(.exportJSON) }
-            .onReceive(NotificationCenter.default.publisher(for: .exportToOPML)) { _ in openSettings(.exportOPML) }
-            .onReceive(NotificationCenter.default.publisher(for: .importFromJSON)) { _ in openSettings(.importJSON) }
-            .onReceive(NotificationCenter.default.publisher(for: .importFromOPML)) { _ in openSettings(.importOPML) }
+            .onReceive(NotificationCenter.default.publisher(for: .exportToJSON)) { _ in runBackup(.exportJSON) }
+            .onReceive(NotificationCenter.default.publisher(for: .exportToOPML)) { _ in runBackup(.exportOPML) }
+            .onReceive(NotificationCenter.default.publisher(for: .importFromJSON)) { _ in runBackup(.importJSON) }
+            .onReceive(NotificationCenter.default.publisher(for: .importFromOPML)) { _ in runBackup(.importOPML) }
     }
 
     private func attachActionNotifications(_ view: some View) -> some View {
@@ -266,10 +269,7 @@ struct ContentView: View {
     }
 
     private func markAllArticlesAsRead() {
-        for article in filteredArticles where !article.isRead {
-            article.isRead = true
-        }
-        try? modelContext.save()
+        markRead(filteredArticles, in: modelContext)
     }
 
     private func toggleCurrentArticleStar() {
@@ -309,29 +309,12 @@ enum SidebarItem: Hashable {
 // MARK: - Empty Detail View
 
 struct EmptyDetailView: View {
-    private var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        if hour < 12 {
-            return "Good Morning"
-        } else if hour < 18 {
-            return "Good Afternoon"
-        } else {
-            return "Good Evening"
-        }
-    }
-
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "newspaper")
-                .font(.system(size: 64))
-                .foregroundStyle(.tertiary)
-
-            Text("\(greeting), what would you like to read?")
-                .font(.title2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(nsColor: .textBackgroundColor))
+        ContentUnavailableView(
+            "No Article Selected",
+            systemImage: "doc.text",
+            description: Text("Choose an article to read it here.")
+        )
     }
 }
 

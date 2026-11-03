@@ -5,6 +5,7 @@ import SwiftData
 struct LireFlowApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var storeService = StoreService.shared
+    @ObservedObject private var configService = ConfigService.shared
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -67,14 +68,15 @@ struct LireFlowApp: App {
                 }
             }
 
-            CommandGroup(replacing: .appSettings) {
-                Button("Settings...") {
-                    NotificationCenter.default.post(name: .showSettings, object: nil)
-                }
-                .keyboardShortcut(",", modifiers: .command)
-            }
-
             CommandGroup(after: .toolbar) {
+                Picker("Article Layout", selection: $configService.config.articleLayout) {
+                    ForEach(ArticleLayout.allCases, id: \.self) { layout in
+                        Text(LocalizedStringKey(layout.displayName)).tag(layout)
+                    }
+                }
+
+                Divider()
+
                 Button("Refresh All Feeds") {
                     NotificationCenter.default.post(name: .refreshAllFeeds, object: nil)
                 }
@@ -113,6 +115,12 @@ struct LireFlowApp: App {
             }
         }
         
+        // Standard Settings window (⌘,)
+        Settings {
+            SettingsView()
+                .modelContainer(sharedModelContainer)
+        }
+
         // Menu Bar Extra
         MenuBarExtra {
             MenuBarView()
@@ -128,6 +136,7 @@ struct LireFlowApp: App {
 extension Notification.Name {
     static let addNewFeed = Notification.Name("addNewFeed")
     static let addNewFolder = Notification.Name("addNewFolder")
+    static let addNewReadingList = Notification.Name("addNewReadingList")
     static let refreshAllFeeds = Notification.Name("refreshAllFeeds")
     static let exportToJSON = Notification.Name("exportToJSON")
     static let exportToOPML = Notification.Name("exportToOPML")

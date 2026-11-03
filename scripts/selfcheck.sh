@@ -6,7 +6,9 @@ cd "$(dirname "$0")/.."
 out="$(mktemp -d)/selfcheck"
 swiftc -swift-version 5 -o "$out" \
     LireFlow/Services/FeedParser.swift \
+    LireFlow/Services/ArticleExtractor.swift \
     LireFlow/Services/ConfigService.swift \
+    LireFlow/Services/DefaultFeeds.swift \
     LireFlow/Utilities/AppTheme.swift \
     scripts/selfcheck/main.swift
 "$out"

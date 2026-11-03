@@ -3,7 +3,6 @@ import WebKit
 
 struct ArticleDetailView: View {
     @Bindable var article: Article
-    var onClose: (() -> Void)?
     @ObservedObject private var configService = ConfigService.shared
     @State private var webViewHeight: CGFloat = 400
     @State private var isFetchingFullArticle = false
@@ -32,152 +31,76 @@ struct ArticleDetailView: View {
         }
     }
     
-    // Check if we only have summary (not full content)
-    private var hasOnlySummary: Bool {
-        article.content.isEmpty || article.content == article.summary || article.content.count < 500
-    }
-    
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Close button
-                HStack {
-                    Spacer()
-                    
-                    if let onClose = onClose {
-                        Button {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                onClose()
-                            }
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 28, height: 28)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                                .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
-                        }
-                        .buttonStyle(.plain)
-                        .help("Close article")
-                    }
-                }
-                
+            VStack(alignment: .leading, spacing: 20) {
                 // Header
-                VStack(alignment: .leading, spacing: 12) {
-                    // Feed and date
+                VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         if let feed = article.feed {
-                            HStack(spacing: 6) {
+                            Label {
+                                Text(feed.title)
+                            } icon: {
                                 FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
                                     .frame(width: 16, height: 16)
-                                
-                                Text(feed.title)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
                             }
                         }
-                        
                         Spacer()
-                        
                         Text(article.publishedDate, style: .date)
-                            .font(.subheadline)
-                            .foregroundStyle(.tertiary)
                     }
-                    
-                    // Title
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
                     Text(article.title)
-                        .font(.system(size: 28, weight: .bold, design: .serif))
-                        .foregroundStyle(.primary)
+                        .font(.largeTitle.bold())
                         .textSelection(.enabled)
-                    
-                    // Author
+
                     if let author = article.author, !author.isEmpty {
                         Text("by \(author)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .italic()
                     }
-                }
-                .padding(.bottom, 8)
-                
-                // Fetch full article button (if we only have summary)
-                if hasOnlySummary {
-                    Button {
-                        Task { await fetchFullArticle() }
-                    } label: {
-                        HStack {
-                            if isFetchingFullArticle {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text("Fetching article...")
-                            } else {
-                                Image(systemName: "doc.text.magnifyingglass")
-                                Text("Fetch full article")
-                            }
+
+                    // Always offered: feeds often carry a summary, and a page can be re-fetched
+                    HStack(spacing: 8) {
+                        Button {
+                            Task { await fetchFullArticle() }
+                        } label: {
+                            Label("Fetch Full Article", systemImage: "doc.text.magnifyingglass")
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .controlSize(.small)
+                        .disabled(isFetchingFullArticle)
+
+                        if isFetchingFullArticle {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else if let error = fetchError {
+                            Label(error, systemImage: "exclamationmark.triangle.fill")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .disabled(isFetchingFullArticle)
+                    .padding(.top, 4)
                 }
-                
-                // Error message
-                if let error = fetchError {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        Text(error)
-                            .font(.caption)
-                    }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.orange.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                
+
                 Divider()
-                
-                // Content - using WebView with dynamic height
+
                 ArticleContentView(
                     html: displayContent,
                     fontSize: configService.config.articleFontSize,
                     loadImages: configService.config.loadImages,
+                    theme: currentTheme,
                     height: $webViewHeight
                 )
                     .frame(height: webViewHeight)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Action buttons
-                if let articleURL = URL(string: article.url) {
+
+                // Europresse: only if configured and the source is supported
+                if let portal = configService.config.europressePortal,
+                   !portal.authURL.isEmpty,
+                   DefaultFeeds.isEuropresseSupported(url: article.url) {
                     Divider()
-                    
-                    VStack(spacing: 12) {
-                        // Open in browser
-                        Link(destination: articleURL) {
-                            HStack {
-                                Image(systemName: "globe")
-                                Text("Open in browser")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.accentColor.opacity(0.1))
-                            .foregroundStyle(Color.accentColor)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .buttonStyle(.plain)
-                        
-                        // Europresse - Press archives via university (only if configured AND source is supported)
-                        if let portal = ConfigService.shared.config.europressePortal,
-                           !portal.authURL.isEmpty,
-                           DefaultFeeds.isEuropresseSupported(url: article.url) {
-                            EuropresseButton(article: article, portal: portal)
-                        }
-                    }
+                    EuropresseButton(article: article, portal: portal)
                 }
             }
             .padding(32)
@@ -189,50 +112,40 @@ struct ArticleDetailView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
-                        article.isStarred.toggle()
-                    }
+                    article.isStarred.toggle()
                 } label: {
-                    Image(systemName: article.isStarred ? "star.fill" : "star")
-                        .foregroundStyle(article.isStarred ? .yellow : .primary)
-                        .scaleEffect(article.isStarred ? 1.15 : 1.0)
+                    Label(article.isStarred ? "Unstar" : "Star",
+                          systemImage: article.isStarred ? "star.fill" : "star")
                 }
-                .help(article.isStarred ? "Remove from favorites" : "Add to favorites")
-                
+                .help(article.isStarred ? "Remove star (S)" : "Star (S)")
+
                 Button {
                     article.isRead.toggle()
                 } label: {
-                    Image(systemName: article.isRead ? "circle" : "circle.fill")
+                    Label(article.isRead ? "Mark as Unread" : "Mark as Read",
+                          systemImage: article.isRead ? "circle" : "circle.fill")
                 }
-                .help(article.isRead ? "Mark as unread" : "Mark as read")
+                .help(article.isRead ? "Mark as unread (M)" : "Mark as read (M)")
 
-                Divider()
+                if let url = URL(string: article.url) {
+                    Link(destination: url) {
+                        Label("Open in Browser", systemImage: "safari")
+                    }
+                    .help("Open in browser (V)")
+                }
 
                 Menu {
-                    Button {
-                        Task { await exportToPDF() }
-                    } label: {
-                        Label("Export to PDF", systemImage: "doc.richtext")
-                    }
-                    .disabled(isExporting)
-
-                    Button {
-                        Task { await exportToMarkdown() }
-                    } label: {
-                        Label("Export to Markdown", systemImage: "doc.text")
-                    }
-                    .disabled(isExporting)
+                    Button("Export as PDF…") { Task { await exportToPDF() } }
+                    Button("Export as Markdown…") { Task { await exportToMarkdown() } }
                 } label: {
-                    Image(systemName: "square.and.arrow.down")
+                    Label("Export", systemImage: "square.and.arrow.down")
                 }
                 .help("Export article")
                 .disabled(isExporting)
 
                 if let url = URL(string: article.url) {
-                    ShareLink(item: url) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    .help("Share article")
+                    ShareLink(item: url)
+                        .help("Share article")
                 }
             }
         }
@@ -251,7 +164,7 @@ struct ArticleDetailView: View {
             fetchError = nil
         }
     }
-    
+
     // MARK: - Fetch Full Article
     
     private func fetchFullArticle() async {
@@ -261,14 +174,16 @@ struct ArticleDetailView: View {
         do {
             let fullContent = try await ArticleExtractor.extractContent(from: article.articleURL)
             
-            if fullContent.count > article.content.count {
+            // Compare text, not markup: only replace what's shown when the page has more to read
+            let shownText = (article.content.isEmpty ? article.summary : article.content).strippingHTML
+            if fullContent.strippingHTML.count > shownText.count {
                 article.content = fullContent
                 // Reset webview height to recalculate
                 webViewHeight = 400
             } else if fullContent.isEmpty {
-                fetchError = "Could not extract article content. Try opening in Safari."
+                fetchError = String(localized: "Couldn’t find the article text. Open it in your browser instead.")
             } else {
-                fetchError = "No additional content found."
+                fetchError = String(localized: "The page has no more text than the feed.")
             }
         } catch {
             fetchError = error.localizedDescription
@@ -285,7 +200,7 @@ struct ArticleDetailView: View {
 
         do {
             let url = try await exportService.exportArticleToPDF(article: article)
-            exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            exportSuccessMessage = String(localized: "Saved as \(url.lastPathComponent).")
             showingExportSuccess = true
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
@@ -301,7 +216,7 @@ struct ArticleDetailView: View {
 
         do {
             let url = try await exportService.exportArticleToMarkdown(article: article)
-            exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            exportSuccessMessage = String(localized: "Saved as \(url.lastPathComponent).")
             showingExportSuccess = true
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
@@ -324,6 +239,7 @@ struct ArticleContentView: NSViewRepresentable {
     let html: String
     var fontSize: Int = 16
     var loadImages: Bool = true
+    var theme: AppTheme = .system
     @Binding var height: CGFloat
 
     /// Reports the content height. Runs in an isolated script world, so it works even though
@@ -376,6 +292,22 @@ struct ArticleContentView: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
+    }
+
+    /// Fixed themes paint the page themselves; System keeps the light/dark defaults above
+    private var themeCSS: String {
+        guard theme != .system else { return "" }
+        return """
+        body { color: \(Self.css(theme.textColor)); }
+        a { color: \(Self.css(theme.accentColor)); }
+        blockquote { border-left-color: \(Self.css(theme.accentColor)); background: transparent; }
+        figcaption { color: \(Self.css(theme.secondaryTextColor)); }
+        """
+    }
+
+    private static func css(_ color: Color) -> String {
+        guard let rgb = NSColor(color).usingColorSpace(.sRGB) else { return "inherit" }
+        return "rgb(\(Int(rgb.redComponent * 255)), \(Int(rgb.greenComponent * 255)), \(Int(rgb.blueComponent * 255)))"
     }
 
     private func wrapWithStyles(_ content: String) -> String {
@@ -533,6 +465,7 @@ struct ArticleContentView: NSViewRepresentable {
                     border-radius: 8px;
                 }
                 \(loadImages ? "" : "img, picture { display: none !important; }")
+                \(themeCSS)
             </style>
         </head>
         <body>
@@ -603,83 +536,35 @@ struct ArticleContentView: NSViewRepresentable {
 struct EuropresseButton: View {
     let article: Article
     let portal: EuropressePortal
-    
-    @State private var showCopiedFeedback = false
-    
+
+    @State private var copied = false
+
     var body: some View {
-        VStack(spacing: 8) {
-            Button {
-                openEuropresse()
-            } label: {
-                HStack {
-                    Image(systemName: "newspaper")
-                        .font(.system(size: 16))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Search on Europresse")
-                            .font(.subheadline)
-                        Text("via \(portal.name)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    if showCopiedFeedback {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        Image(systemName: "arrow.up.forward.square")
-                            .font(.caption)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .padding(.horizontal, 12)
-                .background(Color.orange.opacity(0.1))
-                .foregroundStyle(.orange)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+        VStack(alignment: .leading, spacing: 6) {
+            Button(action: openEuropresse) {
+                Label("Search on Europresse", systemImage: "newspaper")
             }
-            .buttonStyle(.plain)
-            .help("Opens Europresse - paste the search query from clipboard")
-            
-            // Instructions
-            VStack(alignment: .leading, spacing: 4) {
-                if showCopiedFeedback {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                        Text("Search query copied!")
-                            .fontWeight(.medium)
-                    }
-                    .font(.caption)
-                }
-                
-                Text("After logging in, paste (⌘V) in the search bar")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+            .help("Copies the title as a search and opens Europresse")
+
+            Text(copied
+                 ? "Search copied. After signing in, paste it (⌘V) in Europresse’s search field."
+                 : "Via \(portal.name). Copies the title as a search query, then opens Europresse.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
-    
+
     private func openEuropresse() {
-        // Copy search query to clipboard
-        let searchQuery = "TIT_HEAD=\"\(article.title)\""
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(searchQuery, forType: .string)
-        
-        // Show feedback
-        withAnimation {
-            showCopiedFeedback = true
-        }
-        
-        // Open Europresse via configured portal
+        NSPasteboard.general.setString("TIT_HEAD=\"\(article.title)\"", forType: .string)
+        copied = true
+
         if let europresseURL = URL(string: portal.authURL) {
             NSWorkspace.shared.open(europresseURL)
         }
-        
-        // Reset feedback after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            withAnimation {
-                showCopiedFeedback = false
-            }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            copied = false
         }
     }
 }

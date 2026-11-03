@@ -11,7 +11,9 @@ struct SidebarView: View {
     @Binding var showingAddReadingList: Bool
     
     @Environment(\.modelContext) private var modelContext
-    @Query private var allArticles: [Article]
+    @Query(filter: #Predicate<Article> { !$0.isRead }) private var unreadArticles: [Article]
+
+    private var unreadCount: Int { unreadArticles.count }
     
     // Config service for file-based settings
     @StateObject private var configService = ConfigService.shared
@@ -25,9 +27,6 @@ struct SidebarView: View {
     @State private var showingRenameFeed = false
     @State private var feedToRename: Feed?
     @State private var newFeedName = ""
-
-    // Feed search
-    @State private var feedSearchText = ""
 
     /// Whether the app renders dark right now (explicit theme, or the system setting for .system)
     private var isDark: Bool {
@@ -45,93 +44,37 @@ struct SidebarView: View {
         configService.config.selectedTheme = isDark ? .light : .dark
     }
 
-    private var filteredFolders: [Folder] {
-        guard !feedSearchText.isEmpty else { return folders }
-        return folders.filter { folder in
-            folder.name.localizedCaseInsensitiveContains(feedSearchText) ||
-            folder.feeds.contains { $0.title.localizedCaseInsensitiveContains(feedSearchText) }
-        }
-    }
-
-    private var filteredFeeds: [Feed] {
-        guard !feedSearchText.isEmpty else { return feeds }
-        return feeds.filter { $0.title.localizedCaseInsensitiveContains(feedSearchText) }
-    }
-
     var body: some View {
         List(selection: $selectedItem) {
-            // Weather
-            if configService.config.showWeather {
-                Section {
-                    WeatherWidget()
-                }
-            }
-
             // Smart Folders
             Section {
                 SidebarRow(
                     icon: "tray.full",
                     title: String(localized: "All Articles"),
-                    count: allArticles.count,
-                    showCount: configService.config.showUnreadCount,
-                    color: .blue
+                    count: unreadCount,
+                    showCount: configService.config.showUnreadCount
                 )
                 .tag(SidebarItem.all)
-
-                SidebarRow(
-                    icon: "circle.fill",
-                    title: String(localized: "Unread"),
-                    count: allArticles.filter { !$0.isRead }.count,
-                    showCount: configService.config.showUnreadCount,
-                    color: .orange
-                )
-                .tag(SidebarItem.unread)
-
-                SidebarRow(
-                    icon: "star.fill",
-                    title: String(localized: "Starred"),
-                    count: allArticles.filter { $0.isStarred }.count,
-                    showCount: configService.config.showUnreadCount,
-                    color: .yellow
-                )
-                .tag(SidebarItem.starred)
-
-                SidebarRow(
-                    icon: "archivebox",
-                    title: String(localized: "Archived"),
-                    count: allArticles.filter { $0.isArchived }.count,
-                    showCount: configService.config.showUnreadCount,
-                    color: .gray
-                )
-                .tag(SidebarItem.archived)
-            }
-            
-            // Feed search
-            if !folders.isEmpty || !feeds.isEmpty {
-                Section {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundStyle(.secondary)
-                            .font(.caption)
-                        TextField("Search...", text: $feedSearchText)
-                            .textFieldStyle(.plain)
-                        if !feedSearchText.isEmpty {
-                            Button {
-                                feedSearchText = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.vertical, 4)
+                .contextMenu {
+                    Button("Mark All as Read") { markRead(unreadArticles, in: modelContext) }
                 }
+
+                SidebarRow(icon: "circle.inset.filled", title: String(localized: "Unread"))
+                    .tag(SidebarItem.unread)
+                    .contextMenu {
+                        Button("Mark All as Read") { markRead(unreadArticles, in: modelContext) }
+                    }
+
+                SidebarRow(icon: "star", title: String(localized: "Starred"))
+                    .tag(SidebarItem.starred)
+
+                SidebarRow(icon: "archivebox", title: String(localized: "Archived"))
+                    .tag(SidebarItem.archived)
             }
 
             // User Folders
             Section("Folders") {
-                ForEach(filteredFolders) { folder in
+                ForEach(folders) { folder in
                     FolderRow(
                         folder: folder,
                         allFolders: folders,
@@ -151,23 +94,32 @@ struct SidebarView: View {
                     )
                 }
                 .onDelete(perform: deleteFolders)
-                
-                Button {
-                    showingAddFolder = true
-                } label: {
-                    Label("New Folder", systemImage: "plus")
-                        .foregroundStyle(.secondary)
+
+                // The + menu below covers this once there's something here
+                if folders.isEmpty {
+                    Button {
+                        showingAddFolder = true
+                    } label: {
+                        Label("New Folder", systemImage: "plus")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
             
             // Uncategorized Feeds
-            if !filteredFeeds.isEmpty {
+            if !feeds.isEmpty {
                 Section("Feeds") {
-                    ForEach(filteredFeeds) { feed in
+                    ForEach(feeds) { feed in
                         FeedRow(feed: feed, showCount: configService.config.showUnreadCount)
                             .tag(SidebarItem.feed(feed))
                             .contextMenu {
+                                Button("Mark All as Read") {
+                                    markRead(feed.articles, in: modelContext)
+                                }
+
+                                Divider()
+
                                 Button {
                                     feedToRename = feed
                                     newFeedName = feed.title
@@ -216,68 +168,44 @@ struct SidebarView: View {
                         }
                 }
                 
-                Button {
-                    showingAddReadingList = true
-                } label: {
-                    Label("New List", systemImage: "plus")
-                        .foregroundStyle(.secondary)
+                if readingLists.isEmpty {
+                    Button {
+                        showingAddReadingList = true
+                    } label: {
+                        Label("New Reading List", systemImage: "plus")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
         .listStyle(.sidebar)
         .frame(minWidth: 200)
         .safeAreaInset(edge: .bottom) {
-            HStack {
-                Button {
-                    showingAddFolder = true
+            HStack(spacing: 12) {
+                Menu {
+                    Button("New Feed…") { showingAddFeed = true }
+                    Button("New Folder…") { showingAddFolder = true }
+                    Button("New Reading List…") { showingAddReadingList = true }
                 } label: {
-                    Image(systemName: "folder.badge.plus")
-                        .font(.system(size: 14))
+                    Image(systemName: "plus")
                 }
-                .buttonStyle(.plain)
-                .help("New Folder")
-                
-                Button {
-                    toggleAppearance()
-                } label: {
-                    Image(systemName: appearanceIcon)
-                        .font(.system(size: 14))
-                        .symbolRenderingMode(.hierarchical)
-                }
-                .buttonStyle(.plain)
-                .help("Toggle Appearance")
-                
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .fixedSize()
+                .help("Add a feed, folder or reading list")
+
                 Spacer()
-                
-                Button {
-                    showingAddFeed = true
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 12, weight: .bold))
-                        Text("Add")
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(Capsule())
-                    .shadow(color: .purple.opacity(0.3), radius: 4, y: 2)
+
+                Button(action: toggleAppearance) {
+                    Image(systemName: appearanceIcon)
                 }
-                .buttonStyle(.plain)
-                .help("Add Feed")
+                .buttonStyle(.borderless)
+                .help(isDark ? "Switch to light appearance" : "Switch to dark appearance")
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(.ultraThinMaterial)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
         }
         .alert("Rename Folder", isPresented: $showingRenameFolder) {
             TextField("Folder Name", text: $newFolderName)
@@ -355,37 +283,25 @@ struct SidebarView: View {
 struct SidebarRow: View {
     let icon: String
     let title: String
-    let count: Int
-    let showCount: Bool
-    let color: Color
+    var count: Int = 0
+    var showCount: Bool = false
 
     var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-                .foregroundStyle(color)
-                .frame(width: 20)
-
-            Text(title)
-                .lineLimit(1)
-
-            Spacer()
-
-            if showCount && count > 0 {
-                Text("\(count)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.quaternary)
-                    .clipShape(Capsule())
-            }
-        }
-        .padding(.vertical, 2)
+        Label(title, systemImage: icon)
+            .badge(showCount ? count : 0)
     }
 }
 
 // MARK: - Folder Row
+
+/// Marks articles read and saves. Shared by the sidebar, toolbar, menus and menu bar popover.
+@MainActor
+func markRead(_ articles: some Sequence<Article>, in context: ModelContext) {
+    for article in articles where !article.isRead {
+        article.isRead = true
+    }
+    try? context.save()
+}
 
 struct FolderRow: View {
     @Environment(\.modelContext) private var modelContext
@@ -407,6 +323,12 @@ struct FolderRow: View {
                     .tag(SidebarItem.feed(feed))
                     .padding(.leading, 8)
                     .contextMenu {
+                        Button("Mark All as Read") {
+                            markRead(feed.articles, in: modelContext)
+                        }
+
+                        Divider()
+
                         Button {
                             feedToRename = feed
                             newFeedName = feed.title
@@ -443,29 +365,15 @@ struct FolderRow: View {
                     }
             }
         } label: {
-            HStack {
-                Image(systemName: folder.icon)
-                    .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 20)
-
-                Text(folder.name)
-                    .lineLimit(1)
-
-                Spacer()
-
-                if showCount && folder.unreadCount > 0 {
-                    Text("\(folder.unreadCount)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.quaternary)
-                        .clipShape(Capsule())
-                }
-            }
-            .contentShape(Rectangle())
+            Label(folder.name, systemImage: folder.icon)
+                .badge(showCount ? folder.unreadCount : 0)
             .contextMenu {
+                Button("Mark All as Read") {
+                    markRead(folder.feeds.flatMap(\.articles), in: modelContext)
+                }
+
+                Divider()
+
                 Button {
                     onRenameFolder()
                 } label: {
@@ -490,28 +398,8 @@ struct ReadingListRow: View {
     let showCount: Bool
 
     var body: some View {
-        HStack {
-            Image(systemName: readingList.icon)
-                .font(.system(size: 14))
-                .foregroundStyle(.cyan)
-                .frame(width: 20)
-
-            Text(readingList.name)
-                .lineLimit(1)
-
-            Spacer()
-
-            if showCount && readingList.articleCount > 0 {
-                Text("\(readingList.articleCount)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.quaternary)
-                    .clipShape(Capsule())
-            }
-        }
-        .padding(.vertical, 2)
+        Label(readingList.name, systemImage: readingList.icon)
+            .badge(showCount ? readingList.articleCount : 0)
     }
 }
 
@@ -522,35 +410,23 @@ struct FeedRow: View {
     let showCount: Bool
 
     var body: some View {
-        HStack {
+        Label {
+            HStack(spacing: 4) {
+                Text(feed.title)
+                    .foregroundStyle(feed.isHealthy ? .primary : .secondary)
+                if !feed.isHealthy {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                        .help(feed.healthStatus)
+                }
+            }
+        } icon: {
             FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
-                .frame(width: 18, height: 18)
+                .frame(width: 16, height: 16)
                 .opacity(feed.isHealthy ? 1.0 : 0.5)
-
-            Text(feed.title)
-                .lineLimit(1)
-                .foregroundStyle(feed.isHealthy ? .primary : .secondary)
-
-            if !feed.isHealthy {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .help(feed.healthStatus)
-            }
-
-            Spacer()
-
-            if showCount && feed.unreadCount > 0 {
-                Text("\(feed.unreadCount)")
-                    .font(.caption)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.blue)
-                    .clipShape(Capsule())
-            }
         }
-        .padding(.vertical, 2)
+        .lineLimit(1)
+        .badge(showCount ? feed.unreadCount : 0)
     }
 }
 
@@ -561,31 +437,17 @@ struct FeedIcon: View {
     var feedURL: String? = nil  // The feed's URL for fallback
     var websiteURL: String? = nil  // The actual website URL (preferred for favicon)
     
-    // Google's favicon service - reliable fallback
+    /// The site's own favicon. ponytail: /favicon.ico only; sites that declare the icon
+    /// elsewhere get the generic icon. Parse <link rel="icon"> if that's too many.
     private var faviconURL: URL? {
-        // First try the explicit icon URL
         if let urlString = url, let iconURL = URL(string: urlString) {
             return iconURL
         }
-        
-        // Try websiteURL first (more likely to have the correct favicon)
-        if let websiteURLString = websiteURL,
-           let websiteURL = URL(string: websiteURLString),
-           let host = websiteURL.host {
-            return URL(string: "https://www.google.com/s2/favicons?domain=\(host)&sz=64")
-        }
-        
-        // Otherwise try to get favicon from the feed's domain
-        if let feedURLString = feedURL,
-           let feedURL = URL(string: feedURLString),
-           let host = feedURL.host {
-            // Use Google's favicon service
-            return URL(string: "https://www.google.com/s2/favicons?domain=\(host)&sz=64")
-        }
-        
-        return nil
+        let pageURL = websiteURL.flatMap(URL.init(string:)) ?? feedURL.flatMap(URL.init(string:))
+        guard let host = pageURL?.host else { return nil }
+        return URL(string: "https://\(host)/favicon.ico")
     }
-    
+
     var body: some View {
         if let iconURL = faviconURL {
             AsyncImage(url: iconURL) { phase in
@@ -597,8 +459,7 @@ struct FeedIcon: View {
                 case .failure:
                     DefaultFeedIcon()
                 case .empty:
-                    ProgressView()
-                        .controlSize(.small)
+                    DefaultFeedIcon()
                 @unknown default:
                     DefaultFeedIcon()
                 }
@@ -612,19 +473,11 @@ struct FeedIcon: View {
 
 struct DefaultFeedIcon: View {
     var body: some View {
-        RoundedRectangle(cornerRadius: 4)
-            .fill(
-                LinearGradient(
-                    colors: [.orange, .red],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .overlay {
-                Image(systemName: "dot.radiowaves.up.forward")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-            }
+        Image(systemName: "dot.radiowaves.up.forward")
+            .resizable()
+            .scaledToFit()
+            .foregroundStyle(.secondary)
+            .padding(1)
     }
 }
 

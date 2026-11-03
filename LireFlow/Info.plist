@@ -27,7 +27,5 @@
 	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright 2024-2025 LireFlow. All rights reserved.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location is used to show local weather.</string>
 </dict>
 </plist>

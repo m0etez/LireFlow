@@ -43,33 +43,19 @@ LireFlow makes network requests only for the following purposes:
 ### 1. RSS Feed Fetching
 When you add a feed or refresh your subscriptions, LireFlow connects directly to the RSS/Atom feed URLs you've provided to download article content.
 
-### 2. Weather Information (Optional)
-If you enable the weather widget, LireFlow uses the [Open-Meteo API](https://open-meteo.com/) to fetch weather data. Open-Meteo is a free, open-source weather API that does not require authentication and does not track users.
+### 2. Feed Icons
+LireFlow fetches each feed's icon (favicon) directly from that feed's own website. No third-party icon service is used.
 
-### 3. Feed Icons
-LireFlow may fetch favicon images from websites to display feed icons.
-
-### 4. Europresse Integration (Optional)
+### 3. Europresse Integration (Optional)
 If you configure Europresse access through your institution, LireFlow will open URLs to your institution's Europresse portal in your default browser. No data is sent to Europresse directly from LireFlow.
 
 ## Location Data
 
-LireFlow requests location permission **only** if you use the weather widget feature. Your location is:
-
-- Used solely to fetch local weather information
-- Sent to the Open-Meteo API as coordinates only
-- Never stored permanently or shared with any other service
-- Optional - you can manually set a location or disable the weather widget entirely
-
-You can revoke location permission at any time through macOS System Settings > Privacy & Security > Location Services.
+LireFlow does not request or use your location.
 
 ## Third-Party Services
 
-LireFlow uses the following third-party services:
-
-| Service | Purpose | Privacy Policy |
-|---------|---------|----------------|
-| Open-Meteo | Weather data (optional) | [open-meteo.com/en/terms](https://open-meteo.com/en/terms) |
+LireFlow uses no third-party services. It only connects to the feeds and websites you subscribe to, and to Apple's App Store for in-app purchases.
 
 ## Data Export & Portability
 

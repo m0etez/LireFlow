@@ -15,84 +15,52 @@ struct ArticleListView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Layout picker header
-            HStack {
-                Text("\(articles.count) articles")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                // Layout picker
-                Picker("", selection: $configService.config.articleLayout) {
-                    ForEach(ArticleLayout.allCases, id: \.self) { layout in
-                        Image(systemName: layout.icon)
-                            .tag(layout)
+        Group {
+            if articles.isEmpty {
+                emptyState
+            } else {
+                // Native list: selection, keyboard focus, hover and highlight come from the platform
+                List(selection: $selectedArticle) {
+                    ForEach(articles) { article in
+                        articleView(for: article)
+                            .tag(article)
+                            .contextMenu { articleContextMenu(for: article) }
                     }
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 100)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
-            
-            Divider()
-            
-            // Article list
-            Group {
-                if articles.isEmpty {
-                    EmptyArticleListView(isSearching: !searchText.isEmpty)
-                    ContentUnavailableView {
-                        Label("No Articles", systemImage: "newspaper")
-                    } description: {
-                        if !searchText.isEmpty {
-                            Text("No articles match your search")
-                        } else {
-                            Text("No articles found")
-                        }
-                    }
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: layoutSpacing) {
-                            ForEach(articles, id: \.id) { article in
-                                articleView(for: article)
-                                    .onTapGesture {
-                                        selectedArticle = article
-                                    }
-                                    .contextMenu {
-                                        articleContextMenu(for: article)
-                                    }
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                    }
-                }
+                .listStyle(.inset)
+                .scrollContentBackground(.hidden)
             }
         }
         .frame(minWidth: 280)
         .background(currentTheme.secondaryBackground)
     }
-    
-    private var layoutSpacing: CGFloat {
-        switch configService.config.articleLayout {
-        case .standard: return 2
-        case .card: return 12
-        case .compact: return 0
+
+    @ViewBuilder
+    private var emptyState: some View {
+        if !searchText.isEmpty {
+            ContentUnavailableView.search(text: searchText)
+        } else {
+            ContentUnavailableView {
+                Label("No Articles", systemImage: "newspaper")
+            } description: {
+                Text("New articles from your feeds appear here.")
+            } actions: {
+                Button("Add Feed…") {
+                    NotificationCenter.default.post(name: .addNewFeed, object: nil)
+                }
+            }
         }
     }
-    
+
     @ViewBuilder
     private func articleView(for article: Article) -> some View {
         switch configService.config.articleLayout {
         case .standard:
-            ArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
+            ArticleRow(article: article)
         case .card:
-            CardArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
+            CardArticleRow(article: article)
         case .compact:
-            CompactArticleRow(article: article, isSelected: selectedArticle?.id == article.id)
+            CompactArticleRow(article: article)
         }
     }
     
@@ -201,26 +169,18 @@ struct ArticleListView: View {
     }
 }
 
-// MARK: - Empty State
+// MARK: - Shared row bits
 
-struct EmptyArticleListView: View {
-    let isSearching: Bool
-    
+/// Unread marker; keeps its width when read so titles stay aligned
+private struct UnreadDot: View {
+    let isRead: Bool
+    var size: CGFloat = 8
+
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: isSearching ? "magnifyingglass" : "doc.text")
-                .font(.system(size: 48))
-                .foregroundStyle(.tertiary)
-            
-            Text(isSearching ? LocalizedStringKey("No articles found") : "No articles")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            
-            Text(isSearching ? LocalizedStringKey("Try a different search") : "Add feeds to get started")
-                .font(.subheadline)
-                .foregroundStyle(.tertiary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        Circle()
+            .fill(isRead ? Color.clear : Color.accentColor)
+            .frame(width: size, height: size)
+            .accessibilityLabel(isRead ? "" : String(localized: "Unread"))
     }
 }
 
@@ -228,221 +188,94 @@ struct EmptyArticleListView: View {
 
 struct ArticleRow: View {
     @Bindable var article: Article
-    let isSelected: Bool
-    @State private var isHovered = false
-    @Environment(\.appTheme) private var theme
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Header: Feed name, reading time, and date
-            HStack {
-                if let feed = article.feed {
-                    Text(feed.title)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            UnreadDot(isRead: article.isRead)
 
-                Spacer()
-
-                Text(article.readingTimeText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(theme.accentColor.opacity(0.1))
-                    .clipShape(Capsule())
-
-                Text(article.formattedDate)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            
-            // Title
-            Text(article.displayTitle)
-                .font(.headline)
-                .fontWeight(article.isRead ? .regular : .semibold)
-                .foregroundStyle(article.isRead ? .secondary : .primary)
-                .lineLimit(2)
-            
-            // Summary
-            if !article.plainTextSummary.isEmpty {
-                Text(article.plainTextSummary)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-            
-            // Footer: Unread dot and star
-            HStack {
-                if !article.isRead {
-                    Circle()
-                        .fill(theme.accentColor)
-                        .frame(width: 8, height: 8)
-                }
-                
-                Spacer()
-                
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
-                        article.isStarred.toggle()
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    if let feed = article.feed {
+                        Text(feed.title)
+                            .lineLimit(1)
                     }
-                } label: {
-                    Image(systemName: article.isStarred ? "star.fill" : "star")
-                        .font(.system(size: 14))
-                        .foregroundStyle(article.isStarred ? .yellow : .secondary)
-                        .scaleEffect(article.isStarred ? 1.1 : 1.0)
+                    Spacer()
+                    if article.isStarred {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                            .accessibilityLabel("Starred")
+                    }
+                    Text(article.formattedDate)
                 }
-                .buttonStyle(.plain)
-                .opacity(isHovered || article.isStarred ? 1 : 0)
-            }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 10)
-        .background {
-            ZStack {
-                // Glass hover effect
-                if isHovered && !isSelected {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(.ultraThinMaterial)
-                }
-                // Selection highlight - using theme selection color
-                if isSelected {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(theme.selectionColor)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+                Text(article.displayTitle)
+                    .font(.headline)
+                    .fontWeight(article.isRead ? .regular : .semibold)
+                    .foregroundStyle(article.isRead ? .secondary : .primary)
+                    .lineLimit(2)
+
+                if !article.plainTextSummary.isEmpty {
+                    Text(article.plainTextSummary)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
                 }
             }
-            .animation(.easeOut(duration: 0.15), value: isHovered)
         }
-        .overlay {
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(isSelected ? theme.accentColor.opacity(0.3) : .clear, lineWidth: 1)
-        }
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
-            }
-        }
-        .onChange(of: isSelected) { _, newValue in
-            if newValue {
-                article.isRead = true
-            }
-        }
+        .padding(.vertical, 6)
     }
 }
 
 // MARK: - Card Article Row
 
+/// Roomier layout: source icon, longer title and summary, reading time
 struct CardArticleRow: View {
     @Bindable var article: Article
-    let isSelected: Bool
-    @State private var isHovered = false
-    @Environment(\.appTheme) private var theme
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Gradient header with feed icon
-            HStack {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
                 if let feed = article.feed {
-                    AsyncImage(url: URL(string: "https://www.google.com/s2/favicons?domain=\(URL(string: feed.url)?.host ?? "")&sz=64")) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image.resizable().aspectRatio(contentMode: .fit)
-                        default:
-                            Image(systemName: "dot.radiowaves.up.forward")
-                                .foregroundStyle(.white)
-                        }
-                    }
-                    .frame(width: 32, height: 32)
-                    .background(
-                        LinearGradient(colors: [theme.accentColor, theme.accentColor.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
+                        .frame(width: 16, height: 16)
+                    Text(feed.title)
+                        .lineLimit(1)
                 }
-                
                 Spacer()
-                
-                Text(article.readingTimeText)
-                    .font(.caption2)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(theme.accentColor.opacity(0.1))
-                    .clipShape(Capsule())
+                Text(article.formattedDate)
             }
-            VStack(alignment: .leading, spacing: 8) {
-                // Feed and date
-                HStack {
-                    if let feed = article.feed {
-                        Text(feed.title)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Text(article.formattedDate)
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-                
-                // Title
-                Text(article.displayTitle)
-                    .font(.headline)
-                    .fontWeight(article.isRead ? .regular : .bold)
-                    .foregroundStyle(article.isRead ? .secondary : .primary)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+            Text(article.displayTitle)
+                .font(.title3)
+                .fontWeight(article.isRead ? .regular : .semibold)
+                .foregroundStyle(article.isRead ? .secondary : .primary)
+                .lineLimit(3)
+
+            if !article.plainTextSummary.isEmpty {
+                Text(article.plainTextSummary)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
                     .lineLimit(3)
-                
-                // Summary
-                if !article.plainTextSummary.isEmpty {
-                    Text(article.plainTextSummary)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(3)
-                }
-                
-                // Footer
-                HStack {
-                    if !article.isRead {
-                        Circle()
-                            .fill(theme.accentColor)
-                            .frame(width: 8, height: 8)
-                    }
-                    
-                    Text(article.readingTimeText)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    
-                    Spacer()
-                    
-                    if article.isStarred {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.yellow)
-                    }
+            }
+
+            HStack(spacing: 6) {
+                UnreadDot(isRead: article.isRead, size: 6)
+                Text(article.readingTimeText)
+                Spacer()
+                if article.isStarred {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
+                        .accessibilityLabel("Starred")
                 }
             }
-            .padding(.horizontal, 4)
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isSelected ? theme.selectionColor : Color(nsColor: .controlBackgroundColor))
-                .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(isSelected ? theme.accentColor.opacity(0.3) : Color.gray.opacity(0.1), lineWidth: 1)
-        }
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
-            }
-        }
-        .onChange(of: isSelected) { _, newValue in
-            if newValue {
-                article.isRead = true
-            }
-        }
+        .padding(.vertical, 10)
     }
 }
 
@@ -450,69 +283,35 @@ struct CardArticleRow: View {
 
 struct CompactArticleRow: View {
     @Bindable var article: Article
-    let isSelected: Bool
-    @State private var isHovered = false
-    @Environment(\.appTheme) private var theme
-    
+
     var body: some View {
-        HStack(spacing: 10) {
-            // Unread indicator
-            Circle()
-                .fill(article.isRead ? .clear : theme.accentColor)
-                .frame(width: 6, height: 6)
-            
-            // Title
+        HStack(spacing: 8) {
+            UnreadDot(isRead: article.isRead, size: 6)
+
             Text(article.displayTitle)
-                .font(.system(size: 13))
                 .fontWeight(article.isRead ? .regular : .medium)
                 .foregroundStyle(article.isRead ? .secondary : .primary)
                 .lineLimit(1)
-            
+
             Spacer()
-            
-            // Star
+
             if article.isStarred {
                 Image(systemName: "star.fill")
-                    .font(.system(size: 10))
+                    .imageScale(.small)
                     .foregroundStyle(.yellow)
+                    .accessibilityLabel("Starred")
             }
-            
-            // Source
-            if let feed = article.feed {
-                Text(feed.title)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .lineLimit(1)
-                    .frame(maxWidth: 80, alignment: .trailing)
+
+            Group {
+                if let feed = article.feed {
+                    Text(feed.title)
+                        .lineLimit(1)
+                        .frame(maxWidth: 90, alignment: .trailing)
+                }
+                Text(article.formattedDate)
             }
-            
-            // Date
-            Text(article.formattedDate)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-                .frame(width: 50, alignment: .trailing)
-        }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 10)
-        .background {
-            if isSelected {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(theme.selectionColor)
-            } else if isHovered {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(.ultraThinMaterial)
-            }
-        }
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isHovered = hovering
-            }
-        }
-        .onChange(of: isSelected) { _, newValue in
-            if newValue {
-                article.isRead = true
-            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
     }
 }

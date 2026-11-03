@@ -274,9 +274,11 @@ final class ImportService: ObservableObject {
             return nil
         }
 
-        let title = outline.attribute(forName: "text")?.stringValue
-            ?? outline.attribute(forName: "title")?.stringValue
-            ?? feedURL
+        // text="" is common in exported OPML: treat empty like missing
+        let title = [outline.attribute(forName: "text")?.stringValue, outline.attribute(forName: "title")?.stringValue]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty }
+            ?? FeedService.fallbackTitle(for: feedURL)
         let websiteURL = outline.attribute(forName: "htmlUrl")?.stringValue
         let description = outline.attribute(forName: "description")?.stringValue
 

@@ -152,10 +152,6 @@ enum AppTheme: String, Codable, CaseIterable, Identifiable {
         }
     }
     
-    /// Selection/Hover color (low opacity accent)
-    var selectionColor: Color {
-        accentColor.opacity(0.15)
-    }
     
     // MARK: - NSAppearance
     
