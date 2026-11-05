@@ -13,6 +13,11 @@ final class Feed {
     var lastSuccessfulFetch: Date?
     var lastError: String?
     var consecutiveFailures: Int
+    /// HTTP validators from the last fetch: an unchanged feed answers 304 with no body
+    var etag: String?
+    var lastModified: String?
+    /// Run Readability on every article when it's opened (for feeds that only send teasers)
+    var alwaysFetchFullArticle: Bool = false
 
     @Relationship(deleteRule: .nullify, inverse: \Folder.feeds)
     var folder: Folder?

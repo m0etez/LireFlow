@@ -28,6 +28,15 @@ struct SidebarView: View {
     @State private var feedToRename: Feed?
     @State private var newFeedName = ""
 
+    /// Result of "Find New Feed URL…", shown in an alert
+    @State private var findURLMessage: String?
+
+    private func findNewURL(for feed: Feed) {
+        Task {
+            findURLMessage = await FeedService().findNewURL(for: feed, in: modelContext)
+        }
+    }
+
     /// Whether the app renders dark right now (explicit theme, or the system setting for .system)
     private var isDark: Bool {
         let appearance = configService.config.selectedTheme.nsAppearance ?? NSApp.effectiveAppearance
@@ -90,7 +99,8 @@ struct SidebarView: View {
                         },
                         onDeleteFolder: {
                             deleteFolder(folder)
-                        }
+                        },
+                        onFindNewURL: findNewURL
                     )
                 }
                 .onDelete(perform: deleteFolders)
@@ -117,6 +127,7 @@ struct SidebarView: View {
                                 Button("Mark All as Read") {
                                     markRead(feed.articles, in: modelContext)
                                 }
+                                FeedOptionsMenuItems(feed: feed, onFindNewURL: findNewURL)
 
                                 Divider()
 
@@ -225,6 +236,14 @@ struct SidebarView: View {
         } message: {
             Text("Enter a new name for the feed")
         }
+        .alert("Find New Feed URL", isPresented: Binding(
+            get: { findURLMessage != nil },
+            set: { if !$0 { findURLMessage = nil } }
+        )) {
+            Button("OK") {}
+        } message: {
+            Text(findURLMessage ?? "")
+        }
     }
     
     private func deleteFolders(at offsets: IndexSet) {
@@ -303,6 +322,19 @@ func markRead(_ articles: some Sequence<Article>, in context: ModelContext) {
     try? context.save()
 }
 
+/// Feed context menu items shared by top-level and folder feeds
+struct FeedOptionsMenuItems: View {
+    @Bindable var feed: Feed
+    let onFindNewURL: (Feed) -> Void
+
+    var body: some View {
+        Toggle("Always Fetch Full Article", isOn: $feed.alwaysFetchFullArticle)
+        if !feed.isHealthy {
+            Button("Find New Feed URL…") { onFindNewURL(feed) }
+        }
+    }
+}
+
 struct FolderRow: View {
     @Environment(\.modelContext) private var modelContext
     let folder: Folder
@@ -314,6 +346,7 @@ struct FolderRow: View {
     @Binding var showingRenameFeed: Bool
     var onRenameFolder: () -> Void
     var onDeleteFolder: () -> Void
+    var onFindNewURL: (Feed) -> Void
     @State private var isExpanded = true
 
     var body: some View {
@@ -326,6 +359,7 @@ struct FolderRow: View {
                         Button("Mark All as Read") {
                             markRead(feed.articles, in: modelContext)
                         }
+                        FeedOptionsMenuItems(feed: feed, onFindNewURL: onFindNewURL)
 
                         Divider()
 

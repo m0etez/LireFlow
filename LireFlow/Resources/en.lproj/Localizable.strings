@@ -130,7 +130,6 @@
 "AI" = "AI";
 "Security" = "Security";
 "Space" = "Space";
-"Reddit" = "Reddit";
 "Apple" = "Apple";
 "Development" = "Development";
 
@@ -323,7 +322,7 @@
 "OK" = "OK";
 "Open LireFlow" = "Open LireFlow";
 "Open in Browser" = "Open in Browser";
-"Open in Browser (V)" = "Open in Browser (V)";
+"Open in Browser (V or O)" = "Open in Browser (V or O)";
 "Open in browser (V)" = "Open in browser (V)";
 "Pick a few feeds to start" = "Pick a few feeds to start";
 "Previous Article (K)" = "Previous Article (K)";
@@ -384,3 +383,14 @@
 "Couldn’t read the article page." = "Couldn’t read the article page.";
 "The article page is too large to process." = "The article page is too large to process.";
 "The article reader is missing from the app. Reinstall LireFlow." = "The article reader is missing from the app. Reinstall LireFlow.";
+"Page Down, Then Next Article (Space)" = "Page Down, Then Next Article (Space)";
+"Always Fetch Full Article" = "Always Fetch Full Article";
+"Find New Feed URL…" = "Find New Feed URL…";
+"Find New Feed URL" = "Find New Feed URL";
+"No other feed was found on this site." = "No other feed was found on this site.";
+"You already follow this site’s current feed (%@)." = "You already follow this site’s current feed (%@).";
+"Feed updated to %@." = "Feed updated to %@.";
+"The site is limiting requests. LireFlow will try again at the next refresh." = "The site is limiting requests. LireFlow will try again at the next refresh.";
+"Mark unread articles as read after" = "Mark unread articles as read after";
+"Never" = "Never";
+"%lld days" = "%lld days";

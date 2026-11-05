@@ -92,6 +92,10 @@ struct LireFlowApp: App {
                     NotificationCenter.default.post(name: .previousArticle, object: nil)
                 }
 
+                Button("Page Down, Then Next Article (Space)") {
+                    NotificationCenter.default.post(name: .pageDown, object: nil)
+                }
+
                 Divider()
 
                 Button("Mark as Read/Unread (M)") {
@@ -109,7 +113,7 @@ struct LireFlowApp: App {
 
                 Divider()
 
-                Button("Open in Browser (V)") {
+                Button("Open in Browser (V or O)") {
                     NotificationCenter.default.post(name: .openInBrowser, object: nil)
                 }
             }
@@ -149,6 +153,7 @@ extension Notification.Name {
     static let markAllAsRead = Notification.Name("markAllAsRead")
     static let toggleStar = Notification.Name("toggleStar")
     static let openInBrowser = Notification.Name("openInBrowser")
+    static let pageDown = Notification.Name("pageDown")
     static let openArticle = Notification.Name("openArticle")
 }
 
@@ -164,7 +169,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         "k": .previousArticle,
         "m": .toggleRead,
         "s": .toggleStar,
-        "v": .openInBrowser
+        "v": .openInBrowser,
+        "o": .openInBrowser,
+        " ": .pageDown
     ]
 
     func applicationDidFinishLaunching(_ notification: Notification) {

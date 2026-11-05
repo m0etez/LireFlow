@@ -129,7 +129,6 @@
 "AI" = "IA";
 "Security" = "Sécurité";
 "Space" = "Espace";
-"Reddit" = "Reddit";
 "Apple" = "Apple";
 "Development" = "Développement";
 
@@ -323,7 +322,7 @@
 "OK" = "OK";
 "Open LireFlow" = "Ouvrir LireFlow";
 "Open in Browser" = "Ouvrir dans le navigateur";
-"Open in Browser (V)" = "Ouvrir dans le navigateur (V)";
+"Open in Browser (V or O)" = "Ouvrir dans le navigateur (V ou O)";
 "Open in browser (V)" = "Ouvrir dans le navigateur (V)";
 "Pick a few feeds to start" = "Choisissez quelques flux pour commencer";
 "Previous Article (K)" = "Article précédent (K)";
@@ -384,3 +383,14 @@
 "Couldn’t read the article page." = "Impossible de lire la page de l'article.";
 "The article page is too large to process." = "La page de l'article est trop volumineuse.";
 "The article reader is missing from the app. Reinstall LireFlow." = "Le lecteur d'articles est absent de l'app. Réinstallez LireFlow.";
+"Page Down, Then Next Article (Space)" = "Page suivante, puis article suivant (Espace)";
+"Always Fetch Full Article" = "Toujours récupérer l'article complet";
+"Find New Feed URL…" = "Trouver la nouvelle adresse du flux…";
+"Find New Feed URL" = "Trouver la nouvelle adresse du flux";
+"No other feed was found on this site." = "Aucun autre flux n'a été trouvé sur ce site.";
+"You already follow this site’s current feed (%@)." = "Vous suivez déjà le flux actuel de ce site (%@).";
+"Feed updated to %@." = "Flux mis à jour : %@.";
+"The site is limiting requests. LireFlow will try again at the next refresh." = "Le site limite les requêtes. LireFlow réessaiera à la prochaine actualisation.";
+"Mark unread articles as read after" = "Marquer les articles non lus comme lus après";
+"Never" = "Jamais";
+"%lld days" = "%lld jours";

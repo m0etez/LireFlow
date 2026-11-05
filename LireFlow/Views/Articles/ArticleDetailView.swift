@@ -163,6 +163,11 @@ struct ArticleDetailView: View {
             article.isRead = true
             fetchError = nil
         }
+        .task(id: article.id) {
+            if article.feed?.alwaysFetchFullArticle == true && !article.hasFetchedFullArticle {
+                await fetchFullArticle()
+            }
+        }
     }
 
     // MARK: - Fetch Full Article
@@ -173,7 +178,8 @@ struct ArticleDetailView: View {
         
         do {
             let fullContent = try await ArticleExtractor.extractContent(from: article.articleURL)
-            
+            article.hasFetchedFullArticle = true
+
             // Compare text, not markup: only replace what's shown when the page has more to read
             let shownText = (article.content.isEmpty ? article.summary : article.content).strippingHTML
             if fullContent.strippingHTML.count > shownText.count {
@@ -264,6 +270,7 @@ struct ArticleContentView: NSViewRepresentable {
 
         let webView = NonScrollableWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
+        context.coordinator.webView = webView
         webView.setValue(false, forKey: "drawsBackground")
 
         // Disable internal scrolling - let parent ScrollView handle it
@@ -478,10 +485,36 @@ struct ArticleContentView: NSViewRepresentable {
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: ArticleContentView
         var loadedHTML: String?
+        weak var webView: WKWebView?
+        private var pageDownObserver: NSObjectProtocol?
 
         init(parent: ArticleContentView) {
             self.parent = parent
             super.init()
+            pageDownObserver = NotificationCenter.default.addObserver(forName: .pageDown, object: nil, queue: .main) { [weak self] _ in
+                self?.pageDown()
+            }
+        }
+
+        deinit {
+            pageDownObserver.map(NotificationCenter.default.removeObserver)
+        }
+
+        /// Space: scroll the article (the ScrollView around this web view) by a page,
+        /// and at the end move on to the next article
+        private func pageDown() {
+            guard let scrollView = webView?.enclosingScrollView, let document = scrollView.documentView else { return }
+            let clip = scrollView.contentView
+            let end = max(0, document.frame.height - clip.bounds.height)
+            // Distance scrolled from the top, whichever way the document's y axis runs
+            let scrolled = document.isFlipped ? clip.bounds.origin.y : end - clip.bounds.origin.y
+            guard scrolled < end - 1 else {
+                NotificationCenter.default.post(name: .nextArticle, object: nil)
+                return
+            }
+            let target = min(end, scrolled + clip.bounds.height * 0.9)
+            clip.scroll(to: NSPoint(x: clip.bounds.origin.x, y: document.isFlipped ? target : end - target))
+            scrollView.reflectScrolledClipView(clip)
         }
 
         private func setHeight(_ contentHeight: CGFloat) {

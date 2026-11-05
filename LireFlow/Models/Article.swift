@@ -14,6 +14,8 @@ final class Article {
     var isRead: Bool
     var isStarred: Bool
     var isArchived: Bool
+    /// The page was already run through Readability: don't fetch it again
+    var hasFetchedFullArticle: Bool = false
 
     var feed: Feed?
     var readingLists: [ReadingList]?

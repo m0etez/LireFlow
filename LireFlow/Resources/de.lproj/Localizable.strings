@@ -130,7 +130,6 @@
 "AI" = "KI";
 "Security" = "Sicherheit";
 "Space" = "Weltraum";
-"Reddit" = "Reddit";
 "Apple" = "Apple";
 "Development" = "Entwicklung";
 
@@ -323,7 +322,7 @@
 "OK" = "OK";
 "Open LireFlow" = "LireFlow öffnen";
 "Open in Browser" = "Im Browser öffnen";
-"Open in Browser (V)" = "Im Browser öffnen (V)";
+"Open in Browser (V or O)" = "Im Browser öffnen (V oder O)";
 "Open in browser (V)" = "Im Browser öffnen (V)";
 "Pick a few feeds to start" = "Wählen Sie ein paar Feeds für den Start";
 "Previous Article (K)" = "Vorheriger Artikel (K)";
@@ -384,3 +383,14 @@
 "Couldn’t read the article page." = "Die Artikelseite konnte nicht gelesen werden.";
 "The article page is too large to process." = "Die Artikelseite ist zu groß.";
 "The article reader is missing from the app. Reinstall LireFlow." = "Der Artikelleser fehlt in der App. Installieren Sie LireFlow neu.";
+"Page Down, Then Next Article (Space)" = "Seite weiter, dann nächster Artikel (Leertaste)";
+"Always Fetch Full Article" = "Immer ganzen Artikel laden";
+"Find New Feed URL…" = "Neue Feed-Adresse suchen…";
+"Find New Feed URL" = "Neue Feed-Adresse suchen";
+"No other feed was found on this site." = "Auf dieser Website wurde kein anderer Feed gefunden.";
+"You already follow this site’s current feed (%@)." = "Du folgst bereits dem aktuellen Feed dieser Website (%@).";
+"Feed updated to %@." = "Feed aktualisiert: %@.";
+"The site is limiting requests. LireFlow will try again at the next refresh." = "Die Website begrenzt Anfragen. LireFlow versucht es bei der nächsten Aktualisierung erneut.";
+"Mark unread articles as read after" = "Ungelesene Artikel als gelesen markieren nach";
+"Never" = "Nie";
+"%lld days" = "%lld Tage";

@@ -88,7 +88,6 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 ### 🔧 Additional Features
 
-- Reddit, Mastodon, and Lemmy feed support
 - **Europresse integration** - Access press articles via your university or library (configurable)
 - **LireFlow Pro** - Unlock unlimited feeds, reading lists, and premium themes
 - File-based configuration (`~/Library/Application Support/LireFlow/config.json`)

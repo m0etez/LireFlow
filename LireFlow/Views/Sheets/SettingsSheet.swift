@@ -176,6 +176,15 @@ private struct LibrarySettingsTab: View {
             .disabled(backup.isWorking)
 
             Section {
+                Picker("Mark unread articles as read after", selection: $configService.config.autoMarkReadDays) {
+                    Text("Never").tag(0)
+                    ForEach([1, 3, 7, 14, 30], id: \.self) { days in
+                        Text("\(days) days").tag(days)
+                    }
+                }
+                .onChange(of: configService.config.autoMarkReadDays) {
+                    FeedService.autoMarkRead(in: modelContext)
+                }
                 Stepper(value: $configService.config.maxArticlesPerFeed, in: 100...1000, step: 50) {
                     Text("Keep up to \(configService.config.maxArticlesPerFeed) articles per feed")
                 }

@@ -56,6 +56,7 @@ struct ContentView: View {
             // A deleted article (feed removed, cleanup) must never reach the detail view
             if let article = selectedArticle, !article.isDeleted, article.modelContext != nil {
                 ArticleDetailView(article: article)
+                    .id(article.id)  // each article opens at the top, with fresh fetch state
             } else {
                 EmptyDetailView()
             }

@@ -252,6 +252,8 @@ struct AppConfig: Codable {
     var loadImages: Bool = true
     var maxArticlesPerFeed: Int = 500
     var cleanupOldArticlesDays: Int = 30
+    /// Unread articles older than this many days are marked read after each refresh (0 = never)
+    var autoMarkReadDays: Int = 0
     var backgroundRefreshEnabled: Bool = true
     
     // Europresse integration
@@ -283,6 +285,7 @@ extension AppConfig {
         loadImages = value(.loadImages, d.loadImages)
         maxArticlesPerFeed = value(.maxArticlesPerFeed, d.maxArticlesPerFeed)
         cleanupOldArticlesDays = value(.cleanupOldArticlesDays, d.cleanupOldArticlesDays)
+        autoMarkReadDays = value(.autoMarkReadDays, d.autoMarkReadDays)
         backgroundRefreshEnabled = value(.backgroundRefreshEnabled, d.backgroundRefreshEnabled)
         europressePortal = (try? c.decodeIfPresent(EuropressePortal.self, forKey: .europressePortal)) ?? nil
         hasCompletedOnboarding = value(.hasCompletedOnboarding, d.hasCompletedOnboarding)

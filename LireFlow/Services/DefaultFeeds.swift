@@ -161,11 +161,6 @@ struct DefaultFeeds {
         // Space
         FeedInfo(title: "NASA Breaking News", url: "https://www.nasa.gov/rss/dyn/breaking_news.rss", category: "Space"),
         FeedInfo(title: "ESA", url: "https://www.esa.int/rssfeed/Our_Activities/Space_News", category: "Space"),
-        
-        // Reddit
-        FeedInfo(title: "r/worldnews", url: "https://www.reddit.com/r/worldnews/.rss", category: "Reddit"),
-        FeedInfo(title: "r/technology", url: "https://www.reddit.com/r/technology/.rss", category: "Reddit"),
-        FeedInfo(title: "r/programming", url: "https://www.reddit.com/r/programming/.rss", category: "Reddit"),
     ]
 
     /// Catalog URLs that publishers moved: existing subscriptions switch over on refresh
