@@ -19,11 +19,10 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 - Add RSS/Atom feeds from any URL
 - **Quick add from clipboard** - Auto-detects URLs when adding feeds
-- **Feed search/filter** - Quickly find feeds in sidebar with real-time filtering
 - **Rename feeds** - Right-click to rename feeds with custom display names
 - Organize feeds into folders
 - Drag and drop feeds between folders
-- Automatic feed icon fetching via Google Favicons
+- Feed icons fetched from each site's own favicon
 - **Feed health monitoring** - Visual indicators for broken or stale feeds
 - Last update time tracking with relative timestamps
 - **200+ default feeds** across 25+ categories (Tech, News, AI, Security, Gaming, France, etc.)
@@ -41,22 +40,14 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 ### 🎨 Modern UI
 
-- Native macOS design with liquid glass effects
-- **Dynamic greeting** - Time-based greeting (Good Morning/Afternoon/Evening)
+- Native macOS design: standard sidebar, lists, toolbar and Settings window
+- Three article list layouts (Standard, Cards, Compact) from the View menu
 - Dark/Light mode toggle (in sidebar or Settings)
-- Smooth animations and hover effects
 - Three-column layout (Sidebar, List, Detail)
 - Comprehensive Settings window (⌘,) for customization
 - **Dock badge** showing unread article count
 - **Dock menu** with quick actions (New Feed, Refresh, Mark All Read, Settings)
 - **Full keyboard navigation** with vim-style shortcuts
-
-### ☀️ Weather Widget
-
-- Local weather display in sidebar (toggleable in Settings)
-- 7-day forecast with tap for details
-- Dynamic weather icons with color coding
-- Auto-detect location or set custom location
 
 ### 💾 Backup & Import
 
@@ -97,7 +88,6 @@ A modern, native macOS RSS reader built with SwiftUI and SwiftData.
 
 ### 🔧 Additional Features
 
-- Reddit, Mastodon, and Lemmy feed support
 - **Europresse integration** - Access press articles via your university or library (configurable)
 - **LireFlow Pro** - Unlock unlimited feeds, reading lists, and premium themes
 - File-based configuration (`~/Library/Application Support/LireFlow/config.json`)
@@ -163,7 +153,6 @@ LireFlow/
 │   ├── FeedParser.swift        # RSS/Atom parsing
 │   ├── FeedService.swift       # Feed management
 │   ├── ArticleExtractor.swift  # Full article extraction
-│   ├── WeatherService.swift    # Weather API integration
 │   ├── ConfigService.swift     # File-based settings
 │   ├── StoreService.swift      # In-app purchases
 │   ├── ExportService.swift     # JSON/OPML export
@@ -172,9 +161,7 @@ LireFlow/
 ├── Views/
 │   ├── ContentView.swift       # Main app layout
 │   ├── Sidebar/
-│   │   ├── SidebarView.swift
-│   │   ├── WeatherWidget.swift
-│   │   └── WeatherDetailPopover.swift
+│   │   └── SidebarView.swift
 │   ├── Articles/
 │   │   ├── ArticleListView.swift
 │   │   └── ArticleDetailView.swift
@@ -198,27 +185,22 @@ Access Settings via **⌘,** or the **LireFlow > Settings** menu.
 
 **General:**
 
-- Appearance (Dark/Light mode)
-- Show/hide unread count badges
-- Article font size (12-24pt)
-- Mark as read on scroll
-- Feed refresh interval
-- Default feed category
-- Weather widget visibility
-- Custom weather location
-- Performance settings:
-  - Load images toggle
-  - Background refresh control
-  - Max articles per feed (100-1000)
-  - Cleanup old articles (7-90 days)
-  - Manual cleanup button
+- Theme and unread count badges
+- Automatic refresh and its interval
+- Europresse institution
+- LireFlow Pro
 
-**Backup & Import:**
+**Reading:**
 
-- Export to JSON (complete library backup)
-- Export to OPML (feeds only)
-- Import from JSON or OPML
-- Automatic duplicate detection
+- Article list layout
+- Article text size (12-24pt)
+- Load images
+
+**Library:**
+
+- Export to JSON (complete library backup) or OPML (feeds only)
+- Import from JSON or OPML, with duplicate detection
+- Max articles per feed, article retention, manual cleanup
 
 **About:**
 
@@ -238,8 +220,7 @@ All settings are automatically saved to:
 - **SwiftUI** - Modern declarative UI
 - **SwiftData** - Persistent data storage
 - **WebKit** - Article rendering
-- **CoreLocation** - Weather location
-- **Open-Meteo API** - Weather data (free, no API key)
+- **[Readability.js](https://github.com/mozilla/readability)** (Mozilla, Apache 2.0) - Full article extraction, bundled in `LireFlow/Resources`
 
 ## License
 

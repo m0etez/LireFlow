@@ -14,6 +14,8 @@ final class Article {
     var isRead: Bool
     var isStarred: Bool
     var isArchived: Bool
+    /// The page was already run through Readability: don't fetch it again
+    var hasFetchedFullArticle: Bool = false
 
     var feed: Feed?
     var readingLists: [ReadingList]?
@@ -58,6 +60,11 @@ final class Article {
         summary.strippingHTML.decodingHTMLEntities
     }
     
+    /// Starred, archived or saved to a reading list: never removed by cleanup or trimming
+    var isKeptByUser: Bool {
+        isStarred || isArchived || !(readingLists ?? []).isEmpty
+    }
+
     /// Best URL for fetching full article (prefers external URL for Reddit)
     var articleURL: String {
         externalURL ?? url

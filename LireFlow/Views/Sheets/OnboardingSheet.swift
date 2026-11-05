@@ -1,371 +1,153 @@
 import SwiftUI
+import SwiftData
 
+/// First launch: a short welcome, then pick a few feeds so the app doesn't open empty.
+/// Europresse and Pro live in Settings; they're not first-run decisions.
 struct OnboardingSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @ObservedObject var configService = ConfigService.shared
-    @StateObject private var storeService = StoreService.shared
-    
-    @State private var currentStep = 0
-    @State private var searchText = ""
-    
-    private let totalSteps = 3  // Welcome, Europresse, Pro
-    
-    private var filteredPortals: [EuropressePortal] {
-        if searchText.isEmpty {
-            return EuropressePortal.availablePortals
-        }
-        return EuropressePortal.availablePortals.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
-        }
+    private enum Step {
+        case welcome, feeds
     }
-    
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @ObservedObject private var configService = ConfigService.shared
+    @StateObject private var feedService = FeedService()
+
+    @State private var step: Step = .welcome
+    @State private var selectedFeeds: Set<String> = []
+    @State private var isAdding = false
+    @State private var result: FeedService.BulkAddResult?
+
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            VStack(spacing: 16) {
-                Image(systemName: "newspaper.fill")
-                    .font(.system(size: 56))
-                    .foregroundStyle(.blue)
-                
-                Text("Welcome to LireFlow")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                Text("A modern RSS reader for macOS")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+            switch step {
+            case .welcome:
+                welcomeStep
+            case .feeds:
+                feedsStep
             }
-            .padding(.top, 40)
-            .padding(.bottom, 32)
-            
+
             Divider()
-            
-            // Content based on step
-            switch currentStep {
-            case 0:
-                welcomeStep
-            case 1:
-                europresseStep
-            case 2:
-                proStep
-            default:
-                welcomeStep
-            }
-            
-            Spacer()
-            
-            // Step indicator
-            HStack(spacing: 8) {
-                ForEach(0..<totalSteps, id: \.self) { step in
-                    Circle()
-                        .fill(step == currentStep ? Color.accentColor : Color.secondary.opacity(0.3))
-                        .frame(width: 8, height: 8)
-                }
-            }
-            .padding(.bottom, 16)
-            
-            // Footer buttons
+
             HStack {
-                if currentStep > 0 {
-                    Button("Back") {
-                        withAnimation {
-                            currentStep -= 1
-                        }
-                    }
-                    .buttonStyle(.bordered)
+                if step == .feeds {
+                    Button("Back") { step = .welcome }
                 }
-                
+
                 Spacer()
-                
-                if currentStep < totalSteps - 1 {
-                    Button("Next") {
-                        withAnimation {
-                            currentStep += 1
-                        }
+
+                if isAdding {
+                    ProgressView()
+                        .controlSize(.small)
+                }
+
+                switch step {
+                case .welcome:
+                    Button("Continue") { step = .feeds }
+                        .keyboardShortcut(.defaultAction)
+                case .feeds:
+                    Button("Skip") { complete() }
+                        .keyboardShortcut(.cancelAction)
+                        .disabled(isAdding)
+                    Button(selectedFeeds.isEmpty ? "Get Started" : "Add \(selectedFeeds.count) Feeds") {
+                        Task { await addFeedsAndFinish() }
                     }
-                    .buttonStyle(.borderedProminent)
-                } else {
-                    Button("Get Started") {
-                        completeOnboarding()
-                    }
-                    .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(selectedFeeds.isEmpty || isAdding)
                 }
-            }
-            .padding(24)
-        }
-        .frame(width: 600, height: 700)
-    }
-    
-    // MARK: - Welcome Step
-    
-    private var welcomeStep: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                featureRow(
-                    icon: "list.bullet.rectangle",
-                    iconColor: .blue,
-                    title: "Subscribe to Your Favorite Sites",
-                    description: "Add RSS feeds from news sites, blogs, and more. Organize them into folders."
-                )
-                
-                featureRow(
-                    icon: "newspaper",
-                    iconColor: .orange,
-                    title: "Read Full Articles via Europresse",
-                    description: "If you have a university or library account, read paywalled articles through Europresse."
-                )
-                
-                featureRow(
-                    icon: "cloud.sun",
-                    iconColor: .cyan,
-                    title: "Weather Widget",
-                    description: "See local weather at a glance in the sidebar."
-                )
-                
-                featureRow(
-                    icon: "keyboard",
-                    iconColor: .purple,
-                    title: "Keyboard Shortcuts",
-                    description: "Navigate with J/K, star with S, mark read with M, and more."
-                )
-                
-                featureRow(
-                    icon: "lock.shield",
-                    iconColor: .green,
-                    title: "Privacy First",
-                    description: "All data is stored locally on your Mac. No tracking, no cloud sync."
-                )
-            }
-            .padding(32)
-        }
-    }
-    
-    // MARK: - Europresse Step
-    
-    private var europresseStep: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 8) {
-                Image(systemName: "building.columns")
-                    .font(.system(size: 32))
-                    .foregroundStyle(.orange)
-                
-                Text("Connect to Europresse")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
-                Text("If your university or library offers Europresse access, select it below to read full articles from major newspapers.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            .padding(.top, 16)
-            
-            // Search field
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                TextField("Search institutions...", text: $searchText)
-                    .textFieldStyle(.plain)
-                if !searchText.isEmpty {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(10)
-            .background(Color(nsColor: .controlBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .padding(.horizontal, 24)
-            
-            // Portal list
-            ScrollView {
-                LazyVStack(spacing: 4) {
-                    // None option
-                    portalRow(nil, isSelected: configService.config.europressePortal == nil)
-                    
-                    Divider()
-                        .padding(.vertical, 8)
-                    
-                    ForEach(filteredPortals) { portal in
-                        portalRow(portal, isSelected: configService.config.europressePortal?.name == portal.name)
-                    }
-                }
-                .padding(.horizontal, 24)
-            }
-            
-            // Selected status
-            if let portal = configService.config.europressePortal {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                    Text("Selected: \(portal.name)")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.green.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-        }
-    }
-    
-    // MARK: - Helper Views
-    
-    private func featureRow(icon: String, iconColor: Color, title: String, description: String) -> some View {
-        HStack(alignment: .top, spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(iconColor)
-                .frame(width: 32)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-    
-    private func portalRow(_ portal: EuropressePortal?, isSelected: Bool) -> some View {
-        Button {
-            configService.config.europressePortal = portal
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(portal?.name ?? "None (Skip Europresse)")
-                        .font(.subheadline)
-                        .foregroundStyle(portal == nil ? .secondary : .primary)
-                    
-                    if portal == nil {
-                        Text("You can configure this later in Settings")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.blue)
-                }
-            }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .background(isSelected ? Color.blue.opacity(0.1) : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
-        .buttonStyle(.plain)
-    }
-    
-    // MARK: - Pro Step
-    
-    private var proStep: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 8) {
-                Image(systemName: "star.circle.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.linearGradient(
-                        colors: [.yellow, .orange],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                
-                Text("Unlock Pro")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
-                Text("Get the most out of LireFlow")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.top, 16)
-            
-            // Feature comparison
-            VStack(alignment: .leading, spacing: 12) {
-                proFeatureRow(icon: "infinity", title: "Unlimited Feeds", description: "Free: 15 feeds • Pro: Unlimited")
-                proFeatureRow(icon: "list.bullet.rectangle", title: "Unlimited Reading Lists", description: "Free: 1 list • Pro: Unlimited")
-                proFeatureRow(icon: "paintpalette", title: "Premium Themes", description: "Sepia, Nord, and Ocean themes")
             }
             .padding(20)
-            .background(Color(nsColor: .controlBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .padding(.horizontal, 24)
-            
-            // Price and button
-            VStack(spacing: 12) {
-                if storeService.isPro {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                        Text("Pro Unlocked!")
-                            .fontWeight(.semibold)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                } else {
-                    Button {
-                        Task {
-                            await storeService.purchase()
-                        }
-                    } label: {
-                        HStack {
-                            if storeService.purchaseState == .purchasing {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text("Processing...")
-                            } else {
-                                Image(systemName: "star.fill")
-                                Text("Unlock Pro – \(storeService.formattedPrice)")
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                    .disabled(storeService.purchaseState == .purchasing)
-                }
-                
-                Text("One-time purchase • No subscription")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            .padding(.horizontal, 24)
+        }
+        .frame(width: 520, height: 560)
+        .interactiveDismissDisabled()
+        .alert("Some feeds weren’t added", isPresented: Binding(
+            get: { result?.report != nil },
+            set: { if !$0 { result = nil } }
+        ), presenting: result) { _ in
+            Button("OK") { complete() }
+        } message: { result in
+            Text(result.report ?? "")
         }
     }
-    
-    private func proFeatureRow(icon: String, title: String, description: String) -> some View {
-        HStack(spacing: 12) {
+
+    // MARK: - Steps
+
+    private var welcomeStep: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            HStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Welcome to LireFlow")
+                        .font(.largeTitle.bold())
+                    Text("Your news and blogs, in one quiet place.")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 16) {
+                featureRow(icon: "dot.radiowaves.up.forward",
+                           title: "Follow any site with a feed",
+                           detail: "Add feeds from news sites and blogs, and sort them into folders.")
+                featureRow(icon: "keyboard",
+                           title: "Read from the keyboard",
+                           detail: "J and K move between articles, M marks read, S stars, V opens in your browser.")
+                featureRow(icon: "lock",
+                           title: "Stays on your Mac",
+                           detail: "No account, no tracking. Your library is stored locally.")
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var feedsStep: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Pick a few feeds to start")
+                    .font(.title2.bold())
+                Text("You can add your own sites any time with ⌘N.")
+                    .foregroundStyle(.secondary)
+            }
+            .padding(20)
+
+            FeedCatalogList(selection: $selectedFeeds)
+        }
+    }
+
+    private func featureRow(icon: String, title: LocalizedStringKey, detail: LocalizedStringKey) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(.orange)
-                .frame(width: 32)
-            
+                .foregroundStyle(.tint)
+                .frame(width: 20)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.headline)
-                Text(description)
-                    .font(.caption)
+                Text(detail)
                     .foregroundStyle(.secondary)
             }
         }
     }
-    
+
     // MARK: - Actions
-    
-    private func completeOnboarding() {
+
+    private func addFeedsAndFinish() async {
+        isAdding = true
+        defer { isAdding = false }
+
+        let outcome = await feedService.addFeeds(urls: selectedFeeds.sorted(), in: modelContext)
+        if outcome.report == nil {
+            complete()
+        } else {
+            result = outcome  // the alert's OK completes onboarding
+        }
+    }
+
+    private func complete() {
         configService.config.hasCompletedOnboarding = true
         dismiss()
     }
@@ -373,4 +155,5 @@ struct OnboardingSheet: View {
 
 #Preview {
     OnboardingSheet()
+        .modelContainer(for: [Feed.self, Article.self, Folder.self, ReadingList.self], inMemory: true)
 }

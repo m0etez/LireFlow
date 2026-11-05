@@ -150,7 +150,7 @@ You need screenshots for Mac App Store. Required sizes:
 1. **Main View** - Three-column layout with articles
 2. **Article Reading** - Clean reading view with an article open
 3. **Dark Mode** - Same views in dark mode
-4. **Weather Widget** - Sidebar with weather visible
+4. **Card Layout** - Article list in the Cards layout
 5. **Settings** - Settings window open
 6. **Europresse Setup** - Europresse portal selection
 7. **Import/Export** - Backup settings visible
@@ -168,7 +168,7 @@ screencapture -w screenshot.png
 ### App Preview Video (Optional but Recommended)
 
 - 15-30 seconds
-- Show key features: adding feeds, reading articles, weather
+- Show key features: adding feeds, reading articles, layouts
 - Resolution: Same as screenshots
 - Format: H.264, .mov or .mp4
 
@@ -205,11 +205,6 @@ Article Reading
 • Full article extraction
 • Mark articles as read, starred, or archived
 • Export to PDF or Markdown
-
-Weather Widget
-• Local weather in sidebar
-• 7-day forecast
-• Auto-detect or custom location
 
 Europresse Integration
 • Access press archives via your university or library

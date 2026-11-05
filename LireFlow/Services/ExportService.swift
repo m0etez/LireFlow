@@ -309,12 +309,12 @@ final class ExportService: ObservableObject {
             </style>
         </head>
         <body>
-            <h1>\(article.displayTitle)</h1>
+            <h1>\(xmlEscape(article.displayTitle))</h1>
             <div class="metadata">
-                \(article.author.map { "By \($0)<br>" } ?? "")
-                \(article.feed.map { "\($0.title)<br>" } ?? "")
+                \(article.author.map { "By \(xmlEscape($0))<br>" } ?? "")
+                \(article.feed.map { "\(xmlEscape($0.title))<br>" } ?? "")
                 \(article.publishedDate.formatted(date: .long, time: .omitted))<br>
-                \(article.url)
+                \(xmlEscape(article.url))
             </div>
             \(content)
         </body>
@@ -324,7 +324,9 @@ final class ExportService: ObservableObject {
 
     private func generatePDF(from html: String, to url: URL) async throws {
         // Use WKWebView to render HTML to PDF
-        let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 612, height: 792))
+        let configuration = WKWebViewConfiguration()
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = false  // untrusted feed HTML
+        let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 612, height: 792), configuration: configuration)
         webView.loadHTMLString(html, baseURL: nil)
 
         // Wait for load to complete
@@ -334,11 +336,9 @@ final class ExportService: ObservableObject {
                 if webView.isLoading == false {
                     observer?.invalidate()
 
-                    // Generate PDF
-                    let config = WKPDFConfiguration()
-                    config.rect = CGRect(x: 0, y: 0, width: 612, height: 792)
-
-                    webView.createPDF(configuration: config) { result in
+                    // No rect: capture the whole document, not just the first 612×792 area.
+                    // ponytail: one continuous page; paginate via NSPrintOperation if letter pages matter.
+                    webView.createPDF(configuration: WKPDFConfiguration()) { result in
                         switch result {
                         case .success(let data):
                             do {

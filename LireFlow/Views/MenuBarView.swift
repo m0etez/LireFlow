@@ -28,29 +28,18 @@ struct MenuBarView: View {
                     NotificationCenter.default.post(name: .refreshAllFeeds, object: nil)
                 } label: {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 14))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.borderless)
                 .help("Refresh All Feeds")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(.ultraThinMaterial)
             
             Divider()
             
             // Recent Articles
             if unreadArticles.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle")
-                        .font(.system(size: 32))
-                        .foregroundStyle(.green)
-                    Text("All caught up!")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding()
+                ContentUnavailableView("No Unread Articles", systemImage: "tray")
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
@@ -68,11 +57,9 @@ struct MenuBarView: View {
                 Button {
                     markAllAsRead()
                 } label: {
-                    Label("Mark All Read", systemImage: "checkmark.circle")
-                        .font(.caption)
+                    Text("Mark All as Read")
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .buttonStyle(.borderless)
                 .disabled(unreadArticles.isEmpty)
                 
                 Spacer()
@@ -84,23 +71,18 @@ struct MenuBarView: View {
                     }
                 } label: {
                     Text("Open LireFlow")
-                        .font(.caption.bold())
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.blue)
+                .buttonStyle(.borderless)
             }
+            .font(.callout)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
         }
         .frame(width: 320, height: 400)
     }
     
     private func markAllAsRead() {
-        for article in unreadArticles {
-            article.isRead = true
-        }
-        try? modelContext.save()
+        markRead(unreadArticles, in: modelContext)
     }
 }
 
@@ -122,12 +104,11 @@ struct MenuBarArticleRow: View {
             HStack(spacing: 10) {
                 // Feed icon
                 if let feed = article.feed {
-                    FeedIconSmall(url: feed.iconURL, feedURL: feed.url)
-                        .frame(width: 24, height: 24)
+                    FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
+                        .frame(width: 16, height: 16)
                 } else {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(.quaternary)
-                        .frame(width: 24, height: 24)
+                    DefaultFeedIcon()
+                        .frame(width: 16, height: 16)
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -144,8 +125,8 @@ struct MenuBarArticleRow: View {
                         Text("•")
                         Text(article.publishedDate, style: .relative)
                     }
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
@@ -156,58 +137,5 @@ struct MenuBarArticleRow: View {
         }
         .buttonStyle(.plain)
         .background(Color.primary.opacity(0.001)) // Hover area
-    }
-}
-
-// MARK: - Small Feed Icon
-
-struct FeedIconSmall: View {
-    let url: String?
-    var feedURL: String? = nil
-    
-    private var faviconURL: URL? {
-        if let urlString = url, let iconURL = URL(string: urlString) {
-            return iconURL
-        }
-        if let feedURLString = feedURL,
-           let feedURL = URL(string: feedURLString),
-           let host = feedURL.host {
-            return URL(string: "https://www.google.com/s2/favicons?domain=\(host)&sz=64")
-        }
-        return nil
-    }
-    
-    var body: some View {
-        if let iconURL = faviconURL {
-            AsyncImage(url: iconURL) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().aspectRatio(contentMode: .fit)
-                default:
-                    DefaultFeedIconSmall()
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 4))
-        } else {
-            DefaultFeedIconSmall()
-        }
-    }
-}
-
-struct DefaultFeedIconSmall: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 4)
-            .fill(
-                LinearGradient(
-                    colors: [.orange, .red],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .overlay {
-                Image(systemName: "dot.radiowaves.up.forward")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-            }
     }
 }

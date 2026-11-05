@@ -3,7 +3,6 @@ import WebKit
 
 struct ArticleDetailView: View {
     @Bindable var article: Article
-    var onClose: (() -> Void)?
     @ObservedObject private var configService = ConfigService.shared
     @State private var webViewHeight: CGFloat = 400
     @State private var isFetchingFullArticle = false
@@ -28,151 +27,80 @@ struct ArticleDetailView: View {
         } else if !article.summary.isEmpty {
             return article.summary
         } else {
-            return "<p><em>Aucun contenu disponible. Cliquez sur 'Récupérer l'article complet' pour charger le contenu.</em></p>"
+            return "<p><em>" + String(localized: "No content available. Click \u{201C}Fetch full article\u{201D} to load it.") + "</em></p>"
         }
-    }
-    
-    // Check if we only have summary (not full content)
-    private var hasOnlySummary: Bool {
-        article.content.isEmpty || article.content == article.summary || article.content.count < 500
     }
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                // Close button
-                HStack {
-                    Spacer()
-                    
-                    if let onClose = onClose {
-                        Button {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                onClose()
-                            }
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 28, height: 28)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                                .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
-                        }
-                        .buttonStyle(.plain)
-                        .help("Fermer l'article")
-                    }
-                }
-                
+            VStack(alignment: .leading, spacing: 20) {
                 // Header
-                VStack(alignment: .leading, spacing: 12) {
-                    // Feed and date
+                VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         if let feed = article.feed {
-                            HStack(spacing: 6) {
+                            Label {
+                                Text(feed.title)
+                            } icon: {
                                 FeedIcon(url: feed.iconURL, feedURL: feed.url, websiteURL: feed.websiteURL)
                                     .frame(width: 16, height: 16)
-                                
-                                Text(feed.title)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
                             }
                         }
-                        
                         Spacer()
-                        
                         Text(article.publishedDate, style: .date)
-                            .font(.subheadline)
-                            .foregroundStyle(.tertiary)
                     }
-                    
-                    // Title
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
                     Text(article.title)
-                        .font(.system(size: 28, weight: .bold, design: .serif))
-                        .foregroundStyle(.primary)
+                        .font(.largeTitle.bold())
                         .textSelection(.enabled)
-                    
-                    // Author
+
                     if let author = article.author, !author.isEmpty {
                         Text("by \(author)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .italic()
                     }
-                }
-                .padding(.bottom, 8)
-                
-                // Fetch full article button (if we only have summary)
-                if hasOnlySummary {
-                    Button {
-                        Task { await fetchFullArticle() }
-                    } label: {
-                        HStack {
-                            if isFetchingFullArticle {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text("Fetching article...")
-                            } else {
-                                Image(systemName: "doc.text.magnifyingglass")
-                                Text("Fetch full article")
-                            }
+
+                    // Always offered: feeds often carry a summary, and a page can be re-fetched
+                    HStack(spacing: 8) {
+                        Button {
+                            Task { await fetchFullArticle() }
+                        } label: {
+                            Label("Fetch Full Article", systemImage: "doc.text.magnifyingglass")
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .controlSize(.small)
+                        .disabled(isFetchingFullArticle)
+
+                        if isFetchingFullArticle {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else if let error = fetchError {
+                            Label(error, systemImage: "exclamationmark.triangle.fill")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .disabled(isFetchingFullArticle)
+                    .padding(.top, 4)
                 }
-                
-                // Error message
-                if let error = fetchError {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        Text(error)
-                            .font(.caption)
-                    }
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.orange.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                
+
                 Divider()
-                
-                // Content - using WebView with dynamic height
-                ArticleContentView(html: displayContent, height: $webViewHeight)
+
+                ArticleContentView(
+                    html: displayContent,
+                    fontSize: configService.config.articleFontSize,
+                    loadImages: configService.config.loadImages,
+                    theme: currentTheme,
+                    height: $webViewHeight
+                )
                     .frame(height: webViewHeight)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Action buttons
-                if let articleURL = URL(string: article.url) {
+
+                // Europresse: only if configured and the source is supported
+                if let portal = configService.config.europressePortal,
+                   !portal.authURL.isEmpty,
+                   DefaultFeeds.isEuropresseSupported(url: article.url) {
                     Divider()
-                    
-                    VStack(spacing: 12) {
-                        // Open in browser
-                        Link(destination: articleURL) {
-                            HStack {
-                                Image(systemName: "globe")
-                                Text("Open in browser")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.accentColor.opacity(0.1))
-                            .foregroundStyle(Color.accentColor)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .buttonStyle(.plain)
-                        
-                        // Europresse - Press archives via university (only if configured AND source is supported)
-                        if let portal = ConfigService.shared.config.europressePortal,
-                           !portal.authURL.isEmpty,
-                           DefaultFeeds.isEuropresseSupported(url: article.url) {
-                            EuropresseButton(article: article, portal: portal)
-                        }
-                    }
+                    EuropresseButton(article: article, portal: portal)
                 }
             }
             .padding(32)
@@ -184,50 +112,40 @@ struct ArticleDetailView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
-                        article.isStarred.toggle()
-                    }
+                    article.isStarred.toggle()
                 } label: {
-                    Image(systemName: article.isStarred ? "star.fill" : "star")
-                        .foregroundStyle(article.isStarred ? .yellow : .primary)
-                        .scaleEffect(article.isStarred ? 1.15 : 1.0)
+                    Label(article.isStarred ? "Unstar" : "Star",
+                          systemImage: article.isStarred ? "star.fill" : "star")
                 }
-                .help(article.isStarred ? "Remove from favorites" : "Add to favorites")
-                
+                .help(article.isStarred ? "Remove star (S)" : "Star (S)")
+
                 Button {
                     article.isRead.toggle()
                 } label: {
-                    Image(systemName: article.isRead ? "circle" : "circle.fill")
+                    Label(article.isRead ? "Mark as Unread" : "Mark as Read",
+                          systemImage: article.isRead ? "circle" : "circle.fill")
                 }
-                .help(article.isRead ? "Mark as unread" : "Mark as read")
+                .help(article.isRead ? "Mark as unread (M)" : "Mark as read (M)")
 
-                Divider()
+                if let url = URL(string: article.url) {
+                    Link(destination: url) {
+                        Label("Open in Browser", systemImage: "safari")
+                    }
+                    .help("Open in browser (V)")
+                }
 
                 Menu {
-                    Button {
-                        Task { await exportToPDF() }
-                    } label: {
-                        Label("Export to PDF", systemImage: "doc.richtext")
-                    }
-                    .disabled(isExporting)
-
-                    Button {
-                        Task { await exportToMarkdown() }
-                    } label: {
-                        Label("Export to Markdown", systemImage: "doc.text")
-                    }
-                    .disabled(isExporting)
+                    Button("Export as PDF…") { Task { await exportToPDF() } }
+                    Button("Export as Markdown…") { Task { await exportToMarkdown() } }
                 } label: {
-                    Image(systemName: "square.and.arrow.down")
+                    Label("Export", systemImage: "square.and.arrow.down")
                 }
                 .help("Export article")
                 .disabled(isExporting)
 
                 if let url = URL(string: article.url) {
-                    ShareLink(item: url) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                    .help("Share article")
+                    ShareLink(item: url)
+                        .help("Share article")
                 }
             }
         }
@@ -241,11 +159,17 @@ struct ArticleDetailView: View {
         } message: {
             Text(exportErrorMessage)
         }
-        .onAppear {
+        .onChange(of: article.id, initial: true) {
             article.isRead = true
+            fetchError = nil
+        }
+        .task(id: article.id) {
+            if article.feed?.alwaysFetchFullArticle == true && !article.hasFetchedFullArticle {
+                await fetchFullArticle()
+            }
         }
     }
-    
+
     // MARK: - Fetch Full Article
     
     private func fetchFullArticle() async {
@@ -254,15 +178,18 @@ struct ArticleDetailView: View {
         
         do {
             let fullContent = try await ArticleExtractor.extractContent(from: article.articleURL)
-            
-            if fullContent.count > article.content.count {
+            article.hasFetchedFullArticle = true
+
+            // Compare text, not markup: only replace what's shown when the page has more to read
+            let shownText = (article.content.isEmpty ? article.summary : article.content).strippingHTML
+            if fullContent.strippingHTML.count > shownText.count {
                 article.content = fullContent
                 // Reset webview height to recalculate
                 webViewHeight = 400
             } else if fullContent.isEmpty {
-                fetchError = "Could not extract article content. Try opening in Safari."
+                fetchError = String(localized: "Couldn’t find the article text. Open it in your browser instead.")
             } else {
-                fetchError = "No additional content found."
+                fetchError = String(localized: "The page has no more text than the feed.")
             }
         } catch {
             fetchError = error.localizedDescription
@@ -279,7 +206,7 @@ struct ArticleDetailView: View {
 
         do {
             let url = try await exportService.exportArticleToPDF(article: article)
-            exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            exportSuccessMessage = String(localized: "Saved as \(url.lastPathComponent).")
             showingExportSuccess = true
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
@@ -295,7 +222,7 @@ struct ArticleDetailView: View {
 
         do {
             let url = try await exportService.exportArticleToMarkdown(article: article)
-            exportSuccessMessage = "Successfully exported to:\n\(url.lastPathComponent)"
+            exportSuccessMessage = String(localized: "Saved as \(url.lastPathComponent).")
             showingExportSuccess = true
         } catch ExportService.ExportError.userCancelled {
             // Silent - user cancelled
@@ -316,14 +243,34 @@ class NonScrollableWebView: WKWebView {
 
 struct ArticleContentView: NSViewRepresentable {
     let html: String
+    var fontSize: Int = 16
+    var loadImages: Bool = true
+    var theme: AppTheme = .system
     @Binding var height: CGFloat
+
+    /// Reports the content height. Runs in an isolated script world, so it works even though
+    /// the article's own scripts are disabled, and keeps reporting as images load.
+    private static let heightScript = """
+    (() => {
+        const send = () => window.webkit.messageHandlers.heightHandler.postMessage(document.body.scrollHeight);
+        new ResizeObserver(send).observe(document.body);
+        send();
+    })();
+    """
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.preferences.isElementFullscreenEnabled = false
+        // Feed HTML is untrusted: its scripts never run (no tracking, no redirects, no fake pages).
+        config.defaultWebpagePreferences.allowsContentJavaScript = false
+        config.userContentController.add(context.coordinator, contentWorld: .defaultClient, name: "heightHandler")
+        config.userContentController.addUserScript(
+            WKUserScript(source: Self.heightScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .defaultClient)
+        )
 
         let webView = NonScrollableWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
+        context.coordinator.webView = webView
         webView.setValue(false, forKey: "drawsBackground")
 
         // Disable internal scrolling - let parent ScrollView handle it
@@ -336,17 +283,40 @@ struct ArticleContentView: NSViewRepresentable {
 
         return webView
     }
-    
+
     func updateNSView(_ webView: WKWebView, context: Context) {
         context.coordinator.parent = self
         let styledHTML = wrapWithStyles(html)
+        // Every SwiftUI update (star, read, height change…) lands here: reload only on real changes.
+        guard styledHTML != context.coordinator.loadedHTML else { return }
+        context.coordinator.loadedHTML = styledHTML
         webView.loadHTMLString(styledHTML, baseURL: nil)
     }
-    
+
+    static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        webView.configuration.userContentController.removeAllScriptMessageHandlers()
+    }
+
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
     }
-    
+
+    /// Fixed themes paint the page themselves; System keeps the light/dark defaults above
+    private var themeCSS: String {
+        guard theme != .system else { return "" }
+        return """
+        body { color: \(Self.css(theme.textColor)); }
+        a { color: \(Self.css(theme.accentColor)); }
+        blockquote { border-left-color: \(Self.css(theme.accentColor)); background: transparent; }
+        figcaption { color: \(Self.css(theme.secondaryTextColor)); }
+        """
+    }
+
+    private static func css(_ color: Color) -> String {
+        guard let rgb = NSColor(color).usingColorSpace(.sRGB) else { return "inherit" }
+        return "rgb(\(Int(rgb.redComponent * 255)), \(Int(rgb.greenComponent * 255)), \(Int(rgb.blueComponent * 255)))"
+    }
+
     private func wrapWithStyles(_ content: String) -> String {
         """
         <!DOCTYPE html>
@@ -354,6 +324,7 @@ struct ArticleContentView: NSViewRepresentable {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            \(loadImages ? "" : #"<meta http-equiv="Content-Security-Policy" content="img-src 'none'">"#)
             <style>
                 :root {
                     color-scheme: light dark;
@@ -369,7 +340,7 @@ struct ArticleContentView: NSViewRepresentable {
                 
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
-                    font-size: 16px;
+                    font-size: \(fontSize)px;
                     line-height: 1.7;
                     color: #1d1d1f;
                     background: transparent;
@@ -500,59 +471,94 @@ struct ArticleContentView: NSViewRepresentable {
                     margin: 16px 0;
                     border-radius: 8px;
                 }
+                \(loadImages ? "" : "img, picture { display: none !important; }")
+                \(themeCSS)
             </style>
         </head>
         <body>
             \(content)
-            <script>
-                // Send height to Swift after load
-                function sendHeight() {
-                    const height = document.body.scrollHeight;
-                    window.webkit.messageHandlers.heightHandler.postMessage(height);
-                }
-                window.onload = sendHeight;
-                setTimeout(sendHeight, 100);
-                setTimeout(sendHeight, 500);
-            </script>
         </body>
         </html>
         """
     }
-    
+
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var parent: ArticleContentView
-        
+        var loadedHTML: String?
+        weak var webView: WKWebView?
+        private var pageDownObserver: NSObjectProtocol?
+
         init(parent: ArticleContentView) {
             self.parent = parent
             super.init()
+            pageDownObserver = NotificationCenter.default.addObserver(forName: .pageDown, object: nil, queue: .main) { [weak self] _ in
+                self?.pageDown()
+            }
         }
-        
+
+        deinit {
+            pageDownObserver.map(NotificationCenter.default.removeObserver)
+        }
+
+        /// Space: scroll the article (the ScrollView around this web view) by a page,
+        /// and at the end move on to the next article
+        private func pageDown() {
+            guard let scrollView = webView?.enclosingScrollView, let document = scrollView.documentView else { return }
+            let clip = scrollView.contentView
+            let end = max(0, document.frame.height - clip.bounds.height)
+            // Distance scrolled from the top, whichever way the document's y axis runs
+            let scrolled = document.isFlipped ? clip.bounds.origin.y : end - clip.bounds.origin.y
+            guard scrolled < end - 1 else {
+                NotificationCenter.default.post(name: .nextArticle, object: nil)
+                return
+            }
+            let target = min(end, scrolled + clip.bounds.height * 0.9)
+            clip.scroll(to: NSPoint(x: clip.bounds.origin.x, y: document.isFlipped ? target : end - target))
+            scrollView.reflectScrolledClipView(clip)
+        }
+
+        private func setHeight(_ contentHeight: CGFloat) {
+            let newHeight = max(contentHeight + 20, 100)
+            DispatchQueue.main.async {
+                if abs(self.parent.height - newHeight) > 1 {
+                    self.parent.height = newHeight
+                }
+            }
+        }
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Get content height after load
-            webView.evaluateJavaScript("document.body.scrollHeight") { [weak self] result, error in
-                if let height = result as? CGFloat, height > 0 {
-                    DispatchQueue.main.async {
-                        self?.parent.height = max(height + 20, 100)
-                    }
+            // Fallback in case the observer script hasn't reported yet
+            webView.evaluateJavaScript("document.body.scrollHeight", in: nil, in: .defaultClient) { [weak self] result in
+                if case .success(let value) = result, let number = value as? NSNumber {
+                    self?.setHeight(CGFloat(number.doubleValue))
                 }
             }
         }
-        
+
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            if navigationAction.navigationType == .linkActivated,
-               let url = navigationAction.request.url {
-                NSWorkspace.shared.open(url)
+            guard let url = navigationAction.request.url else {
                 decisionHandler(.cancel)
-            } else {
-                decisionHandler(.allow)
+                return
             }
-        }
-        
-        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-            if let height = message.body as? CGFloat {
-                DispatchQueue.main.async {
-                    self.parent.height = max(height + 20, 100)
+
+            // Clicked links open in the default browser (web and mail links only)
+            if navigationAction.navigationType == .linkActivated {
+                if ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") {
+                    NSWorkspace.shared.open(url)
                 }
+                decisionHandler(.cancel)
+                return
+            }
+
+            // Allow our own loadHTMLString (about:blank) and embedded frames (videos);
+            // block anything else replacing the article (redirects, meta refresh).
+            let isMainFrame = navigationAction.targetFrame?.isMainFrame ?? true
+            decisionHandler(!isMainFrame || url.absoluteString == "about:blank" ? .allow : .cancel)
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if let number = message.body as? NSNumber {
+                setHeight(CGFloat(number.doubleValue))
             }
         }
     }
@@ -563,83 +569,35 @@ struct ArticleContentView: NSViewRepresentable {
 struct EuropresseButton: View {
     let article: Article
     let portal: EuropressePortal
-    
-    @State private var showCopiedFeedback = false
-    
+
+    @State private var copied = false
+
     var body: some View {
-        VStack(spacing: 8) {
-            Button {
-                openEuropresse()
-            } label: {
-                HStack {
-                    Image(systemName: "newspaper")
-                        .font(.system(size: 16))
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Search on Europresse")
-                            .font(.subheadline)
-                        Text("via \(portal.name)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    if showCopiedFeedback {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                    } else {
-                        Image(systemName: "arrow.up.forward.square")
-                            .font(.caption)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .padding(.horizontal, 12)
-                .background(Color.orange.opacity(0.1))
-                .foregroundStyle(.orange)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+        VStack(alignment: .leading, spacing: 6) {
+            Button(action: openEuropresse) {
+                Label("Search on Europresse", systemImage: "newspaper")
             }
-            .buttonStyle(.plain)
-            .help("Opens Europresse - paste the search query from clipboard")
-            
-            // Instructions
-            VStack(alignment: .leading, spacing: 4) {
-                if showCopiedFeedback {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                        Text("Search query copied!")
-                            .fontWeight(.medium)
-                    }
-                    .font(.caption)
-                }
-                
-                Text("After logging in, paste (⌘V) in the search bar")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+            .help("Copies the title as a search and opens Europresse")
+
+            Text(copied
+                 ? "Search copied. After signing in, paste it (⌘V) in Europresse’s search field."
+                 : "Via \(portal.name). Copies the title as a search query, then opens Europresse.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
-    
+
     private func openEuropresse() {
-        // Copy search query to clipboard
-        let searchQuery = "TIT_HEAD=\"\(article.title)\""
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(searchQuery, forType: .string)
-        
-        // Show feedback
-        withAnimation {
-            showCopiedFeedback = true
-        }
-        
-        // Open Europresse via configured portal
+        NSPasteboard.general.setString("TIT_HEAD=\"\(article.title)\"", forType: .string)
+        copied = true
+
         if let europresseURL = URL(string: portal.authURL) {
             NSWorkspace.shared.open(europresseURL)
         }
-        
-        // Reset feedback after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            withAnimation {
-                showCopiedFeedback = false
-            }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            copied = false
         }
     }
 }

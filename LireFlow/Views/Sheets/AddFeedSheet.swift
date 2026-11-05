@@ -4,182 +4,88 @@ import SwiftData
 struct AddFeedSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let folders: [Folder]
-    
+
     @Query private var allFeeds: [Feed]
     @StateObject private var feedService = FeedService()
-    @StateObject private var storeService = StoreService.shared
-    
+    @ObservedObject private var storeService = StoreService.shared
+
     @State private var urlString = ""
+    /// The normalized URL the preview was fetched from (urlString stays as typed)
+    @State private var previewURL: String?
     @State private var selectedFolder: Folder?
     @State private var isLoading = false
     @State private var previewFeed: ParsedFeed?
     @State private var error: Error?
     @State private var showingDefaultFeeds = false
     @State private var showingUpgrade = false
-    
+
     var body: some View {
-        VStack(spacing: 0) {
-            // Header
-            HStack {
-                Text("Add Feed")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
-                Spacer()
-                
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.tertiary)
-                }
-                .buttonStyle(.plain)
-                .contentShape(Circle())
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 20)
-            .padding(.bottom, 16)
-            
-            // Content
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Feed URL input
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Feed URL")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Add Feed")
+                .font(.headline)
+
+            TextField("Feed URL", text: $urlString, prompt: Text("https://example.com/feed.xml"))
+                .textFieldStyle(.roundedBorder)
+
+            // Preview status: looked up automatically as you type or paste
+            Group {
+                if isLoading {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Looking for a feed…")
                             .foregroundStyle(.secondary)
-                        
-                        HStack(spacing: 12) {
-                            TextField("https://example.com/feed.xml", text: $urlString)
-                                .textFieldStyle(.plain)
-                                .padding(12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(.ultraThinMaterial)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .strokeBorder(.quaternary, lineWidth: 1)
-                                )
-                                .onSubmit {
-                                    Task { await fetchPreview() }
-                                }
-                            
-                            Button {
-                                Task { await fetchPreview() }
-                            } label: {
-                                Group {
-                                    if isLoading {
-                                        ProgressView()
-                                            .controlSize(.small)
-                                    } else {
-                                        Text("Fetch")
-                                            .fontWeight(.medium)
-                                    }
-                                }
-                                .frame(width: 60)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.blue)
-                            .disabled(urlString.isEmpty || isLoading)
-                        }
                     }
-                    
-                    // Error display - Subtle styling
-                    if let error = error {
-                        HStack(spacing: 10) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
-                            Text(error.localizedDescription)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-                        .padding(14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(.orange.opacity(0.08))
-                        )
-                    }
-                    
-                    // Preview - Liquid glass card
-                    if let feed = previewFeed {
-                        FeedPreviewCard(feed: feed)
-                    }
-                    
-                    // Add to folder section
-                    if !folders.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Add to Folder")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundStyle(.secondary)
-                            
-                            Picker("", selection: $selectedFolder) {
-                                Text("Aucun").tag(nil as Folder?)
-                                ForEach(folders) { folder in
-                                    Text(folder.name).tag(folder as Folder?)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .labelsHidden()
-                        }
+                } else if let error {
+                    Label(error.localizedDescription, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.secondary)
+                } else if let previewFeed {
+                    FeedPreviewCard(feed: previewFeed)
+                }
+            }
+            .font(.callout)
+            .frame(minHeight: 24, alignment: .topLeading)
+
+            if !folders.isEmpty {
+                Picker("Folder", selection: $selectedFolder) {
+                    Text("None").tag(nil as Folder?)
+                    ForEach(folders) { folder in
+                        Text(folder.name).tag(folder as Folder?)
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 8)
             }
-            
-            Spacer()
-            
-            // Browse default feeds - Subtle link style
-            Button {
-                showingDefaultFeeds = true
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "list.bullet.rectangle")
-                        .font(.caption)
-                    Text("Browse Default Feeds")
-                        .font(.subheadline)
-                }
-                .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .padding(.bottom, 16)
-            
-            // Footer buttons
+
+            Spacer(minLength: 0)
+
             HStack {
-                Button("Cancel") {
+                Button("Browse Suggestions…") {
+                    showingDefaultFeeds = true
+                }
+
+                Spacer()
+
+                Button("Cancel", role: .cancel) {
                     dismiss()
                 }
-                .keyboardShortcut(.escape)
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                
-                Spacer()
-                
-                Button {
+                .keyboardShortcut(.cancelAction)
+
+                Button("Add Feed") {
                     Task { await addFeed() }
-                } label: {
-                    Text("Add Feed")
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.accentColor)
-                .keyboardShortcut(.return)
+                .keyboardShortcut(.defaultAction)
                 .disabled(previewFeed == nil || isLoading)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
         }
-        .frame(width: 480, height: 500)
-        .background(.ultraThinMaterial)
+        .padding(20)
+        .frame(width: 460, height: 300)
+        .task(id: urlString) {
+            // Debounced preview: waits for typing to pause, cancelled by the next keystroke
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            await fetchPreview()
+        }
         .sheet(isPresented: $showingDefaultFeeds) {
             DefaultFeedsSheet(folders: folders) {
                 // Feeds added, dismiss this sheet too
@@ -193,49 +99,57 @@ struct AddFeedSheet: View {
             checkClipboardForURL()
         }
     }
-    
-    private func fetchPreview() async {
-        guard !urlString.isEmpty else { return }
 
-        // Normalize and validate URL
-        var urlStr = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        // Add https:// if no scheme is present
-        if !urlStr.hasPrefix("http://") && !urlStr.hasPrefix("https://") {
+    /// Accepts "example.com/feed" as well as full http(s) URLs
+    private static func normalizedURL(_ input: String) -> String? {
+        var urlStr = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !urlStr.isEmpty, !urlStr.contains(" ") else { return nil }
+        if !urlStr.lowercased().hasPrefix("http://") && !urlStr.lowercased().hasPrefix("https://") {
             urlStr = "https://" + urlStr
         }
-
-        // Validate URL and ensure safe scheme
         guard let url = URL(string: urlStr),
               let scheme = url.scheme?.lowercased(),
-              (scheme == "http" || scheme == "https"),
-              url.host != nil else {
-            self.error = NSError(
-                domain: "AddFeedSheet",
-                code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "Invalid URL. Please enter a valid http:// or https:// URL."]
-            )
+              scheme == "http" || scheme == "https",
+              let host = url.host, host.contains(".") else {
+            return nil
+        }
+        return urlStr
+    }
+
+    private func fetchPreview() async {
+        previewFeed = nil
+        previewURL = nil
+        error = nil
+
+        guard !urlString.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard let urlStr = Self.normalizedURL(urlString) else {
+            error = FeedServiceError.invalidURL
             return
         }
 
-        urlString = urlStr
-
         isLoading = true
-        error = nil
-        previewFeed = nil
+        defer { isLoading = false }
 
         do {
-            previewFeed = try await feedService.fetchFeed(from: urlStr)
+            let feed = try await feedService.fetchFeed(from: urlStr)
+            guard !Task.isCancelled else { return }
+            previewFeed = feed
+            previewURL = urlStr
         } catch {
+            guard !Task.isCancelled else { return }  // superseded by newer typing
             self.error = error
         }
-
-        isLoading = false
     }
-    
+
     private func addFeed() async {
-        guard previewFeed != nil else { return }
-        
+        guard let previewURL else { return }
+
+        if allFeeds.contains(where: { $0.url == previewURL }) {
+            error = FeedServiceError.alreadySubscribed
+            previewFeed = nil
+            return
+        }
+
         // Check freemium limit
         if !storeService.canAddFeed(currentCount: allFeeds.count) {
             showingUpgrade = true
@@ -243,49 +157,23 @@ struct AddFeedSheet: View {
         }
 
         isLoading = true
+        defer { isLoading = false }
 
         do {
-            _ = try await feedService.addFeed(url: urlString, to: selectedFolder, in: modelContext)
+            _ = try await feedService.addFeed(url: previewURL, to: selectedFolder, in: modelContext)
             dismiss()
         } catch {
             self.error = error
         }
-
-        isLoading = false
     }
 
+    /// Prefills the field when the clipboard holds a URL; the preview task picks it up
     private func checkClipboardForURL() {
-        guard urlString.isEmpty else { return }  // Don't override if user already typed something
-
-        if let clipboardString = NSPasteboard.general.string(forType: .string) {
-            let trimmed = clipboardString.trimmingCharacters(in: .whitespacesAndNewlines)
-
-            // Validate clipboard content is a safe URL
-            guard trimmed.count < 500 else { return }  // Length check
-
-            var urlStr = trimmed
-            if !urlStr.hasPrefix("http://") && !urlStr.hasPrefix("https://") {
-                // Only auto-prepend https if it looks like a domain
-                if urlStr.contains(".") && !urlStr.contains(" ") {
-                    urlStr = "https://" + urlStr
-                } else {
-                    return  // Not a valid URL pattern
-                }
-            }
-
-            // Validate it's a proper URL with safe scheme
-            if let url = URL(string: urlStr),
-               let scheme = url.scheme?.lowercased(),
-               (scheme == "http" || scheme == "https"),
-               url.host != nil {
-                urlString = trimmed
-
-                // Auto-trigger preview fetch
-                Task {
-                    await fetchPreview()
-                }
-            }
-        }
+        guard urlString.isEmpty,
+              let clipboard = NSPasteboard.general.string(forType: .string),
+              clipboard.count < 500,
+              Self.normalizedURL(clipboard) != nil else { return }
+        urlString = clipboard.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
@@ -293,50 +181,81 @@ struct AddFeedSheet: View {
 
 struct FeedPreviewCard: View {
     let feed: ParsedFeed
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                    .font(.body)
-                
-                Text("Flux trouvé")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.green)
-            }
-            
+        VStack(alignment: .leading, spacing: 4) {
             Text(feed.title)
                 .font(.headline)
-                .foregroundStyle(.primary)
-            
+
             if !feed.description.isEmpty {
                 Text(feed.description)
-                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
-            
-            HStack {
-                Image(systemName: "doc.text")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                Text("\(feed.articles.count) articles")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
+
+            Text("\(feed.articles.count) articles")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.green.opacity(0.06))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(.green.opacity(0.15), lineWidth: 1)
-        )
+        .padding(12)
+        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+// MARK: - Feed Catalog
+
+/// The suggested feeds, by category, with a checkbox each. Used by Browse Suggestions and onboarding.
+struct FeedCatalogList: View {
+    @Binding var selection: Set<String>  // feed URLs
+
+    var body: some View {
+        List {
+            ForEach(DefaultFeeds.categories, id: \.self) { category in
+                Section(LocalizedStringKey(category)) {
+                    ForEach(DefaultFeeds.feeds(for: category), id: \.url) { feedInfo in
+                        Toggle(isOn: Binding(
+                            get: { selection.contains(feedInfo.url) },
+                            set: { isOn in
+                                if isOn {
+                                    selection.insert(feedInfo.url)
+                                } else {
+                                    selection.remove(feedInfo.url)
+                                }
+                            }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(feedInfo.title)
+                                Text(URL(string: feedInfo.url)?.host ?? feedInfo.url)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                        .toggleStyle(.checkbox)
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension FeedService.BulkAddResult {
+    /// Alert text for feeds that weren't added, or nil when everything was
+    var report: String? {
+        var lines: [String] = []
+        if !failedURLs.isEmpty {
+            let titles = Dictionary(
+                DefaultFeeds.feeds.map { ($0.url, $0.title) },
+                uniquingKeysWith: { first, _ in first }
+            )
+            let names = failedURLs.map { titles[$0] ?? $0 }
+            lines.append(String(localized: "Couldn’t load: \(names.joined(separator: ", "))"))
+        }
+        if limitSkipped > 0 {
+            lines.append(String(localized: "Free plan limit reached: \(limitSkipped) feeds not added."))
+        }
+        return lines.isEmpty ? nil : lines.joined(separator: "\n\n")
     }
 }
 
@@ -345,133 +264,90 @@ struct FeedPreviewCard: View {
 struct DefaultFeedsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    
+
     let folders: [Folder]
     let onComplete: () -> Void
-    
+
     @State private var selectedFeeds: Set<String> = []  // URLs of selected feeds
     @State private var selectedFolder: Folder?
     @State private var isAdding = false
     @StateObject private var feedService = FeedService()
-    
+
+    // Outcome of a bulk add that didn't fully succeed
+    @State private var result: FeedService.BulkAddResult?
+    @State private var showingUpgrade = false
+
     var body: some View {
         VStack(spacing: 0) {
+            Text("Suggested Feeds")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding()
+
+            FeedCatalogList(selection: $selectedFeeds)
+
             HStack {
-                Text("Parcourir les flux")
-                    .font(.headline)
-                
-                Spacer()
-                
-                if !selectedFeeds.isEmpty {
-                    Text("\(selectedFeeds.count) sélectionné(s)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding()
-            
-            Divider()
-            
-            List {
-                ForEach(DefaultFeeds.categories, id: \.self) { category in
-                    Section(category) {
-                        ForEach(DefaultFeeds.feeds(for: category), id: \.url) { feedInfo in
-                            HStack {
-                                Toggle("", isOn: Binding(
-                                    get: { selectedFeeds.contains(feedInfo.url) },
-                                    set: { isSelected in
-                                        if isSelected {
-                                            selectedFeeds.insert(feedInfo.url)
-                                        } else {
-                                            selectedFeeds.remove(feedInfo.url)
-                                        }
-                                    }
-                                ))
-                                .toggleStyle(.checkbox)
-                                
-                                VStack(alignment: .leading) {
-                                    Text(feedInfo.title)
-                                        .foregroundStyle(.primary)
-                                    
-                                    Text(feedInfo.url)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(1)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            Divider()
-            
-            // Footer
-            VStack(spacing: 12) {
                 if !folders.isEmpty {
-                    Picker("Ajouter au dossier", selection: $selectedFolder) {
-                        Text("Aucun").tag(nil as Folder?)
+                    Picker("Folder", selection: $selectedFolder) {
+                        Text("None").tag(nil as Folder?)
                         ForEach(folders) { folder in
                             Text(folder.name).tag(folder as Folder?)
                         }
                     }
-                    .pickerStyle(.menu)
+                    .fixedSize()
                 }
-                
-                HStack {
-                    Button("Annuler") {
-                        dismiss()
-                    }
-                    .keyboardShortcut(.escape)
-                    
-                    Spacer()
-                    
-                    Button {
-                        Task { await addSelectedFeeds() }
-                    } label: {
-                        if isAdding {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Text("Ajouter \(selectedFeeds.count) flux")
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(selectedFeeds.isEmpty || isAdding)
+
+                Spacer()
+
+                if isAdding {
+                    ProgressView()
+                        .controlSize(.small)
                 }
+
+                Button("Cancel", role: .cancel) {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button(selectedFeeds.isEmpty ? "Add Feeds" : "Add \(selectedFeeds.count) Feeds") {
+                    Task { await addSelectedFeeds() }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(selectedFeeds.isEmpty || isAdding)
             }
             .padding()
         }
         .frame(width: 500, height: 600)
+        .alert("Some feeds weren’t added", isPresented: Binding(
+            get: { result?.report != nil },
+            set: { if !$0 { result = nil } }
+        ), presenting: result) { result in
+            if result.limitSkipped > 0 {
+                Button("Upgrade to Pro") { showingUpgrade = true }
+            }
+            Button("OK") { finish() }
+        } message: { result in
+            Text(result.report ?? "")
+        }
+        .sheet(isPresented: $showingUpgrade, onDismiss: finish) {
+            UpgradeSheet()
+        }
     }
-    
+
+    private func finish() {
+        onComplete()
+        dismiss()
+    }
+
     private func addSelectedFeeds() async {
         isAdding = true
-        defer { 
-            isAdding = false 
-        }
-        
-        for feedURL in selectedFeeds {
-            do {
-                _ = try await feedService.addFeed(url: feedURL, to: selectedFolder, in: modelContext)
-            } catch {
-                // Continue adding other feeds even if one fails
-                print("Failed to add feed \(feedURL): \(error)")
-            }
-        }
-        
-        await MainActor.run {
-            onComplete()
-            dismiss()
+        defer { isAdding = false }
+
+        let outcome = await feedService.addFeeds(urls: selectedFeeds.sorted(), to: selectedFolder, in: modelContext)
+        if outcome.report == nil {
+            finish()
+        } else {
+            result = outcome
         }
     }
 }

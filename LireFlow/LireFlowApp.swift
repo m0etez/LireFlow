@@ -5,6 +5,7 @@ import SwiftData
 struct LireFlowApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var storeService = StoreService.shared
+    @ObservedObject private var configService = ConfigService.shared
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -67,14 +68,15 @@ struct LireFlowApp: App {
                 }
             }
 
-            CommandGroup(replacing: .appSettings) {
-                Button("Settings...") {
-                    NotificationCenter.default.post(name: .showSettings, object: nil)
-                }
-                .keyboardShortcut(",", modifiers: .command)
-            }
-
             CommandGroup(after: .toolbar) {
+                Picker("Article Layout", selection: $configService.config.articleLayout) {
+                    ForEach(ArticleLayout.allCases, id: \.self) { layout in
+                        Text(LocalizedStringKey(layout.displayName)).tag(layout)
+                    }
+                }
+
+                Divider()
+
                 Button("Refresh All Feeds") {
                     NotificationCenter.default.post(name: .refreshAllFeeds, object: nil)
                 }
@@ -82,42 +84,47 @@ struct LireFlowApp: App {
             }
 
             CommandMenu("Article") {
-                Button("Next Article") {
+                Button("Next Article (J)") {
                     NotificationCenter.default.post(name: .nextArticle, object: nil)
                 }
-                .keyboardShortcut("j", modifiers: [])
 
-                Button("Previous Article") {
+                Button("Previous Article (K)") {
                     NotificationCenter.default.post(name: .previousArticle, object: nil)
                 }
-                .keyboardShortcut("k", modifiers: [])
+
+                Button("Page Down, Then Next Article (Space)") {
+                    NotificationCenter.default.post(name: .pageDown, object: nil)
+                }
 
                 Divider()
 
-                Button("Mark as Read/Unread") {
+                Button("Mark as Read/Unread (M)") {
                     NotificationCenter.default.post(name: .toggleRead, object: nil)
                 }
-                .keyboardShortcut("m", modifiers: [])
 
                 Button("Mark All as Read") {
                     NotificationCenter.default.post(name: .markAllAsRead, object: nil)
                 }
                 .keyboardShortcut("a", modifiers: [.command, .shift])
 
-                Button("Toggle Star") {
+                Button("Toggle Star (S)") {
                     NotificationCenter.default.post(name: .toggleStar, object: nil)
                 }
-                .keyboardShortcut("s", modifiers: [])
 
                 Divider()
 
-                Button("Open in Browser") {
+                Button("Open in Browser (V or O)") {
                     NotificationCenter.default.post(name: .openInBrowser, object: nil)
                 }
-                .keyboardShortcut("v", modifiers: [])
             }
         }
         
+        // Standard Settings window (⌘,)
+        Settings {
+            SettingsView()
+                .modelContainer(sharedModelContainer)
+        }
+
         // Menu Bar Extra
         MenuBarExtra {
             MenuBarView()
@@ -133,6 +140,7 @@ struct LireFlowApp: App {
 extension Notification.Name {
     static let addNewFeed = Notification.Name("addNewFeed")
     static let addNewFolder = Notification.Name("addNewFolder")
+    static let addNewReadingList = Notification.Name("addNewReadingList")
     static let refreshAllFeeds = Notification.Name("refreshAllFeeds")
     static let exportToJSON = Notification.Name("exportToJSON")
     static let exportToOPML = Notification.Name("exportToOPML")
@@ -145,12 +153,45 @@ extension Notification.Name {
     static let markAllAsRead = Notification.Name("markAllAsRead")
     static let toggleStar = Notification.Name("toggleStar")
     static let openInBrowser = Notification.Name("openInBrowser")
+    static let pageDown = Notification.Name("pageDown")
     static let openArticle = Notification.Name("openArticle")
 }
 
 // MARK: - App Delegate
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    private var keyMonitor: Any?
+
+    /// Single-key article shortcuts. These can't be menu key equivalents: the menu would
+    /// swallow those letters while the user types in the search field or a sheet's text field.
+    private static let bareKeyActions: [String: Notification.Name] = [
+        "j": .nextArticle,
+        "k": .previousArticle,
+        "m": .toggleRead,
+        "s": .toggleStar,
+        "v": .openInBrowser,
+        "o": .openInBrowser,
+        " ": .pageDown
+    ]
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+                .subtracting([.capsLock, .numericPad, .function])
+            guard modifiers.isEmpty,
+                  let window = NSApp.keyWindow,
+                  !(window is NSPanel),                                     // menu bar popover
+                  window.sheetParent == nil, window.attachedSheet == nil,  // a sheet is in front
+                  !(window.firstResponder is NSText),                      // typing in a text field
+                  let key = event.charactersIgnoringModifiers?.lowercased(),
+                  let action = Self.bareKeyActions[key] else {
+                return event
+            }
+            NotificationCenter.default.post(name: action, object: nil)
+            return nil
+        }
+    }
+
     func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
         let dockMenu = NSMenu()
 

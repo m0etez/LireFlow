@@ -1,188 +1,107 @@
 import Foundation
+import WebKit
 
-/// Service for extracting full article content from web pages
-final class ArticleExtractor {
+/// Fetches an article page and pulls the story out of it with Mozilla's Readability.js (the
+/// engine behind Firefox Reader View, bundled in Resources), run in an offscreen web view so
+/// the page gets a real HTML5 parser.
+@MainActor
+enum ArticleExtractor {
 
-    /// Maximum HTML content size to process (10MB) - prevents regex DoS attacks
+    /// Maximum HTML size to process (10MB)
     private static let maxHTMLSize = 10 * 1024 * 1024
 
-    /// EZProxy base URL (configure via ConfigService for institutional access)
-    static let ezproxyBaseURL = ""  // Configure this in your config.json if needed
-    
+    /// Readability.js; the self-check points this at the repo copy
+    static var readabilityURL = Bundle.main.url(forResource: "Readability", withExtension: "js")
+
     /// Extract readable content from a web page URL
     static func extractContent(from urlString: String) async throws -> String {
         guard let url = URL(string: urlString) else {
             throw ArticleExtractorError.invalidURL
         }
-        
+
         var request = URLRequest(url: url)
         request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 15_2_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
-        
+
         let (data, response) = try await URLSession.shared.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
             throw ArticleExtractorError.fetchFailed
         }
-        
+
         guard let html = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) else {
             throw ArticleExtractorError.invalidContent
         }
 
-        // Validate content size to prevent regex DoS attacks
         guard html.utf8.count <= maxHTMLSize else {
             throw ArticleExtractorError.contentTooLarge
         }
 
-        return extractMainContent(from: html)
+        // After redirects, relative URLs resolve against the final page
+        return try await extractMainContent(from: html, baseURL: httpResponse.url ?? url)
     }
-    
-    /// Extract content via EZProxy (for paywalled articles)
-    static func extractContentViaProxy(from urlString: String) async throws -> String {
-        // Build EZProxy URL with proper encoding
-        guard let encodedURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              !ezproxyBaseURL.isEmpty,
-              let proxyURL = URL(string: "\(ezproxyBaseURL)\(encodedURL)") else {
-            throw ArticleExtractorError.invalidURL
-        }
-        
-        // Create a URLSession that follows redirects and handles cookies
-        let config = URLSessionConfiguration.default
-        config.httpCookieAcceptPolicy = .always
-        config.httpShouldSetCookies = true
-        let session = URLSession(configuration: config)
-        
-        var request = URLRequest(url: proxyURL)
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 15_2_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ArticleExtractorError.fetchFailed
-        }
-        
-        // Check if we got redirected to login page
-        if httpResponse.url?.absoluteString.contains("login") == true {
-            throw ArticleExtractorError.proxyLoginRequired
-        }
-        
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw ArticleExtractorError.fetchFailed
-        }
-        
-        guard let html = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) else {
-            throw ArticleExtractorError.invalidContent
+
+    /// The story's HTML, with absolute links and image URLs, or "" when Readability finds none
+    static func extractMainContent(from html: String, baseURL: URL) async throws -> String {
+        guard let readabilityURL, let readability = try? String(contentsOf: readabilityURL, encoding: .utf8) else {
+            throw ArticleExtractorError.readerUnavailable
         }
 
-        // Validate content size to prevent regex DoS attacks
-        guard html.utf8.count <= maxHTMLSize else {
-            throw ArticleExtractorError.contentTooLarge
-        }
+        let configuration = WKWebViewConfiguration()
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = false  // page scripts never run
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        let loader = BlankPageLoader()
+        try await loader.load(into: webView)
 
-        return extractMainContent(from: html)
-    }
-    
-    /// Extract main article content from HTML
-    private static func extractMainContent(from html: String) -> String {
-        // Try to find content in common article containers
-        let contentPatterns = [
-            // Main article tags
-            #"<article[^>]*>(.*?)</article>"#,
-            // Common content classes
-            #"<div[^>]*class=\"[^\"]*(?:article-content|article-body|post-content|entry-content|content-body|story-body|article__body|post-body)[^\"]*\"[^>]*>(.*?)</div>"#,
-            // Main content area
-            #"<main[^>]*>(.*?)</main>"#,
-            // Common IDs
-            #"<div[^>]*id=\"(?:content|main-content|article|post)[^\"]*\"[^>]*>(.*?)</div>"#,
-        ]
-        
-        for pattern in contentPatterns {
-            if let content = extractWithPattern(pattern, from: html) {
-                let cleaned = cleanHTML(content)
-                if cleaned.count > 200 { // Only use if substantial content
-                    return cleaned
-                }
-            }
+        // DOMParser documents are inert: no scripts run and no images or styles load
+        let script = readability + """
+
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        if (!doc.querySelector("base[href]")) {
+            const base = doc.createElement("base");
+            base.href = url;  // so Readability resolves relative links and images against the article
+            doc.head.prepend(base);
         }
-        
-        // Fallback: try to get all paragraph content
-        return extractParagraphs(from: html)
+        const article = new Readability(doc).parse();
+        return article ? article.content : "";
+        """
+        let result = try await webView.callAsyncJavaScript(
+            script,
+            arguments: ["html": html, "url": baseURL.absoluteString],
+            in: nil,
+            contentWorld: .defaultClient
+        )
+        return result as? String ?? ""
     }
-    
-    /// Extract content using regex pattern
-    private static func extractWithPattern(_ pattern: String, from html: String) -> String? {
-        do {
-            let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .dotMatchesLineSeparators])
-            if let match = regex.firstMatch(in: html, options: [], range: NSRange(html.startIndex..., in: html)) {
-                if match.numberOfRanges > 1, let range = Range(match.range(at: 1), in: html) {
-                    return String(html[range])
-                } else if let range = Range(match.range, in: html) {
-                    return String(html[range])
-                }
-            }
-        } catch {
-            // Pattern failed, continue to next
+}
+
+/// Loads an empty page and waits for it, so scripts have a document to run in
+@MainActor
+private final class BlankPageLoader: NSObject, WKNavigationDelegate {
+    private var continuation: CheckedContinuation<Void, Error>?
+
+    func load(into webView: WKWebView) async throws {
+        webView.navigationDelegate = self
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            webView.loadHTMLString("<!DOCTYPE html><html><head></head><body></body></html>", baseURL: nil)
         }
-        return nil
+        webView.navigationDelegate = nil
     }
-    
-    /// Extract all paragraphs from HTML
-    private static func extractParagraphs(from html: String) -> String {
-        var paragraphs: [String] = []
-        
-        let pattern = #"<p[^>]*>(.*?)</p>"#
-        do {
-            let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .dotMatchesLineSeparators])
-            let matches = regex.matches(in: html, options: [], range: NSRange(html.startIndex..., in: html))
-            
-            for match in matches {
-                if match.numberOfRanges > 1, let range = Range(match.range(at: 1), in: html) {
-                    let text = String(html[range])
-                    let cleaned = stripTags(text).trimmingCharacters(in: .whitespacesAndNewlines)
-                    // Only include paragraphs with substantial text
-                    if cleaned.count > 50 {
-                        paragraphs.append("<p>\(text)</p>")
-                    }
-                }
-            }
-        } catch {
-            // Failed to extract paragraphs
-        }
-        
-        return paragraphs.joined(separator: "\n")
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        continuation?.resume()
+        continuation = nil
     }
-    
-    /// Clean HTML content - remove scripts, styles, etc.
-    private static func cleanHTML(_ html: String) -> String {
-        var result = html
-        
-        // Remove scripts
-        result = result.replacingOccurrences(of: #"<script[^>]*>.*?</script>"#, with: "", options: [.regularExpression, .caseInsensitive])
-        
-        // Remove styles
-        result = result.replacingOccurrences(of: #"<style[^>]*>.*?</style>"#, with: "", options: [.regularExpression, .caseInsensitive])
-        
-        // Remove comments
-        result = result.replacingOccurrences(of: #"<!--.*?-->"#, with: "", options: [.regularExpression])
-        
-        // Remove navigation, header, footer, aside
-        let tagsToRemove = ["nav", "header", "footer", "aside", "form", "noscript"]
-        for tag in tagsToRemove {
-            result = result.replacingOccurrences(of: #"<\#(tag)[^>]*>.*?</\#(tag)>"#, with: "", options: [.regularExpression, .caseInsensitive])
-        }
-        
-        // Remove common ad/social divs
-        result = result.replacingOccurrences(of: #"<div[^>]*class=\"[^\"]*(?:ad-|advertisement|social-share|share-buttons|related-posts|sidebar)[^\"]*\"[^>]*>.*?</div>"#, with: "", options: [.regularExpression, .caseInsensitive])
-        
-        // Clean up whitespace
-        result = result.replacingOccurrences(of: #"\n\s*\n"#, with: "\n", options: .regularExpression)
-        
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        continuation?.resume(throwing: error)
+        continuation = nil
     }
-    
-    /// Strip all HTML tags
-    private static func stripTags(_ html: String) -> String {
-        html.replacingOccurrences(of: #"<[^>]+>"#, with: "", options: .regularExpression)
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        continuation?.resume(throwing: error)
+        continuation = nil
     }
 }
 
@@ -193,20 +112,20 @@ enum ArticleExtractorError: LocalizedError {
     case fetchFailed
     case invalidContent
     case contentTooLarge
-    case proxyLoginRequired
+    case readerUnavailable
 
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Invalid article URL"
+            return String(localized: "Invalid article URL")
         case .fetchFailed:
-            return "Failed to fetch the article"
+            return String(localized: "Couldn’t load the article page.")
         case .invalidContent:
-            return "Could not read the article content"
+            return String(localized: "Couldn’t read the article page.")
         case .contentTooLarge:
-            return "Article content is too large to process (exceeds 10MB)"
-        case .proxyLoginRequired:
-            return "Please log in to the university proxy first (click Paris-Saclay Library button)"
+            return String(localized: "The article page is too large to process.")
+        case .readerUnavailable:
+            return String(localized: "The article reader is missing from the app. Reinstall LireFlow.")
         }
     }
 }

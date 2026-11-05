@@ -24,13 +24,9 @@ struct UpgradeSheet: View {
             
             // Header
             VStack(spacing: 16) {
-                Image(systemName: "star.circle.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.linearGradient(
-                        colors: [.yellow, .orange],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 72, height: 72)
                 
                 Text("Unlock Pro")
                     .font(.largeTitle)
@@ -85,7 +81,6 @@ struct UpgradeSheet: View {
                     .padding(.vertical, 14)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.orange)
                 .disabled(storeService.purchaseState == .purchasing || storeService.isLoading || storeService.isPro)
                 
                 Text("One-time purchase • No subscription")
@@ -127,14 +122,14 @@ struct UpgradeSheet: View {
                 break
             }
         }
-        .alert("Bienvenue dans Pro !", isPresented: $showingSuccess) {
-            Button("Génial !") {
+        .alert("Welcome to Pro!", isPresented: $showingSuccess) {
+            Button("Done") {
                 dismiss()
             }
         } message: {
-            Text("Merci pour votre achat ! Toutes les fonctionnalités Pro sont débloquées.")
+            Text("Thanks for your support. Unlimited feeds, reading lists and premium themes are unlocked.")
         }
-        .alert("Échec de l'achat", isPresented: $showingError) {
+        .alert("Purchase failed", isPresented: $showingError) {
             Button("OK") {
                 storeService.resetPurchaseState()
             }
@@ -142,7 +137,7 @@ struct UpgradeSheet: View {
             if case .failed(let message) = storeService.purchaseState {
                 Text(message)
             } else {
-                Text("Une erreur est survenue. Veuillez réessayer.")
+                Text("Something went wrong. Please try again.")
             }
         }
     }
@@ -153,7 +148,7 @@ struct UpgradeSheet: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(.orange)
+                .foregroundStyle(.tint)
                 .frame(width: 32)
             
             VStack(alignment: .leading, spacing: 2) {
